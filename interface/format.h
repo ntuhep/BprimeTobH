@@ -179,6 +179,39 @@ class JetInfoBranches {
   float PhiD1[MAX_JETS];
   float PhiD2[MAX_JETS];
 
+  float Subjet1_JetBProbBJetTags[MAX_JETS];
+  float Subjet1_JetProbBJetTags[MAX_JETS];
+  float Subjet1_TrackCountHiPurBJetTags[MAX_JETS];  
+  float Subjet1_TrackCountHiEffBJetTags[MAX_JETS]; 
+  float Subjet1_SimpleSVBJetTags[MAX_JETS];  
+  float Subjet1_SimpleSVHEBJetTags[MAX_JETS];  
+  float Subjet1_SimpleSVHPBJetTags[MAX_JETS];  
+  float Subjet1_CombinedSVBJetTags[MAX_JETS];
+  float Subjet1_CombinedSVMVABJetTags[MAX_JETS];
+  float Subjet1_SoftElecByIP3dBJetTags[MAX_JETS];
+  float Subjet1_SoftElecByPtBJetTags[MAX_JETS];  
+  float Subjet1_SoftMuonBJetTags[MAX_JETS];      
+  float Subjet1_SoftMuonByIP3dBJetTags[MAX_JETS];
+  float Subjet1_SoftMuonByPtBJetTags[MAX_JETS];  
+  float Subjet1_DoubleSVHighEffBJetTags[MAX_JETS]; 
+
+  float Subjet2_JetBProbBJetTags[MAX_JETS];
+  float Subjet2_JetProbBJetTags[MAX_JETS];
+  float Subjet2_TrackCountHiPurBJetTags[MAX_JETS];  
+  float Subjet2_TrackCountHiEffBJetTags[MAX_JETS]; 
+  float Subjet2_SimpleSVBJetTags[MAX_JETS];    
+  float Subjet2_SimpleSVHEBJetTags[MAX_JETS];  
+  float Subjet2_SimpleSVHPBJetTags[MAX_JETS];  
+  float Subjet2_CombinedSVBJetTags[MAX_JETS];
+  float Subjet2_CombinedSVMVABJetTags[MAX_JETS];
+  float Subjet2_SoftElecByIP3dBJetTags[MAX_JETS];
+  float Subjet2_SoftElecByPtBJetTags[MAX_JETS];  
+  float Subjet2_SoftMuonBJetTags[MAX_JETS];      
+  float Subjet2_SoftMuonByIP3dBJetTags[MAX_JETS];
+  float Subjet2_SoftMuonByPtBJetTags[MAX_JETS];  
+  float Subjet2_DoubleSVHighEffBJetTags[MAX_JETS]; 
+
+
   void RegisterTree(TTree *root, std::string name="JetInfo") {
     root->Branch((name+".Size").c_str(), &Size, (name+".Size/I").c_str() );
     root->Branch((name+".Index").c_str(), &Index[0], 
@@ -223,7 +256,64 @@ class JetInfoBranches {
     root->Branch((name+".SoftMuonByPtBJetTags").c_str()    , &SoftMuonByPtBJetTags[0]    , (name+".SoftMuonByPtBJetTags["+name+".Size]/F").c_str()	);	
     root->Branch((name+".DoubleSVHighEffBJetTags").c_str() , &DoubleSVHighEffBJetTags[0] , (name+".DoubleSVHighEffBJetTags["+name+".Size]/F").c_str()); 
 
+			root->Branch((name+".Subjet1_JetBProbBJetTags").c_str()        , &Subjet1_JetBProbBJetTags[0]	     , (name+".Subjet1_JetBProbBJetTags["+name+".Size]/F").c_str()	);
+			root->Branch((name+".Subjet1_JetProbBJetTags").c_str()	       , &Subjet1_JetProbBJetTags[0]	     , (name+".Subjet1_JetProbBJetTags["+name+".Size]/F").c_str()	);
+			root->Branch((name+".Subjet1_TrackCountHiPurBJetTags").c_str() , &Subjet1_TrackCountHiPurBJetTags[0] , (name+".Subjet1_TrackCountHiPurBJetTags["+name+".Size]/F").c_str());	    
+			root->Branch((name+".Subjet1_TrackCountHiEffBJetTags").c_str() , &Subjet1_TrackCountHiEffBJetTags[0] , (name+".Subjet1_TrackCountHiEffBJetTags["+name+".Size]/F").c_str());
+			root->Branch((name+".Subjet1_SimpleSVBJetTags").c_str()        , &Subjet1_SimpleSVBJetTags[0]	     , (name+".Subjet1_SimpleSVBJetTags["+name+".Size]/F").c_str()	); 
+			root->Branch((name+".Subjet1_SimpleSVHEBJetTags").c_str()      , &Subjet1_SimpleSVHEBJetTags[0]	     , (name+".Subjet1_SimpleSVHEBJetTags["+name+".Size]/F").c_str()	); 
+			root->Branch((name+".Subjet1_SimpleSVHPBJetTags").c_str()      , &Subjet1_SimpleSVHPBJetTags[0]	     , (name+".Subjet1_SimpleSVHPBJetTags["+name+".Size]/F").c_str()	); 
+			root->Branch((name+".Subjet1_CombinedSVBJetTags").c_str()      , &Subjet1_CombinedSVBJetTags[0]      , (name+".Subjet1_CombinedSVBJetTags["+name+".Size]/F").c_str()	);
+			root->Branch((name+".Subjet1_CombinedSVMVABJetTags").c_str()   , &Subjet1_CombinedSVMVABJetTags[0]   , (name+".Subjet1_CombinedSVMVABJetTags["+name+".Size]/F").c_str()  );
+			root->Branch((name+".Subjet1_SoftElecByIP3dBJetTags").c_str()  , &Subjet1_SoftElecByIP3dBJetTags[0]  , (name+".Subjet1_SoftElecByIP3dBJetTags["+name+".Size]/F").c_str()	);
+			root->Branch((name+".Subjet1_SoftElecByPtBJetTags").c_str()    , &Subjet1_SoftElecByPtBJetTags[0]    , (name+".Subjet1_SoftElecByPtBJetTags["+name+".Size]/F").c_str()	);
+			root->Branch((name+".Subjet1_SoftMuonBJetTags").c_str()        , &Subjet1_SoftMuonBJetTags[0]	     , (name+".Subjet1_SoftMuonBJetTags["+name+".Size]/F").c_str()	);
+			root->Branch((name+".Subjet1_SoftMuonByIP3dBJetTags").c_str()  , &Subjet1_SoftMuonByIP3dBJetTags[0]  , (name+".Subjet1_SoftMuonByIP3dBJetTags["+name+".Size]/F").c_str()	);	
+			root->Branch((name+".Subjet1_SoftMuonByPtBJetTags").c_str()    , &Subjet1_SoftMuonByPtBJetTags[0]    , (name+".Subjet1_SoftMuonByPtBJetTags["+name+".Size]/F").c_str()	);	
+			root->Branch((name+".Subjet1_DoubleSVHighEffBJetTags").c_str() , &Subjet1_DoubleSVHighEffBJetTags[0] , (name+".Subjet1_DoubleSVHighEffBJetTags["+name+".Size]/F").c_str()); 
 
+			root->Branch((name+".Subjet2_JetBProbBJetTags").c_str()        , &Subjet2_JetBProbBJetTags[0]	     , (name+".Subjet2_JetBProbBJetTags["+name+".Size]/F").c_str()	);
+			root->Branch((name+".Subjet2_JetProbBJetTags").c_str()	       , &Subjet2_JetProbBJetTags[0]	     , (name+".Subjet2_JetProbBJetTags["+name+".Size]/F").c_str()	);
+			root->Branch((name+".Subjet2_TrackCountHiPurBJetTags").c_str() , &Subjet2_TrackCountHiPurBJetTags[0] , (name+".Subjet2_TrackCountHiPurBJetTags["+name+".Size]/F").c_str());	    
+			root->Branch((name+".Subjet2_TrackCountHiEffBJetTags").c_str() , &Subjet2_TrackCountHiEffBJetTags[0] , (name+".Subjet2_TrackCountHiEffBJetTags["+name+".Size]/F").c_str());
+			root->Branch((name+".Subjet2_SimpleSVBJetTags").c_str()        , &Subjet2_SimpleSVBJetTags[0]	     , (name+".Subjet2_SimpleSVBJetTags["+name+".Size]/F").c_str()	); 
+			root->Branch((name+".Subjet2_SimpleSVHEBJetTags").c_str()      , &Subjet2_SimpleSVHEBJetTags[0]	     , (name+".Subjet2_SimpleSVHEBJetTags["+name+".Size]/F").c_str()	); 
+			root->Branch((name+".Subjet2_SimpleSVHPBJetTags").c_str()      , &Subjet2_SimpleSVHPBJetTags[0]	     , (name+".Subjet2_SimpleSVHPBJetTags["+name+".Size]/F").c_str()	); 
+			root->Branch((name+".Subjet2_CombinedSVBJetTags").c_str()      , &Subjet2_CombinedSVBJetTags[0]      , (name+".Subjet2_CombinedSVBJetTags["+name+".Size]/F").c_str()	);
+			root->Branch((name+".Subjet2_CombinedSVMVABJetTags").c_str()   , &Subjet2_CombinedSVMVABJetTags[0]   , (name+".Subjet2_CombinedSVMVABJetTags["+name+".Size]/F").c_str()  );
+			root->Branch((name+".Subjet2_SoftElecByIP3dBJetTags").c_str()  , &Subjet2_SoftElecByIP3dBJetTags[0]  , (name+".Subjet2_SoftElecByIP3dBJetTags["+name+".Size]/F").c_str()	);
+			root->Branch((name+".Subjet2_SoftElecByPtBJetTags").c_str()    , &Subjet2_SoftElecByPtBJetTags[0]    , (name+".Subjet2_SoftElecByPtBJetTags["+name+".Size]/F").c_str()	);
+			root->Branch((name+".Subjet2_SoftMuonBJetTags").c_str()        , &Subjet2_SoftMuonBJetTags[0]	     , (name+".Subjet2_SoftMuonBJetTags["+name+".Size]/F").c_str()	);
+			root->Branch((name+".Subjet2_SoftMuonByIP3dBJetTags").c_str()  , &Subjet2_SoftMuonByIP3dBJetTags[0]  , (name+".Subjet2_SoftMuonByIP3dBJetTags["+name+".Size]/F").c_str()	);	
+			root->Branch((name+".Subjet2_SoftMuonByPtBJetTags").c_str()    , &Subjet2_SoftMuonByPtBJetTags[0]    , (name+".Subjet2_SoftMuonByPtBJetTags["+name+".Size]/F").c_str()	);	
+			root->Branch((name+".Subjet2_DoubleSVHighEffBJetTags").c_str() , &Subjet2_DoubleSVHighEffBJetTags[0] , (name+".Subjet2_DoubleSVHighEffBJetTags["+name+".Size]/F").c_str()); 
+
+			root->Branch((name+".GenJetPt").c_str() 	       , &GenJetPt[0]		     , (name+".GenJetPt["+name+".Size]/F").c_str()		);
+			root->Branch((name+".GenJetEta").c_str()	       , &GenJetEta[0]  	     , (name+".GenJetEta["+name+".Size]/F").c_str()		);
+			root->Branch((name+".GenJetPhi").c_str()	       , &GenJetPhi[0]  	     , (name+".GenJetPhi["+name+".Size]/F").c_str()		);
+			root->Branch((name+".GenPt").c_str()		       , &GenPt[0]		     , (name+".GenPt["+name+".Size]/F").c_str()  		);
+			root->Branch((name+".GenEta").c_str()		       , &GenEta[0]		     , (name+".GenEta["+name+".Size]/F").c_str() 		);
+			root->Branch((name+".GenPhi").c_str()		       , &GenPhi[0]		     , (name+".GenPhi["+name+".Size]/F").c_str() 		);
+			root->Branch((name+".GenPdgID").c_str() 	       , &GenPdgID[0]		     , (name+".GenPdgID["+name+".Size]/I").c_str()		);
+			root->Branch((name+".GenFlavor").c_str()	       , &GenFlavor[0]  	     , (name+".GenFlavor["+name+".Size]/I").c_str()		);
+			root->Branch((name+".GenMCTag").c_str()	       	       , &GenMCTag[0]  	             , (name+".GenMCTag["+name+".Size]/I").c_str()		);
+
+			root->Branch((name+".Px").c_str()		       , &Px[0] 		     , (name+".Px["+name+".Size]/F").c_str()			); //Uly 2011-04-04
+			root->Branch((name+".Py").c_str()		       , &Py[0] 		     , (name+".Py["+name+".Size]/F").c_str()			); //Uly 2011-04-04
+			root->Branch((name+".Pz").c_str()		       , &Pz[0] 		     , (name+".Pz["+name+".Size]/F").c_str()			); //Uly 2011-04-04
+			root->Branch((name+".Energy").c_str()	       , &Energy[0] 		     , (name+".Energy["+name+".Size]/F").c_str()			); //Uly 2011-04-04
+			root->Branch((name+".Mass").c_str()	       , &Mass[0] 		     , (name+".Mass["+name+".Size]/F").c_str()			); 
+			root->Branch((name+".Area").c_str()	       , &Area[0] 		     , (name+".Area["+name+".Size]/F").c_str()			); 
+			root->Branch((name+".MassD1").c_str()	     , &MassD1[0] 		   , (name+".MassD1["+name+".Size]/F").c_str()		); 
+			root->Branch((name+".MassD2").c_str()	     , &MassD2[0] 		   , (name+".MassD2["+name+".Size]/F").c_str()		); 
+			root->Branch((name+".PtD1").c_str()	     , &PtD1[0] 		   , (name+".PtD1["+name+".Size]/F").c_str()		); 
+			root->Branch((name+".PtD2").c_str()	     , &PtD2[0] 		   , (name+".PtD2["+name+".Size]/F").c_str()		); 
+			root->Branch((name+".EtD1").c_str()	     , &EtD1[0] 		   , (name+".EtD1["+name+".Size]/F").c_str()		); 
+			root->Branch((name+".EtD2").c_str()	     , &EtD2[0] 		   , (name+".EtD2["+name+".Size]/F").c_str()		); 
+			root->Branch((name+".EtaD1").c_str()	     , &EtaD1[0] 		   , (name+".EtaD1["+name+".Size]/F").c_str()		); 
+			root->Branch((name+".EtaD2").c_str()	     , &EtaD2[0] 		   , (name+".EtaD2["+name+".Size]/F").c_str()		); 
+			root->Branch((name+".PhiD1").c_str()	     , &PhiD1[0] 		   , (name+".PhiD1["+name+".Size]/F").c_str()		); 
+			root->Branch((name+".PhiD2").c_str()	     , &PhiD2[0] 		   , (name+".PhiD2["+name+".Size]/F").c_str()		); 
 
   }
   
@@ -269,6 +359,67 @@ class JetInfoBranches {
 			root->SetBranchAddress((name+".SoftMuonByIP3dBJetTags").c_str()  , &SoftMuonByIP3dBJetTags[0]  );
 			root->SetBranchAddress((name+".SoftMuonByPtBJetTags").c_str()    , &SoftMuonByPtBJetTags[0]    ); 
 			root->SetBranchAddress((name+".DoubleSVHighEffBJetTags").c_str() , &DoubleSVHighEffBJetTags[0] ); 
+
+			root->SetBranchAddress((name+"._Subjet1_JetBProbBJetTags").c_str()	 , &Subjet1_JetBProbBJetTags[0]        );
+			root->SetBranchAddress((name+"._Subjet1_JetProbBJetTags").c_str()	 , &Subjet1_JetProbBJetTags[0]         );
+			root->SetBranchAddress((name+"._Subjet1_TrackCountHiPurBJetTags").c_str(), &Subjet1_TrackCountHiPurBJetTags[0] );	   
+			root->SetBranchAddress((name+"._Subjet1_TrackCountHiEffBJetTags").c_str(), &Subjet1_TrackCountHiEffBJetTags[0] );
+			root->SetBranchAddress((name+"._Subjet1_SimpleSVBJetTags").c_str()	 , &Subjet1_SimpleSVBJetTags[0]        ); 
+			root->SetBranchAddress((name+"._Subjet1_SimpleSVHEBJetTags").c_str()	 , &Subjet1_SimpleSVHEBJetTags[0]      ); 
+			root->SetBranchAddress((name+"._Subjet1_SimpleSVHPBJetTags").c_str()	 , &Subjet1_SimpleSVHPBJetTags[0]      ); 
+			root->SetBranchAddress((name+"._Subjet1_CombinedSVBJetTags").c_str()	 , &Subjet1_CombinedSVBJetTags[0]      );
+			root->SetBranchAddress((name+"._Subjet1_CombinedSVMVABJetTags").c_str()  , &Subjet1_CombinedSVMVABJetTags[0]   );
+			root->SetBranchAddress((name+"._Subjet1_SoftElecByIP3dBJetTags").c_str() , &Subjet1_SoftElecByIP3dBJetTags[0]  );
+			root->SetBranchAddress((name+"._Subjet1_SoftElecByPtBJetTags").c_str()   , &Subjet1_SoftElecByPtBJetTags[0]    );
+			root->SetBranchAddress((name+"._Subjet1_SoftMuonBJetTags").c_str()       , &Subjet1_SoftMuonBJetTags[0]	       );
+			root->SetBranchAddress((name+"._Subjet1_SoftMuonByIP3dBJetTags").c_str() , &Subjet1_SoftMuonByIP3dBJetTags[0]  );
+			root->SetBranchAddress((name+"._Subjet1_SoftMuonByPtBJetTags").c_str()   , &Subjet1_SoftMuonByPtBJetTags[0]    ); 
+			root->SetBranchAddress((name+"._Subjet1_DoubleSVHighEffBJetTags").c_str(), &Subjet1_DoubleSVHighEffBJetTags[0] ); 
+
+			root->SetBranchAddress((name+"._Subjet2_JetBProbBJetTags").c_str()	 , &Subjet2_JetBProbBJetTags[0]        );
+			root->SetBranchAddress((name+"._Subjet2_JetProbBJetTags").c_str()	 , &Subjet2_JetProbBJetTags[0]         );
+			root->SetBranchAddress((name+"._Subjet2_TrackCountHiPurBJetTags").c_str(), &Subjet2_TrackCountHiPurBJetTags[0] );	   
+			root->SetBranchAddress((name+"._Subjet2_TrackCountHiEffBJetTags").c_str(), &Subjet2_TrackCountHiEffBJetTags[0] );
+			root->SetBranchAddress((name+"._Subjet2_SimpleSVBJetTags").c_str()	 , &Subjet2_SimpleSVBJetTags[0]        ); 
+			root->SetBranchAddress((name+"._Subjet2_SimpleSVHEBJetTags").c_str()	 , &Subjet2_SimpleSVHEBJetTags[0]      ); 
+			root->SetBranchAddress((name+"._Subjet2_SimpleSVHPBJetTags").c_str()	 , &Subjet2_SimpleSVHPBJetTags[0]      ); 
+			root->SetBranchAddress((name+"._Subjet2_CombinedSVBJetTags").c_str()	 , &Subjet2_CombinedSVBJetTags[0]      );
+			root->SetBranchAddress((name+"._Subjet2_CombinedSVMVABJetTags").c_str()  , &Subjet2_CombinedSVMVABJetTags[0]   );
+			root->SetBranchAddress((name+"._Subjet2_SoftElecByIP3dBJetTags").c_str() , &Subjet2_SoftElecByIP3dBJetTags[0]  );
+			root->SetBranchAddress((name+"._Subjet2_SoftElecByPtBJetTags").c_str()   , &Subjet2_SoftElecByPtBJetTags[0]    );
+			root->SetBranchAddress((name+"._Subjet2_SoftMuonBJetTags").c_str()       , &Subjet2_SoftMuonBJetTags[0]	       );
+			root->SetBranchAddress((name+"._Subjet2_SoftMuonByIP3dBJetTags").c_str() , &Subjet2_SoftMuonByIP3dBJetTags[0]  );
+			root->SetBranchAddress((name+"._Subjet2_SoftMuonByPtBJetTags").c_str()   , &Subjet2_SoftMuonByPtBJetTags[0]    ); 
+			root->SetBranchAddress((name+"._Subjet2_DoubleSVHighEffBJetTags").c_str(), &Subjet2_DoubleSVHighEffBJetTags[0] ); 
+
+			root->SetBranchAddress((name+".GenJetPt").c_str()		 , &GenJetPt[0] 	       );
+			root->SetBranchAddress((name+".GenJetPt").c_str()		 , &GenJetPt[0] 	       );
+			root->SetBranchAddress((name+".GenJetEta").c_str()		 , &GenJetEta[0]	       );
+			root->SetBranchAddress((name+".GenJetPhi").c_str()		 , &GenJetPhi[0]	       );
+			root->SetBranchAddress((name+".GenPt").c_str()  		 , &GenPt[0]		       );
+			root->SetBranchAddress((name+".GenEta").c_str() 		 , &GenEta[0]		       );
+			root->SetBranchAddress((name+".GenPhi").c_str() 		 , &GenPhi[0]		       );
+			root->SetBranchAddress((name+".GenPdgID").c_str()		 , &GenPdgID[0] 	       );
+			root->SetBranchAddress((name+".GenFlavor").c_str()		 , &GenFlavor[0]	       );
+			root->SetBranchAddress((name+".GenMCTag").c_str()		 , &GenMCTag[0] 	       );
+
+			root->SetBranchAddress((name+".Px").c_str()			 , &Px[0]		       ); //Uly 2011-04-04
+			root->SetBranchAddress((name+".Py").c_str()			 , &Py[0]		       ); //Uly 2011-04-04
+			root->SetBranchAddress((name+".Pz").c_str()			 , &Pz[0]		       ); //Uly 2011-04-04
+			root->SetBranchAddress((name+".Energy").c_str()		 , &Energy[0]		       ); //Uly 2011-04-04
+
+			root->SetBranchAddress((name+".Mass").c_str()		 , &Mass[0]		       );
+			root->SetBranchAddress((name+".Area").c_str()		 , &Area[0]		       );
+			root->SetBranchAddress((name+".MassD1").c_str()		 , &MassD1[0]		       );
+			root->SetBranchAddress((name+".MassD2").c_str()		 , &MassD2[0]		       );
+			root->SetBranchAddress((name+".PtD1").c_str()		 , &PtD1[0]		       );
+			root->SetBranchAddress((name+".PtD2").c_str()		 , &PtD2[0]		       );
+			root->SetBranchAddress((name+".EtD1").c_str()		 , &EtD1[0]		       );
+			root->SetBranchAddress((name+".EtD2").c_str()		 , &EtD2[0]		       );
+			root->SetBranchAddress((name+".EtaD1").c_str()		 , &EtaD1[0]		       );
+			root->SetBranchAddress((name+".EtaD2").c_str()		 , &EtaD2[0]		       );
+			root->SetBranchAddress((name+".PhiD1").c_str()		 , &PhiD1[0]		       );
+			root->SetBranchAddress((name+".PhiD2").c_str()		 , &PhiD2[0]		       );
 
   }
 
