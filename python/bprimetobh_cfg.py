@@ -22,7 +22,18 @@ process.source = cms.Source(
 
 process.ntuple = cms.EDAnalyzer(
     'BprimeTobH',
-    BeamSpotLabel = cms.InputTag('offlineBeamSpot')
+    BeamSpotLabel = cms.InputTag('offlineBeamSpot'), 
+    VertexLabel = cms.InputTag('offlinePrimaryVertices'),
+    VertexBSLabel = cms.InputTag('offlinePrimaryVerticesWithBS'), 
+    muonlabel = cms.VInputTag('selectedPatMuonsPFlowLoose','selectedPatMuons'),
+    electronlabel = cms.VInputTag('selectedPatElectronsPFlowLoose', 
+                              'selectedPatElectrons'),
+    jetlabel = cms.VInputTag('selectedPatJets'+postfix,'goodPatJetsCA8PrunedPF'),
+    
+    LepCollections = cms.vstring('PFLepInfo', 'LepInfo'),
+    JetCollections = cms.vstring('PFJetInfo', 'WJetInfo'),
+    #JetType = cms.vint32(0,2), # 0: pfjet, 1: calojet, 2: fatjet
+    JetTypes = cms.vstring('pfjet', 'fatjet'),
 )
 
 
