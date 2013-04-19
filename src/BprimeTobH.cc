@@ -25,6 +25,7 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 
+#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
@@ -43,6 +44,12 @@
 #include "DataFormats/PatCandidates/interface/Muon.h"
 #include "DataFormats/PatCandidates/interface/Electron.h"
 #include "DataFormats/PatCandidates/interface/Jet.h"
+
+// For JEC
+#include "CondFormats/JetMETObjects/interface/FactorizedJetCorrector.h"
+#include "CondFormats/JetMETObjects/interface/JetCorrectorParameters.h"
+#include "CondFormats/JetMETObjects/interface/JetCorrectionUncertainty.h"
+#include "JetMETCorrections/Objects/interface/JetCorrectionsRecord.h"
 
 
 using namespace std;
@@ -77,13 +84,14 @@ private:
   bool hasPrimaryVertexBS(const edm::Event &); 
   bool hasMuons(const edm::Event &); 
   bool hasElectrons(const edm::Event &); 
-  bool hasJets(const edm::Event &); 
+  bool hasJets(const edm::Event &, const edm::EventSetup&); 
 
   
   // ----------member data ---------------------------
   TTree* tree_;  
   edm::InputTag BeamSpotLabel_;
   edm::InputTag VertexLabel_;
+  edm::InputTag VertexBSLabel_;
   vector<edm::InputTag> muonlabel_;
   vector<edm::InputTag> electronlabel_;
   vector<edm::InputTag> jetlabel_;
@@ -100,6 +108,7 @@ private:
   
   vector<std::string> lepcollections_;
   vector<std::string> jetcollections_;
+  vector<std::string> jettypes_;
 
 };
 
@@ -118,10 +127,13 @@ BprimeTobH::BprimeTobH(const edm::ParameterSet& iConfig):
   tree_(0), 
   BeamSpotLabel_(iConfig.getParameter<edm::InputTag>("BeamSpotLabel")),
   VertexLabel_(iConfig.getParameter<edm::InputTag>("VertexLabel")), 
+  VertexBSLabel_(iConfig.getParameter<edm::InputTag>("VertexBSLabel")), 
   muonlabel_(iConfig.getParameter<vector<edm::InputTag> >("muonlabel")), 
   electronlabel_(iConfig.getParameter<vector<edm::InputTag> >("electronlabel")),  
   jetlabel_(iConfig.getParameter<vector<edm::InputTag> >("jetlabel")),  
-  lepcollections_(iConfig.getParameter<std::vector<std::string> >("LepCollections"))
+  lepcollections_(iConfig.getParameter<std::vector<std::string> >("LepCollections")),
+  jetcollections_(iConfig.getParameter<std::vector<std::string> >("JetCollections")),
+  jettypes_(iConfig.getParameter<std::vector<std::string> >("JetTypes"))
 {
   edm::Service<TFileService> fs;
   TFileDirectory results = TFileDirectory( fs->mkdir("results") );
@@ -159,7 +171,7 @@ BprimeTobH::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
     hasMuons(iEvent); 
     hasElectrons(iEvent); 
-    hasJets(iEvent); 
+    hasJets(iEvent, iSetup); 
       
     tree_->Fill();
   }
@@ -184,6 +196,10 @@ BprimeTobH::beginJob()
     LepInfo[i].RegisterTree(tree_,lepcollections_[i]);
   }
 
+  for(unsigned i=0; i<jetcollections_.size(); i++) {
+    if(i >= MAX_JETCOLLECTIONS) break;
+    JetInfo[i].RegisterTree(tree_,jetcollections_[i]);
+  }
 }
 
 // ------------ method called once each job just after ending the event loop  ------------
@@ -318,6 +334,8 @@ BprimeTobH::hasPrimaryVertexBS(const edm::Event& iEvent)
   edm::Handle<reco::VertexCollection>  VertexHandleBS; 
   double PVBS_Pt_Max = -100.;
 
+  iEvent.getByLabel(VertexBSLabel_, VertexHandleBS);
+
   if( ! VertexHandleBS.isValid() or VertexHandleBS.failedToGet() 
       or VertexHandleBS->size() <= 0 )
     return false;
@@ -429,7 +447,7 @@ BprimeTobH::hasElectrons(const edm::Event& iEvent)
 }
 
 bool
-BprimeTobH::hasJets(const edm::Event& iEvent)
+BprimeTobH::hasJets(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
   vector<edm::Handle<vector<pat::Jet> > > JetHandle;
   for(unsigned il=0; il<jetlabel_.size(); il++) {
@@ -443,6 +461,13 @@ BprimeTobH::hasJets(const edm::Event& iEvent)
     
     memset(&JetInfo[icoll],0x00,sizeof(JetInfo[icoll]));
     
+    // For Jet Uncertainty
+
+    // edm::ESHandle<JetCorrectorParametersCollection> JetCorParColl;
+    // iSetup.get<JetCorrectionsRecord>().get("AK5PF", JetCorParColl); //?? Hardcode ??
+    // JetCorrectorParameters const & JetCorPar = (*JetCorParColl)["Uncertainty"];
+    // JetCorrectionUncertainty *jecUnc = new JetCorrectionUncertainty(JetCorPar);
+    
     if (JetHandle.size() <= icoll) continue;  
 
     for( vector<pat::Jet>::const_iterator it_jet = JetHandle[icoll]->begin(); 
@@ -451,6 +476,39 @@ BprimeTobH::hasJets(const edm::Event& iEvent)
       JetInfo[icoll].Index[JetInfo[icoll].Size] = JetInfo[icoll].Size;
       JetInfo[icoll].NTracks     [JetInfo[icoll].Size] = it_jet->associatedTracks().size();
 
+      JetInfo[icoll].Eta         [JetInfo[icoll].Size] = it_jet->eta();
+
+      JetInfo[icoll].Pt          [JetInfo[icoll].Size] = it_jet->pt();
+      JetInfo[icoll].Et          [JetInfo[icoll].Size] = it_jet->et();
+
+
+      // jecUnc->setJetEta(it_jet->eta());
+      // jecUnc->setJetPt(it_jet->pt()); // here you must use the CORRECTED jet pt
+      // if(fabs(it_jet->eta())<=5.0) JetInfo[icoll].Unc         [JetInfo[icoll].Size] = jecUnc->getUncertainty(true);
+
+      JetInfo[icoll].Phi         [JetInfo[icoll].Size] = it_jet->phi();
+      JetInfo[icoll].JetCharge   [JetInfo[icoll].Size] = it_jet->jetCharge();
+      JetInfo[icoll].NConstituents[JetInfo[icoll].Size] = it_jet->numberOfDaughters();
+      JetInfo[icoll].Px          [JetInfo[icoll].Size] = it_jet->px(); //Uly 2011-04-04
+      JetInfo[icoll].Py          [JetInfo[icoll].Size] = it_jet->py(); //Uly 2011-04-04
+      JetInfo[icoll].Pz          [JetInfo[icoll].Size] = it_jet->pz(); //Uly 2011-04-04
+      JetInfo[icoll].Energy      [JetInfo[icoll].Size] = it_jet->energy(); //Uly 2011-04-04
+
+      JetInfo[icoll].Mass        [JetInfo[icoll].Size] = it_jet->mass();
+      JetInfo[icoll].Area        [JetInfo[icoll].Size] = it_jet->jetArea();
+ 
+      if (jettypes_[icoll] == "fatjet")  {
+       JetInfo[icoll].MassD1     [JetInfo[icoll].Size] = it_jet->daughter(0)->mass();
+       JetInfo[icoll].MassD2     [JetInfo[icoll].Size] = it_jet->daughter(1)->mass();
+       JetInfo[icoll].PtD1       [JetInfo[icoll].Size] = it_jet->daughter(0)->pt();
+       JetInfo[icoll].PtD2       [JetInfo[icoll].Size] = it_jet->daughter(1)->pt();
+       JetInfo[icoll].EtaD1      [JetInfo[icoll].Size] = it_jet->daughter(0)->eta();
+       JetInfo[icoll].EtaD2      [JetInfo[icoll].Size] = it_jet->daughter(1)->eta();
+       JetInfo[icoll].PhiD1      [JetInfo[icoll].Size] = it_jet->daughter(0)->phi();
+       JetInfo[icoll].PhiD2      [JetInfo[icoll].Size] = it_jet->daughter(1)->phi();
+       JetInfo[icoll].EtD1       [JetInfo[icoll].Size] = it_jet->daughter(0)->et();
+       JetInfo[icoll].EtD2       [JetInfo[icoll].Size] = it_jet->daughter(1)->et();
+     } 
 
     }
 
