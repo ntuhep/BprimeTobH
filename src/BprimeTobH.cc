@@ -445,10 +445,13 @@ BprimeTobH::hasJets(const edm::Event& iEvent)
     
     if (JetHandle.size() <= icoll) continue;  
 
-    for( vector<pat::Jet>::const_iterator it_el = JetHandle[icoll]->begin(); 
-	 it_el != JetHandle[icoll]->end(); it_el++ ) {
+    for( vector<pat::Jet>::const_iterator it_jet = JetHandle[icoll]->begin(); 
+	 it_jet != JetHandle[icoll]->end(); it_jet++ ) {
       
       JetInfo[icoll].Index[JetInfo[icoll].Size] = JetInfo[icoll].Size;
+      JetInfo[icoll].NTracks     [JetInfo[icoll].Size] = it_jet->associatedTracks().size();
+
+
     }
 
   }
