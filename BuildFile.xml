@@ -3,4 +3,7 @@
 <use name="FWCore/ParameterSet"/>
 <use name="DataFormats/RecoCandidate"/>
 <use name="PhysicsTools/UtilAlgos"/>
+<use   name="JetMETCorrections/Algorithms"/>
+<use   name="JetMETCorrections/Objects"/>
+<use   name="JetMETCorrections/Modules"/>
 <flags EDM_PLUGIN="1"/>

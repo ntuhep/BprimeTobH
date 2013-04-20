@@ -28,12 +28,12 @@ process.ntuple = cms.EDAnalyzer(
     muonlabel = cms.VInputTag('selectedPatMuonsPFlowLoose','selectedPatMuons'),
     electronlabel = cms.VInputTag('selectedPatElectronsPFlowLoose', 
                               'selectedPatElectrons'),
-    jetlabel = cms.VInputTag('selectedPatJets'+postfix,'goodPatJetsCA8PrunedPF'),
+    jetlabel = cms.VInputTag('goodPatJetsCA8PrunedPacked', 'AF5jets'),
     
     LepCollections = cms.vstring('PFLepInfo', 'LepInfo'),
-    JetCollections = cms.vstring('PFJetInfo', 'WJetInfo'),
+    JetCollections = cms.vstring('CA8PrunedInfo', 'CA8PrunedSubjet1Info'),
     #JetType = cms.vint32(0,2), # 0: pfjet, 1: calojet, 2: fatjet
-    JetTypes = cms.vstring('pfjet', 'fatjet'),
+    JetTypes = cms.vstring('fatjet', 'subjet'),
 )
 
 
