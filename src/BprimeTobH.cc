@@ -51,6 +51,9 @@
 #include "CondFormats/JetMETObjects/interface/JetCorrectionUncertainty.h"
 #include "JetMETCorrections/Objects/interface/JetCorrectionsRecord.h"
 
+#include "PhysicsTools/SelectorUtils/interface/JetIDSelectionFunctor.h"
+#include "PhysicsTools/SelectorUtils/interface/PFJetIDSelectionFunctor.h"
+
 
 using namespace std;
 
@@ -473,22 +476,29 @@ BprimeTobH::hasJets(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     for( vector<pat::Jet>::const_iterator it_jet = JetHandle[icoll]->begin(); 
 	 it_jet != JetHandle[icoll]->end(); it_jet++ ) {
       
-      JetInfo[icoll].Index[JetInfo[icoll].Size] = JetInfo[icoll].Size;
+      JetInfo[icoll].Index       [JetInfo[icoll].Size] = JetInfo[icoll].Size;
       JetInfo[icoll].NTracks     [JetInfo[icoll].Size] = it_jet->associatedTracks().size();
-
-      JetInfo[icoll].Eta         [JetInfo[icoll].Size] = it_jet->eta();
-
-      JetInfo[icoll].Pt          [JetInfo[icoll].Size] = it_jet->pt();
       JetInfo[icoll].Et          [JetInfo[icoll].Size] = it_jet->et();
-
+      JetInfo[icoll].Pt          [JetInfo[icoll].Size] = it_jet->pt();
+      JetInfo[icoll].Eta         [JetInfo[icoll].Size] = it_jet->eta();
+      JetInfo[icoll].Phi         [JetInfo[icoll].Size] = it_jet->phi();
 
       // jecUnc->setJetEta(it_jet->eta());
       // jecUnc->setJetPt(it_jet->pt()); // here you must use the CORRECTED jet pt
       // if(fabs(it_jet->eta())<=5.0) JetInfo[icoll].Unc         [JetInfo[icoll].Size] = jecUnc->getUncertainty(true);
 
-      JetInfo[icoll].Phi         [JetInfo[icoll].Size] = it_jet->phi();
+
       JetInfo[icoll].JetCharge   [JetInfo[icoll].Size] = it_jet->jetCharge();
       JetInfo[icoll].NConstituents[JetInfo[icoll].Size] = it_jet->numberOfDaughters();
+
+     if (jettypes_[icoll] == "pfjet")  {
+       JetInfo[icoll].NCH[JetInfo[icoll].Size] = it_jet->chargedMultiplicity();
+       JetInfo[icoll].CEF[JetInfo[icoll].Size] = it_jet->chargedEmEnergyFraction();
+       JetInfo[icoll].NHF[JetInfo[icoll].Size] = it_jet->neutralHadronEnergyFraction();
+       JetInfo[icoll].NEF[JetInfo[icoll].Size] = it_jet->neutralEmEnergyFraction();
+       JetInfo[icoll].CHF[JetInfo[icoll].Size] = it_jet->chargedHadronEnergyFraction();
+     }
+
       JetInfo[icoll].Px          [JetInfo[icoll].Size] = it_jet->px(); //Uly 2011-04-04
       JetInfo[icoll].Py          [JetInfo[icoll].Size] = it_jet->py(); //Uly 2011-04-04
       JetInfo[icoll].Pz          [JetInfo[icoll].Size] = it_jet->pz(); //Uly 2011-04-04
@@ -508,7 +518,34 @@ BprimeTobH::hasJets(const edm::Event& iEvent, const edm::EventSetup& iSetup)
        JetInfo[icoll].PhiD2      [JetInfo[icoll].Size] = it_jet->daughter(1)->phi();
        JetInfo[icoll].EtD1       [JetInfo[icoll].Size] = it_jet->daughter(0)->et();
        JetInfo[icoll].EtD2       [JetInfo[icoll].Size] = it_jet->daughter(1)->et();
-     } 
+      }
+
+      bool JetID = true;
+      if(jettypes_[icoll] == "pfjet") {
+	//Jet ID for PFJet
+	edm::ParameterSet PS_pf;
+	PS_pf.addParameter<std::string>("version", "FIRSTDATA");
+	PS_pf.addParameter<std::string>("quality", "LOOSE");
+	PFJetIDSelectionFunctor pfjetIDLOOSE(PS_pf) ;
+	pat::strbitset ret = pfjetIDLOOSE.getBitTemplate() ;
+	ret.set(false);
+	JetID = pfjetIDLOOSE(*it_jet, ret);
+      }
+      else if (jettypes_[icoll] == "fatjet")  {
+	JetID = true; //Apply JetID in PAT level
+      }
+
+      JetInfo[icoll].JetIDLOOSE[JetInfo[icoll].Size] = (JetID) ?  1 : 0;
+
+      // Subjet1 
+
+      // pat::Jet const * subjet1 = dynamic_cast<pat::Jet const *>(jet.daughter(0));
+      // double subjet0PtUncorr = subjet->correctedP4(0).pt();
+      // double subjet0Bdisc = subjet->bDiscriminator('combinedSecondaryVertexBJetTags');
+      pat::Jet const * subjet1 = dynamic_cast<pat::Jet const *>(it_jet->daughter(0));      
+      
+      
+     
 
     }
 
