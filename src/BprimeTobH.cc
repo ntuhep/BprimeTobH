@@ -590,7 +590,9 @@ BprimeTobH::hasJets(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       // loop for subjets
       for (unsigned ndau = 0; ndau < it_jet->numberOfDaughters(); ++ndau) {
 	pat::Jet const * subjet = dynamic_cast<pat::Jet const *>(it_jet->daughter(ndau));
-
+	
+	SubJetInfo[icoll].ParentIndex       [SubJetInfo[icoll].Size] = JetInfo[icoll].Size;
+ 
 	SubJetInfo[icoll].NTracks     [SubJetInfo[icoll].Size] = subjet->associatedTracks().size();
 	SubJetInfo[icoll].Et          [SubJetInfo[icoll].Size] = subjet->et();
 	SubJetInfo[icoll].Pt          [SubJetInfo[icoll].Size] = subjet->pt();
