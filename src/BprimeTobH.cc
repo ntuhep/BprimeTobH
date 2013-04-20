@@ -588,14 +588,45 @@ BprimeTobH::hasJets(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       JetInfo[icoll].Size++;
 
       // loop for subjets
-      vector<const pat::Jet*> subjets;
-      // for (unsigned ndau = 0; ndau < groomedJetMatch->numberOfDaughters(); ++ndau) {
       for (unsigned ndau = 0; ndau < it_jet->numberOfDaughters(); ++ndau) {
-	// pat::Jet const * subjet = dynamic_cast<pat::Jet const *>(groomedJetMatch->daughter(ndau));
 	pat::Jet const * subjet = dynamic_cast<pat::Jet const *>(it_jet->daughter(ndau));
-	subjets.push_back(subjet) ;
+
+	SubJetInfo[icoll].NTracks     [SubJetInfo[icoll].Size] = subjet->associatedTracks().size();
+	SubJetInfo[icoll].Et          [SubJetInfo[icoll].Size] = subjet->et();
+	SubJetInfo[icoll].Pt          [SubJetInfo[icoll].Size] = subjet->pt();
+	SubJetInfo[icoll].Eta         [SubJetInfo[icoll].Size] = subjet->eta();
+	SubJetInfo[icoll].Phi         [SubJetInfo[icoll].Size] = subjet->phi();
+	
+	SubJetInfo[icoll].JetCharge    [SubJetInfo[icoll].Size] = subjet->jetCharge();
+	
+	if (jettypes_[icoll] == "pfjet")  {
+	  SubJetInfo[icoll].NCH[JetInfo[icoll].Size] = subjet->chargedMultiplicity();
+	  SubJetInfo[icoll].CEF[JetInfo[icoll].Size] = subjet->chargedEmEnergyFraction();
+	  SubJetInfo[icoll].NHF[JetInfo[icoll].Size] = subjet->neutralHadronEnergyFraction();
+	  SubJetInfo[icoll].NEF[JetInfo[icoll].Size] = subjet->neutralEmEnergyFraction();
+	  SubJetInfo[icoll].CHF[JetInfo[icoll].Size] = subjet->chargedHadronEnergyFraction();
+	}
+	
+	SubJetInfo[icoll].JetBProbBJetTags        [SubJetInfo[icoll].Size] = subjet->bDiscriminator("jetBProbabilityBJetTags");
+	SubJetInfo[icoll].JetProbBJetTags         [SubJetInfo[icoll].Size] = subjet->bDiscriminator("jetProbabilityBJetTags");
+	SubJetInfo[icoll].TrackCountHiPurBJetTags [SubJetInfo[icoll].Size] = subjet->bDiscriminator("trackCountingHighPurBJetTags"); 
+	SubJetInfo[icoll].CombinedSVBJetTags      [SubJetInfo[icoll].Size] = subjet->bDiscriminator("combinedSecondaryVertexBJetTags");
+	SubJetInfo[icoll].CombinedSVMVABJetTags   [SubJetInfo[icoll].Size] = subjet->bDiscriminator("combinedSecondaryVertexMVABJetTags");
+	SubJetInfo[icoll].SoftElecByIP3dBJetTags  [SubJetInfo[icoll].Size] = subjet->bDiscriminator("softElectronByIP3dBJetTags");
+	SubJetInfo[icoll].SoftElecByPtBJetTags    [SubJetInfo[icoll].Size] = subjet->bDiscriminator("softElectronByPtBJetTags");
+	SubJetInfo[icoll].SoftMuonBJetTags        [SubJetInfo[icoll].Size] = subjet->bDiscriminator("softMuonBJetTags");
+	SubJetInfo[icoll].SoftMuonByIP3dBJetTags  [SubJetInfo[icoll].Size] = subjet->bDiscriminator("softMuonByIP3dBJetTags");
+	SubJetInfo[icoll].SoftMuonByPtBJetTags    [SubJetInfo[icoll].Size] = subjet->bDiscriminator("softMuonByPtBJetTags");
+	SubJetInfo[icoll].DoubleSVHighEffBJetTags [SubJetInfo[icoll].Size] = subjet->bDiscriminator("doubleSecondaryVertexHighEffBJetTags"); 
+	
+	SubJetInfo[icoll].Px          [SubJetInfo[icoll].Size] = subjet->px(); 
+	SubJetInfo[icoll].Py          [SubJetInfo[icoll].Size] = subjet->py(); 
+	SubJetInfo[icoll].Pz          [SubJetInfo[icoll].Size] = subjet->pz(); 
+	SubJetInfo[icoll].Energy      [SubJetInfo[icoll].Size] = subjet->energy(); 
+	SubJetInfo[icoll].Mass        [SubJetInfo[icoll].Size] = subjet->mass();
+	SubJetInfo[icoll].Area        [SubJetInfo[icoll].Size] = subjet->jetArea();
+ 
       }
-      
       
     }//loop over jets in collection
   }//have jet collection
