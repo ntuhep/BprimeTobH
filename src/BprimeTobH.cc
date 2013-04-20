@@ -634,52 +634,52 @@ BprimeTobH::hasJets(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	JetInfo[icoll].EtD2       [JetInfo[icoll].Size] = it_jet->daughter(1)->et();
 
       
-	// Subjet1 
-	pat::Jet const * subjet1 = dynamic_cast<pat::Jet const *>(it_jet->daughter(0));      
-	JetInfo[icoll].Subjet1_JetBProbBJetTags        [JetInfo[icoll].Size] = subjet1->bDiscriminator("jetBProbabilityBJetTags");
-	JetInfo[icoll].Subjet1_JetBProbBJetTags        [JetInfo[icoll].Size] = subjet1->bDiscriminator("jetBProbabilityBJetTags");
-	JetInfo[icoll].Subjet1_JetProbBJetTags         [JetInfo[icoll].Size] = subjet1->bDiscriminator("jetProbabilityBJetTags");
-	JetInfo[icoll].Subjet1_TrackCountHiPurBJetTags [JetInfo[icoll].Size] = subjet1->bDiscriminator("trackCountingHighPurBJetTags"); 
-	JetInfo[icoll].Subjet1_TrackCountHiEffBJetTags [JetInfo[icoll].Size] = subjet1->bDiscriminator("trackCountingHighEffBJetTags");
-	JetInfo[icoll].Subjet1_SimpleSVBJetTags        [JetInfo[icoll].Size] = subjet1->bDiscriminator("simpleSecondaryVertexBJetTags");
-	JetInfo[icoll].Subjet1_SimpleSVBJetTags        [JetInfo[icoll].Size] = subjet1->bDiscriminator("simpleSecondaryVertexBJetTags"); //for 35X sample
-	JetInfo[icoll].Subjet1_SimpleSVHEBJetTags      [JetInfo[icoll].Size] = subjet1->bDiscriminator("simpleSecondaryVertexHighEffBJetTags"); //for 36X
-	JetInfo[icoll].Subjet1_SimpleSVHPBJetTags      [JetInfo[icoll].Size] = subjet1->bDiscriminator("simpleSecondaryVertexHighPurBJetTags"); //for 36X
-	JetInfo[icoll].Subjet1_CombinedSVBJetTags      [JetInfo[icoll].Size] = subjet1->bDiscriminator("combinedSecondaryVertexBJetTags");
-	JetInfo[icoll].Subjet1_CombinedSVMVABJetTags   [JetInfo[icoll].Size] = subjet1->bDiscriminator("combinedSecondaryVertexMVABJetTags");
-	JetInfo[icoll].Subjet1_SoftElecByIP3dBJetTags  [JetInfo[icoll].Size] = subjet1->bDiscriminator("softElectronByIP3dBJetTags");
-	JetInfo[icoll].Subjet1_SoftElecByPtBJetTags    [JetInfo[icoll].Size] = subjet1->bDiscriminator("softElectronByPtBJetTags");
-	JetInfo[icoll].Subjet1_SoftMuonBJetTags        [JetInfo[icoll].Size] = subjet1->bDiscriminator("softMuonBJetTags");
-	JetInfo[icoll].Subjet1_SoftMuonByIP3dBJetTags  [JetInfo[icoll].Size] = subjet1->bDiscriminator("softMuonByIP3dBJetTags");
-	JetInfo[icoll].Subjet1_SoftMuonByPtBJetTags    [JetInfo[icoll].Size] = subjet1->bDiscriminator("softMuonByPtBJetTags");
-	JetInfo[icoll].Subjet1_DoubleSVHighEffBJetTags [JetInfo[icoll].Size] = subjet1->bDiscriminator("doubleSecondaryVertexHighEffBJetTags");
+	// // Subjet1 
+	// pat::Jet const * subjet1 = dynamic_cast<pat::Jet const *>(it_jet->daughter(0));      
+	// JetInfo[icoll].Subjet1_JetBProbBJetTags        [JetInfo[icoll].Size] = subjet1->bDiscriminator("jetBProbabilityBJetTags");
+	// JetInfo[icoll].Subjet1_JetBProbBJetTags        [JetInfo[icoll].Size] = subjet1->bDiscriminator("jetBProbabilityBJetTags");
+	// JetInfo[icoll].Subjet1_JetProbBJetTags         [JetInfo[icoll].Size] = subjet1->bDiscriminator("jetProbabilityBJetTags");
+	// JetInfo[icoll].Subjet1_TrackCountHiPurBJetTags [JetInfo[icoll].Size] = subjet1->bDiscriminator("trackCountingHighPurBJetTags"); 
+	// JetInfo[icoll].Subjet1_TrackCountHiEffBJetTags [JetInfo[icoll].Size] = subjet1->bDiscriminator("trackCountingHighEffBJetTags");
+	// JetInfo[icoll].Subjet1_SimpleSVBJetTags        [JetInfo[icoll].Size] = subjet1->bDiscriminator("simpleSecondaryVertexBJetTags");
+	// JetInfo[icoll].Subjet1_SimpleSVBJetTags        [JetInfo[icoll].Size] = subjet1->bDiscriminator("simpleSecondaryVertexBJetTags"); //for 35X sample
+	// JetInfo[icoll].Subjet1_SimpleSVHEBJetTags      [JetInfo[icoll].Size] = subjet1->bDiscriminator("simpleSecondaryVertexHighEffBJetTags"); //for 36X
+	// JetInfo[icoll].Subjet1_SimpleSVHPBJetTags      [JetInfo[icoll].Size] = subjet1->bDiscriminator("simpleSecondaryVertexHighPurBJetTags"); //for 36X
+	// JetInfo[icoll].Subjet1_CombinedSVBJetTags      [JetInfo[icoll].Size] = subjet1->bDiscriminator("combinedSecondaryVertexBJetTags");
+	// JetInfo[icoll].Subjet1_CombinedSVMVABJetTags   [JetInfo[icoll].Size] = subjet1->bDiscriminator("combinedSecondaryVertexMVABJetTags");
+	// JetInfo[icoll].Subjet1_SoftElecByIP3dBJetTags  [JetInfo[icoll].Size] = subjet1->bDiscriminator("softElectronByIP3dBJetTags");
+	// JetInfo[icoll].Subjet1_SoftElecByPtBJetTags    [JetInfo[icoll].Size] = subjet1->bDiscriminator("softElectronByPtBJetTags");
+	// JetInfo[icoll].Subjet1_SoftMuonBJetTags        [JetInfo[icoll].Size] = subjet1->bDiscriminator("softMuonBJetTags");
+	// JetInfo[icoll].Subjet1_SoftMuonByIP3dBJetTags  [JetInfo[icoll].Size] = subjet1->bDiscriminator("softMuonByIP3dBJetTags");
+	// JetInfo[icoll].Subjet1_SoftMuonByPtBJetTags    [JetInfo[icoll].Size] = subjet1->bDiscriminator("softMuonByPtBJetTags");
+	// JetInfo[icoll].Subjet1_DoubleSVHighEffBJetTags [JetInfo[icoll].Size] = subjet1->bDiscriminator("doubleSecondaryVertexHighEffBJetTags");
 
- 	// Subjet2 
-	pat::Jet const * subjet2 = dynamic_cast<pat::Jet const *>(it_jet->daughter(1));      
-	JetInfo[icoll].Subjet2_JetBProbBJetTags        [JetInfo[icoll].Size] = subjet2->bDiscriminator("jetBProbabilityBJetTags");
-	JetInfo[icoll].Subjet2_JetBProbBJetTags        [JetInfo[icoll].Size] = subjet2->bDiscriminator("jetBProbabilityBJetTags");
-	JetInfo[icoll].Subjet2_JetProbBJetTags         [JetInfo[icoll].Size] = subjet2->bDiscriminator("jetProbabilityBJetTags");
-	JetInfo[icoll].Subjet2_TrackCountHiPurBJetTags [JetInfo[icoll].Size] = subjet2->bDiscriminator("trackCountingHighPurBJetTags"); 
-	JetInfo[icoll].Subjet2_TrackCountHiEffBJetTags [JetInfo[icoll].Size] = subjet2->bDiscriminator("trackCountingHighEffBJetTags");
-	JetInfo[icoll].Subjet2_SimpleSVBJetTags        [JetInfo[icoll].Size] = subjet2->bDiscriminator("simpleSecondaryVertexBJetTags");
-	JetInfo[icoll].Subjet2_SimpleSVBJetTags        [JetInfo[icoll].Size] = subjet2->bDiscriminator("simpleSecondaryVertexBJetTags"); //for 35X sample
-	JetInfo[icoll].Subjet2_SimpleSVHEBJetTags      [JetInfo[icoll].Size] = subjet2->bDiscriminator("simpleSecondaryVertexHighEffBJetTags"); //for 36X
-	JetInfo[icoll].Subjet2_SimpleSVHPBJetTags      [JetInfo[icoll].Size] = subjet2->bDiscriminator("simpleSecondaryVertexHighPurBJetTags"); //for 36X
-	JetInfo[icoll].Subjet2_CombinedSVBJetTags      [JetInfo[icoll].Size] = subjet2->bDiscriminator("combinedSecondaryVertexBJetTags");
-	JetInfo[icoll].Subjet2_CombinedSVMVABJetTags   [JetInfo[icoll].Size] = subjet2->bDiscriminator("combinedSecondaryVertexMVABJetTags");
-	JetInfo[icoll].Subjet2_SoftElecByIP3dBJetTags  [JetInfo[icoll].Size] = subjet2->bDiscriminator("softElectronByIP3dBJetTags");
-	JetInfo[icoll].Subjet2_SoftElecByPtBJetTags    [JetInfo[icoll].Size] = subjet2->bDiscriminator("softElectronByPtBJetTags");
-	JetInfo[icoll].Subjet2_SoftMuonBJetTags        [JetInfo[icoll].Size] = subjet2->bDiscriminator("softMuonBJetTags");
-	JetInfo[icoll].Subjet2_SoftMuonByIP3dBJetTags  [JetInfo[icoll].Size] = subjet2->bDiscriminator("softMuonByIP3dBJetTags");
-	JetInfo[icoll].Subjet2_SoftMuonByPtBJetTags    [JetInfo[icoll].Size] = subjet2->bDiscriminator("softMuonByPtBJetTags");
-	JetInfo[icoll].Subjet2_DoubleSVHighEffBJetTags [JetInfo[icoll].Size] = subjet2->bDiscriminator("doubleSecondaryVertexHighEffBJetTags");
-     }
-
-
+ 	// // Subjet2 
+	// pat::Jet const * subjet2 = dynamic_cast<pat::Jet const *>(it_jet->daughter(1));      
+	// JetInfo[icoll].Subjet2_JetBProbBJetTags        [JetInfo[icoll].Size] = subjet2->bDiscriminator("jetBProbabilityBJetTags");
+	// JetInfo[icoll].Subjet2_JetBProbBJetTags        [JetInfo[icoll].Size] = subjet2->bDiscriminator("jetBProbabilityBJetTags");
+	// JetInfo[icoll].Subjet2_JetProbBJetTags         [JetInfo[icoll].Size] = subjet2->bDiscriminator("jetProbabilityBJetTags");
+	// JetInfo[icoll].Subjet2_TrackCountHiPurBJetTags [JetInfo[icoll].Size] = subjet2->bDiscriminator("trackCountingHighPurBJetTags"); 
+	// JetInfo[icoll].Subjet2_TrackCountHiEffBJetTags [JetInfo[icoll].Size] = subjet2->bDiscriminator("trackCountingHighEffBJetTags");
+	// JetInfo[icoll].Subjet2_SimpleSVBJetTags        [JetInfo[icoll].Size] = subjet2->bDiscriminator("simpleSecondaryVertexBJetTags");
+	// JetInfo[icoll].Subjet2_SimpleSVBJetTags        [JetInfo[icoll].Size] = subjet2->bDiscriminator("simpleSecondaryVertexBJetTags"); //for 35X sample
+	// JetInfo[icoll].Subjet2_SimpleSVHEBJetTags      [JetInfo[icoll].Size] = subjet2->bDiscriminator("simpleSecondaryVertexHighEffBJetTags"); //for 36X
+	// JetInfo[icoll].Subjet2_SimpleSVHPBJetTags      [JetInfo[icoll].Size] = subjet2->bDiscriminator("simpleSecondaryVertexHighPurBJetTags"); //for 36X
+	// JetInfo[icoll].Subjet2_CombinedSVBJetTags      [JetInfo[icoll].Size] = subjet2->bDiscriminator("combinedSecondaryVertexBJetTags");
+	// JetInfo[icoll].Subjet2_CombinedSVMVABJetTags   [JetInfo[icoll].Size] = subjet2->bDiscriminator("combinedSecondaryVertexMVABJetTags");
+	// JetInfo[icoll].Subjet2_SoftElecByIP3dBJetTags  [JetInfo[icoll].Size] = subjet2->bDiscriminator("softElectronByIP3dBJetTags");
+	// JetInfo[icoll].Subjet2_SoftElecByPtBJetTags    [JetInfo[icoll].Size] = subjet2->bDiscriminator("softElectronByPtBJetTags");
+	// JetInfo[icoll].Subjet2_SoftMuonBJetTags        [JetInfo[icoll].Size] = subjet2->bDiscriminator("softMuonBJetTags");
+	// JetInfo[icoll].Subjet2_SoftMuonByIP3dBJetTags  [JetInfo[icoll].Size] = subjet2->bDiscriminator("softMuonByIP3dBJetTags");
+	// JetInfo[icoll].Subjet2_SoftMuonByPtBJetTags    [JetInfo[icoll].Size] = subjet2->bDiscriminator("softMuonByPtBJetTags");
+	// JetInfo[icoll].Subjet2_DoubleSVHighEffBJetTags [JetInfo[icoll].Size] = subjet2->bDiscriminator("doubleSecondaryVertexHighEffBJetTags");
+      }
+      
+      
     }
-
+    
   }
-
+  
   return true; 
 }
 
