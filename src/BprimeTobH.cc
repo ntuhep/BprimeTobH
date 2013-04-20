@@ -107,6 +107,7 @@ private:
   VertexInfoBranches VertexInfo;
   LepInfoBranches LepInfo[MAX_LEPCOLLECTIONS];
   JetInfoBranches JetInfo[MAX_JETCOLLECTIONS];
+  JetInfoBranches SubJetInfo[MAX_JETCOLLECTIONS];
 
   // Across the event 
   reco::BeamSpot beamSpot_;  
@@ -211,6 +212,12 @@ BprimeTobH::beginJob()
     if(i >= MAX_JETCOLLECTIONS) break;
     JetInfo[i].RegisterTree(tree_,jetcollections_[i]);
   }
+
+  for(unsigned i=0; i<jetcollections_.size(); i++) {
+    if(i >= MAX_JETCOLLECTIONS) break;
+    SubJetInfo[i].RegisterTree(tree_,jetcollections_[i]);
+  }
+
 }
 
 // ------------ method called once each job just after ending the event loop  ------------
@@ -478,6 +485,7 @@ BprimeTobH::hasJets(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     if(icoll >= MAX_JETCOLLECTIONS) break;
     
     memset(&JetInfo[icoll],0x00,sizeof(JetInfo[icoll]));
+    memset(&SubJetInfo[icoll],0x00,sizeof(SubJetInfo[icoll]));
     
     // For Jet Uncertainty
 
@@ -574,13 +582,24 @@ BprimeTobH::hasJets(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       JetInfo[icoll].Area        [JetInfo[icoll].Size] = it_jet->jetArea();
  
        
-	// // Subjet1 
-	// pat::Jet const * subjet1 = dynamic_cast<pat::Jet const *>(it_jet->daughter(0));      
-	// JetInfo[icoll].Subjet1_JetBProbBJetTags        [JetInfo[icoll].Size] = subjet1->bDiscriminator("jetBProbabilityBJetTags");
-    }
-    
-  }
-  
+      // // Subjet1 
+      // pat::Jet const * subjet1 = dynamic_cast<pat::Jet const *>(it_jet->daughter(0));      
+      // JetInfo[icoll].Subjet1_JetBProbBJetTags        [JetInfo[icoll].Size] = subjet1->bDiscriminator("jetBProbabilityBJetTags");
+      JetInfo[icoll].Size++;
+
+      // loop for subjets
+      vector<const pat::Jet*> subjets;
+      // for (unsigned ndau = 0; ndau < groomedJetMatch->numberOfDaughters(); ++ndau) {
+      for (unsigned ndau = 0; ndau < it_jet->numberOfDaughters(); ++ndau) {
+	// pat::Jet const * subjet = dynamic_cast<pat::Jet const *>(groomedJetMatch->daughter(ndau));
+	pat::Jet const * subjet = dynamic_cast<pat::Jet const *>(it_jet->daughter(ndau));
+	subjets.push_back(subjet) ;
+      }
+      
+      
+    }//loop over jets in collection
+  }//have jet collection
+
   return true; 
 }
 
