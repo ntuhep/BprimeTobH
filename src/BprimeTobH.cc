@@ -268,12 +268,15 @@ BprimeTobH::hasBeamSpot(const edm::Event& iEvent)
 void 
 BprimeTobH::clearVariables(){
   memset(&EvtInfo,0x00,sizeof(EvtInfo));
-  memset(&VertexInfo,0x00,sizeof(VertexInfo));
+  //   memset(&VertexInfo,0x00,sizeof(VertexInfo));
 }
 
 bool
 BprimeTobH::hasPrimaryVertex(const edm::Event& iEvent)
 {
+  memset(&VertexInfo,0x00,sizeof(VertexInfo));
+  // Signal_Vz = 0.; 
+
   edm::Handle<reco::VertexCollection> recoVertexHandle;
   iEvent.getByLabel(VertexLabel_, recoVertexHandle);
 
@@ -537,12 +540,68 @@ BprimeTobH::hasJets(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
       JetInfo[icoll].JetIDLOOSE[JetInfo[icoll].Size] = (JetID) ?  1 : 0;
 
+
+      // fill jet-vertex association
+
+      double tracks_x = 0.;
+      double tracks_y = 0.;
+      double tracks_x_tot = 0.;
+      double tracks_y_tot = 0.;
+
+      // Charge Track in PFConstituents 
+      // Check http://cmslxr.fnal.gov/lxr/source/DataFormats/JetReco/src/PFJet.cc#036
+      if(jettypes_[icoll] == "pfjet") {
+	if(jettypes_.size() <= icoll || jettypes_[icoll]>0) {
+	  for (unsigned i = 0;  i <  it_jet->numberOfDaughters (); i++) {	     
+	    const reco::PFCandidatePtr pfcand = it_jet->getPFConstituent(i);
+	    reco::TrackRef trackref = pfcand->trackRef();
+	    if( trackref.isNonnull()) {
+	      tracks_x_tot += (trackref)->px();
+	      tracks_y_tot += (trackref)->py();	  
+	      // if (fabs((trackref)->vz()-Signal_Vz) < 0.1) {        	  
+	      if (fabs((trackref)->vz()-primaryVertex_.z()) < 0.1) {        	  
+		tracks_x += (trackref)->px();
+		tracks_y += (trackref)->py();		
+	      }
+	    }
+	  }
+	}
+      }
+
+      else {//calo jets
+	const reco::TrackRefVector& TrackCol = it_jet->associatedTracks();
+	for (reco::TrackRefVector::const_iterator it = TrackCol.begin();
+	     it != TrackCol.end (); it++) 
+	  {	     
+	    tracks_x_tot += (*it)->px();
+	    tracks_y_tot += (*it)->py();	  
+	    // if (fabs((*it)->vz()-Signal_Vz) < 0.1)
+	    if (fabs((*it)->vz()-primaryVertex_.z()) < 0.1)
+	      {        	  
+		tracks_x += (*it)->px();
+		tracks_y += (*it)->py();		
+	      }
+	  }
+      }
+     
+      JetInfo[icoll].JVAlpha[JetInfo[icoll].Size] = 
+	sqrt(tracks_x*tracks_x+tracks_y*tracks_y)/it_jet->pt();
+      
+      if (tracks_x_tot!=0. || tracks_y_tot!=0.) 
+	{
+	  JetInfo[icoll].JVBeta[JetInfo[icoll].Size] = 
+	    sqrt(tracks_x*tracks_x+tracks_y*tracks_y)/sqrt
+	    (tracks_x_tot*tracks_x_tot+tracks_y_tot*tracks_y_tot);
+	} else {
+	JetInfo[icoll].JVBeta[JetInfo[icoll].Size] = -1.;
+      }
+      
       // Subjet1 
 
       // pat::Jet const * subjet1 = dynamic_cast<pat::Jet const *>(jet.daughter(0));
       // double subjet0PtUncorr = subjet->correctedP4(0).pt();
       // double subjet0Bdisc = subjet->bDiscriminator('combinedSecondaryVertexBJetTags');
-      pat::Jet const * subjet1 = dynamic_cast<pat::Jet const *>(it_jet->daughter(0));      
+      //  pat::Jet const * subjet1 = dynamic_cast<pat::Jet const *>(it_jet->daughter(0));      
       
       
      
