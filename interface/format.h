@@ -4,38 +4,204 @@
 
 #include <TTree.h>
 
-static const int MAX_VERTICES=256; 
-static const int MAX_LEPTONS=256; 
-static const int MAX_JETS=256; 
+
+static const int MAX_LEPTONS 	    = 256 ;
+static const int MAX_TRACKS 	    = 256 ;
+static const int MAX_JETS 	    = 128 ;
+static const int MAX_PAIRS 	    = 512 ;
+static const int MAX_PHOTONS	    = 128 ;
+static const int MAX_GENS	    = 128 ;
+static const int MAX_VERTICES       = 256 ;
+static const int MAX_BX		    = 128 ;
+static const int N_TRIGGER_BOOKINGS = 5842;  
+
 
 class EvtInfoBranches {
  public:
   int      RunNo;
-  long long int EvtNo;
-  
+  long int EvtNo;
+  int      BxNo;
+  int      LumiNo;
+  int      Orbit;
+  int      McFlag;	  // MC or not MC, that's the question
+  int      McSigTag;        // MC Signature tag	  - 0: others, 1: 2L (opposite-sign), 2: 2L (same-sign), 3: 3L, 4: 4L
+  int      McbprimeMode[2]; // b'(bar) decay mode   - 0: others, 1: tW, 2: cW, 3: bZ, 4: bH
+  int      MctprimeMode[2]; // t'(bar) decay mode   - 0: others, 1: bW, 2: tZ, 3: tH, 4: tgamma
+  int      McWMode[4];      // W- from b'(t'bar)/W+ from t/W+ from b'bar(t')/W- from tbar - 0: others, 1: enu, 2: munu, 3: taunu, 4: jj
+  int      McZMode[2];      // Z from b'(bar)/t'(t'bar)	 - 0: others, 1: ee, 2: mumu, 3: tautau, 4: nunu, 5: bb, 6: jj
+  float    McbprimeMass[2]; // mass: b'(bar)  
+  float    MctprimeMass[2]; // mass: t'(bar)  
+  float    MctopMass[2];    // mass: top(bar)
+  float    McWMass[4];      // mass: W- from b'(t'bar)/W+ from t/W+ from b'bar(t')/W- from tbar 
+  float    McZMass[2];      // mass: Z from b'(bar) or t'(bar)
+  float    McDauPt[14];     // Generic MC daughter information
+  float    McDauEta[14];    // MC daughters: 0-1: hard jet from b'bar/t'bar, 2-9: W daughters, 10-13: Z daughters 
+  float    McDauPhi[14];    // 
+  float    RhoPU[2];        // [electron,muon]	 
+  float    SigmaPU[2];      // [electron,muon] 
+  int      McDauPdgID[14];	 
+  int      PDFid1;
+  int      PDFid2;
+  float    PDFx1;
+  float    PDFx2;
+  float    PDFscale;
+  float    PDFv1;
+  float    PDFv2;
+
   //BeamSpot
   float BeamSpotX;
   float BeamSpotY;
   float BeamSpotZ;
 
-  
-  void RegisterTree(TTree *tree) {
-    tree->Branch("EvtInfo.RunNo" , &RunNo, "EvtInfo.RunNo/I");
-    tree->Branch("EvtInfo.EvtNo" , &EvtNo, "EvtInfo.EvtNo/L");
-    tree->Branch("EvtInfo.BeamSpotX", &BeamSpotX, "EvtInfo.BeamSpotX/F");
-    tree->Branch("EvtInfo.BeamSpotY", &BeamSpotY, "EvtInfo.BeamSpotY/F");
-    tree->Branch("EvtInfo.BeamSpotZ", &BeamSpotZ, "EvtInfo.BeamSpotZ/F");
-  }
-  
+  // PU
+  int nBX;
+  int nPU[MAX_BX];
+  int BXPU[MAX_BX];
+  float TrueIT[MAX_BX];
 
-  void Register(TTree *tree) {
-    tree->SetBranchAddress("EvtInfo.RunNo" , &RunNo);
-    tree->SetBranchAddress("EvtInfo.EvtNo" , &EvtNo);
-    tree->SetBranchAddress("EvtInfo.BeamSpotX"    , &BeamSpotX	 );
-    tree->SetBranchAddress("EvtInfo.BeamSpotY"    , &BeamSpotY	 );
-    tree->SetBranchAddress("EvtInfo.BeamSpotZ"    , &BeamSpotZ	 );
-  }
+  float PFMET;
+  float PFMETPhi;
+  float PFRawMET;
+  float PFRawMETPhi;
+  float PFSumEt;
+  float PFMETSig;
+  float PFGenMET;
+  float PFGenMETPhi;
+
+  float PFMETx; //Uly 2011-04-04
+  float PFMETy; //Uly 2011-04-04
+
+  int   TrgCount;	// No. of fired booking bits
+  int   nTrgBook;
+  char  TrgBook[N_TRIGGER_BOOKINGS];	// Trigger bits
+  int   nHLT;
+  bool  HLTbits[N_TRIGGER_BOOKINGS];
+  int   L1[128]; // L1 trigger bits
+  int   TT[64]; 	// Techical trigger bits
+  float HighPurityFraction; //Added by Dmitry to help filter out bad events
+  int   NofTracks; //Added by Dmitry to help filter out bad events
   
+  void RegisterTree(TTree *root) {
+    root->Branch("EvtInfo.RunNo"	    , &RunNo	       , "EvtInfo.RunNo/I"	    );
+    root->Branch("EvtInfo.EvtNo"	    , &EvtNo	       , "EvtInfo.EvtNo/L"	    );
+    root->Branch("EvtInfo.BxNo"	            , &BxNo	       , "EvtInfo.BxNo/I"	    );
+    root->Branch("EvtInfo.LumiNo"	    , &LumiNo	       , "EvtInfo.LumiNo/I"	    );
+    root->Branch("EvtInfo.Orbit"	    , &Orbit	       , "EvtInfo.Orbit/I"	    );
+    root->Branch("EvtInfo.McFlag"	    , &McFlag	       , "EvtInfo.McFlag/I"	    );
+    root->Branch("EvtInfo.McSigTag"	    , &McSigTag        , "EvtInfo.McSigTag/I"	    );
+    root->Branch("EvtInfo.McbprimeMode" , &McbprimeMode[0] , "EvtInfo.McbprimeMode[2]/I");
+    root->Branch("EvtInfo.MctprimeMode" , &MctprimeMode[0] , "EvtInfo.MctprimeMode[2]/I");
+    root->Branch("EvtInfo.McWMode"      , &McWMode[0]      , "EvtInfo.McWMode[4]/I"     );
+    root->Branch("EvtInfo.McZMode"      , &McZMode[0]      , "EvtInfo.McZMode[2]/I"     );
+    root->Branch("EvtInfo.McbprimeMass" , &McbprimeMass[0] , "EvtInfo.McbprimeMass[2]/F");
+    root->Branch("EvtInfo.MctprimeMass" , &MctprimeMass[0] , "EvtInfo.MctprimeMass[2]/F");
+    root->Branch("EvtInfo.MctopMass"    , &MctopMass[0]    , "EvtInfo.MctopMass[2]/F"   );
+    root->Branch("EvtInfo.McWMass"      , &McWMass[0]      , "EvtInfo.McWMass[4]/F"     );
+    root->Branch("EvtInfo.McZMass"      , &McZMass[0]      , "EvtInfo.McZMass[2]/F"     );
+    root->Branch("EvtInfo.McDauPt"      , &McDauPt[0]      , "EvtInfo.McDauPt[14]/F"    );
+    root->Branch("EvtInfo.McDauEta"     , &McDauEta[0]     , "EvtInfo.McDauEta[14]/F"   );
+    root->Branch("EvtInfo.McDauPhi"     , &McDauPhi[0]     , "EvtInfo.McDauPhi[14]/F"   );  	 
+    root->Branch("EvtInfo.McDauPdgID"   , &McDauPdgID[0]   , "EvtInfo.McDauPdgID[14]/I" );  		 
+    root->Branch("EvtInfo.PDFid1"	    , &PDFid1	       , "EvtInfo.PDFid1/I"	    );
+    root->Branch("EvtInfo.PDFid2"	    , &PDFid2	       , "EvtInfo.PDFid2/I"	    );
+    root->Branch("EvtInfo.PDFx1"	    , &PDFx1	       , "EvtInfo.PDFx1/F"	    );
+    root->Branch("EvtInfo.RhoPU"	    , &RhoPU[0]	       , "EvtInfo.RhoPU[2]/F"	    );
+    root->Branch("EvtInfo.SigmaPU"	    , &SigmaPU[0]      , "EvtInfo.SigmaPU[2]/F"	    );
+    root->Branch("EvtInfo.PDFx2"	    , &PDFx2	       , "EvtInfo.PDFx2/F"	    );
+    root->Branch("EvtInfo.PDFscale"	    , &PDFscale	       , "EvtInfo.PDFscale/F"	    );
+    root->Branch("EvtInfo.PDFv1"	    , &PDFv1	       , "EvtInfo.PDFv1/F"	    );
+    root->Branch("EvtInfo.PDFv2"	    , &PDFv2	       , "EvtInfo.PDFv2/F"	    );		 
+
+    root->Branch("EvtInfo.BeamSpotX"    , &BeamSpotX       , "EvtInfo.BeamSpotX/F"      );
+    root->Branch("EvtInfo.BeamSpotY"    , &BeamSpotY       , "EvtInfo.BeamSpotY/F"      );
+    root->Branch("EvtInfo.BeamSpotZ"    , &BeamSpotZ       , "EvtInfo.BeamSpotZ/F"      );
+    root->Branch("EvtInfo.PFMET"        , &PFMET           , "EvtInfo.PFMET/F"          );
+    root->Branch("EvtInfo.PFMETPhi"     , &PFMETPhi        , "EvtInfo.PFMETPhi/F"       );
+    root->Branch("EvtInfo.PFRawMET"     , &PFRawMET        , "EvtInfo.PFRawMET/F"       );
+    root->Branch("EvtInfo.PFRawMETPhi"  , &PFRawMETPhi     , "EvtInfo.PFRawMETPhi/F"    );
+    root->Branch("EvtInfo.PFSumEt"      , &PFSumEt         , "EvtInfo.PFSumEt/F"        );
+    root->Branch("EvtInfo.PFMETSig"     , &PFMETSig        , "EvtInfo.PFMETSig/F"       );
+    root->Branch("EvtInfo.PFGenMET"     , &PFGenMET        , "EvtInfo.PFGenMET/F"       );
+    root->Branch("EvtInfo.PFGenMETPhi"  , &PFGenMETPhi     , "EvtInfo.PFGenMETPhi/F"    );
+    root->Branch("EvtInfo.PFMETx"       , &PFMETx          , "EvtInfo.PFMETx/F"         ); //Uly 2011-04-04
+    root->Branch("EvtInfo.PFMETy"       , &PFMETy          , "EvtInfo.PFMETy/F"         ); //Uly 2011-04-04
+    root->Branch("EvtInfo.TrgCount"     , &TrgCount        , "EvtInfo.TrgCount/I"	    );
+    root->Branch("EvtInfo.nTrgBook"     , &nTrgBook	       , "EvtInfo.nTrgBook/I"       );
+    root->Branch("EvtInfo.TrgBook"      , &TrgBook[0]      , "EvtInfo.TrgBook[EvtInfo.nTrgBook]/B"    );
+    root->Branch("EvtInfo.L1"	    , &L1[0]	       , "EvtInfo.L1[128]/I"	    );
+    root->Branch("EvtInfo.TT"	    , &TT[0]	       , "EvtInfo.TT[64]/I"	    );
+    root->Branch("EvtInfo.HighPurityFraction"    , &HighPurityFraction  , "EvtInfo.HighPurityFraction/F"   );
+    root->Branch("EvtInfo.NofTracks"             , &NofTracks           , "EvtInfo.NofTracks/I"            );
+    root->Branch("EvtInfo.nHLT"		     , &nHLT	 	    , "EvtInfo.nHLT/I"                 );
+    root->Branch("EvtInfo.HLTbits"		     , HLTbits		    , "EvtInfo.HLTbits[EvtInfo.nHLT]/O");
+    root->Branch("EvtInfo.nBX"		     , &nBX	 	    , "EvtInfo.nBX/I"                  );
+    root->Branch("EvtInfo.nPU"		     , &nPU[0]		    , "EvtInfo.nPU[EvtInfo.nBX]/I"     );
+    root->Branch("EvtInfo.BXPU"		     , &BXPU[0]		    , "EvtInfo.BXPU[EvtInfo.nBX]/I"    );
+    root->Branch("EvtInfo.TrueIT"		     , &TrueIT[0]	    , "EvtInfo.TrueIT[EvtInfo.nBX]/F"  ); 
+  }										    
+
+  void Register(TTree *root) {
+    root->SetBranchAddress("EvtInfo.RunNo"        , &RunNo  	 );
+    root->SetBranchAddress("EvtInfo.EvtNo"        , &EvtNo  	 );
+    root->SetBranchAddress("EvtInfo.BxNo"         , &BxNo   	 );
+    root->SetBranchAddress("EvtInfo.LumiNo"       , &LumiNo  	 );
+    root->SetBranchAddress("EvtInfo.Orbit"        , &Orbit  	 );
+    root->SetBranchAddress("EvtInfo.McFlag"       , &McFlag 	 );
+    root->SetBranchAddress("EvtInfo.McSigTag"     , &McSigTag	 );
+    root->SetBranchAddress("EvtInfo.McbprimeMode" , &McbprimeMode[0] );
+    root->SetBranchAddress("EvtInfo.MctprimeMode" , &MctprimeMode[0] );
+    root->SetBranchAddress("EvtInfo.McWMode"      , &McWMode[0]	 );
+    root->SetBranchAddress("EvtInfo.McZMode"      , &McZMode[0]	 );
+    root->SetBranchAddress("EvtInfo.McbprimeMass" , &McbprimeMass[0] );
+    root->SetBranchAddress("EvtInfo.MctprimeMass" , &MctprimeMass[0] );
+    root->SetBranchAddress("EvtInfo.MctopMass"    , &MctopMass[0]    );
+    root->SetBranchAddress("EvtInfo.McWMass"      , &McWMass[0]	 );
+    root->SetBranchAddress("EvtInfo.McZMass"      , &McZMass[0]	 );
+    root->SetBranchAddress("EvtInfo.McDauPt"      , &McDauPt[0]	 );
+    root->SetBranchAddress("EvtInfo.McDauEta"     , &McDauEta[0]	 );
+    root->SetBranchAddress("EvtInfo.McDauPhi"     , &McDauPhi[0]	 );	      
+    root->SetBranchAddress("EvtInfo.McDauPdgID"   , &McDauPdgID[0]   );		      
+    root->SetBranchAddress("EvtInfo.PDFid1"       , &PDFid1 	 );
+    root->SetBranchAddress("EvtInfo.PDFid2"       , &PDFid2 	 );
+    root->SetBranchAddress("EvtInfo.PDFx1"        , &PDFx1  	 );
+    root->SetBranchAddress("EvtInfo.RhoPU"        , &RhoPU[0]  	 );
+    root->SetBranchAddress("EvtInfo.SigmaPU"      , &SigmaPU[0]  	 );
+    root->SetBranchAddress("EvtInfo.PDFx2"        , &PDFx2  	 );
+    root->SetBranchAddress("EvtInfo.PDFscale"     , &PDFscale	 );
+    root->SetBranchAddress("EvtInfo.PDFv1"        , &PDFv1  	 );
+    root->SetBranchAddress("EvtInfo.PDFv2"        , &PDFv2  	 );	      
+
+    root->SetBranchAddress("EvtInfo.BeamSpotX"    , &BeamSpotX	 );
+    root->SetBranchAddress("EvtInfo.BeamSpotY"    , &BeamSpotY	 );
+    root->SetBranchAddress("EvtInfo.BeamSpotZ"    , &BeamSpotZ	 );
+
+    root->SetBranchAddress("EvtInfo.PFMET"        , &PFMET           );
+    root->SetBranchAddress("EvtInfo.PFMETPhi"     , &PFMETPhi        );
+    root->SetBranchAddress("EvtInfo.PFRawMET"     , &PFRawMET        );
+    root->SetBranchAddress("EvtInfo.PFRawMETPhi"  , &PFRawMETPhi     );
+    root->SetBranchAddress("EvtInfo.PFSumEt"      , &PFSumEt         );
+    root->SetBranchAddress("EvtInfo.PFMETSig"     , &PFMETSig        );
+    root->SetBranchAddress("EvtInfo.PFGenMET"     , &PFGenMET        );
+    root->SetBranchAddress("EvtInfo.PFGenMETPhi"  , &PFGenMETPhi     );
+    root->SetBranchAddress("EvtInfo.PFMETx"       , &PFMETx          ); //Uly 2011-04-04
+    root->SetBranchAddress("EvtInfo.PFMETy"       , &PFMETy          ); //Uly 2011-04-04
+
+    root->SetBranchAddress("EvtInfo.TrgCount"     , &TrgCount	 );
+    root->SetBranchAddress("EvtInfo.nTrgBook"     , &nTrgBook	 );
+    root->SetBranchAddress("EvtInfo.TrgBook"      , TrgBook	         );
+    root->SetBranchAddress("EvtInfo.L1"           , &L1[0]  	 );
+    root->SetBranchAddress("EvtInfo.TT"           , &TT[0]  	 );
+    root->SetBranchAddress("EvtInfo.HighPurityFraction"    , &HighPurityFraction	 );
+    root->SetBranchAddress("EvtInfo.NofTracks"    , &NofTracks	 );
+    root->SetBranchAddress("EvtInfo.nHLT"         , &nHLT	         );
+    root->SetBranchAddress("EvtInfo.HLTbits"      , HLTbits          );
+    root->SetBranchAddress("EvtInfo.nBX"	      , &nBX             );
+    root->SetBranchAddress("EvtInfo.nPU"	      , &nPU[0]          );
+    root->SetBranchAddress("EvtInfo.BXPU"	      , &BXPU[0]         );
+    root->SetBranchAddress("EvtInfo.TrueIT"	      , &TrueIT[0]       );
+  }  
+
+
 }; 
 
   
