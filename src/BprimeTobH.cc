@@ -466,6 +466,10 @@ BprimeTobH::hasJets(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   vector<edm::Handle<vector<pat::Jet> > > JetHandle;
   for(unsigned il=0; il<jetlabel_.size(); il++) {
     JetHandle.push_back(edm::Handle<vector<pat::Jet> >());
+
+    // if ( jetlabel_[il].encode() == "goodPatJetsCA8PrunedPackedSubjet1")
+    //   iEvent.getByLabel( "goodPatJetsCA8PrunedPacked", JetHandle[il]);
+    // else
     iEvent.getByLabel( jetlabel_[il], JetHandle[il]);
   }
   
@@ -486,7 +490,16 @@ BprimeTobH::hasJets(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
     for( vector<pat::Jet>::const_iterator it_jet = JetHandle[icoll]->begin(); 
 	 it_jet != JetHandle[icoll]->end(); it_jet++ ) {
-      
+
+
+      // need to work on this! 
+     // if (jettypes_[icoll] == "subjet1")  {
+     //   // pat::Jet const * subjet1 = dynamic_cast<pat::Jet const *>(it_jet->daughter(0));      
+     //   // pat::Jet const * it_jet = dynamic_cast<pat::Jet const *>(it_jet->daughter(0));      
+     //   it_jet = dynamic_cast<pat::Jet const *>(it_jet->daughter(0));      
+     //   // it_jet = subjet1; 
+     // }
+
       JetInfo[icoll].Index       [JetInfo[icoll].Size] = JetInfo[icoll].Size;
       JetInfo[icoll].NTracks     [JetInfo[icoll].Size] = it_jet->associatedTracks().size();
       JetInfo[icoll].Et          [JetInfo[icoll].Size] = it_jet->et();
