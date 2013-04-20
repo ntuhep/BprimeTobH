@@ -328,6 +328,7 @@ class JetInfoBranches {
  public:
   int   Size; 
   int   Index[MAX_JETS];
+  int   ParentIndex[MAX_JETS]; // used for subjets
 
   float Et[MAX_JETS];
   float Pt[MAX_JETS];
