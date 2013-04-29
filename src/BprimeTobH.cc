@@ -44,6 +44,7 @@
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
+#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
 
 #include "DataFormats/PatCandidates/interface/Particle.h"
 #include "DataFormats/PatCandidates/interface/Muon.h"
@@ -98,6 +99,7 @@ private:
   bool hasElectrons(const edm::Event &); 
   bool hasJets(const edm::Event &, const edm::EventSetup&); 
   void saveHLT(const edm::Event&);
+  void saveL1T(const edm::Event&);
 
 
   // ----------member data ---------------------------
@@ -113,6 +115,7 @@ private:
   vector<edm::InputTag> electronlabel_;
   vector<edm::InputTag> jetlabel_;
   vector<edm::InputTag> hltlabel_;
+  vector<edm::InputTag> gtdigilabel_;
 
   EvtInfoBranches EvtInfo;
   VertexInfoBranches VertexInfo;
@@ -154,6 +157,7 @@ BprimeTobH::BprimeTobH(const edm::ParameterSet& iConfig):
   electronlabel_(iConfig.getParameter<vector<edm::InputTag> >("electronlabel")),  
   jetlabel_(iConfig.getParameter<vector<edm::InputTag> >("jetlabel")),  
   hltlabel_(iConfig.getParameter<vector<edm::InputTag> >("hltlabel")),  
+  gtdigilabel_(iConfig.getParameter<vector<edm::InputTag> >("gtdigilabel")),  
   lepcollections_(iConfig.getParameter<std::vector<std::string> >("LepCollections")),
   jetcollections_(iConfig.getParameter<std::vector<std::string> >("JetCollections")),
   jettypes_(iConfig.getParameter<std::vector<std::string> >("JetTypes"))
@@ -196,6 +200,7 @@ BprimeTobH::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     hasElectrons(iEvent); 
     hasJets(iEvent, iSetup); 
     saveHLT(iEvent); 
+    saveL1T(iEvent); 
 		
     tree_->Fill();
   }
@@ -689,6 +694,35 @@ BprimeTobH::saveHLT(const edm::Event& iEvent)
   }
   
 }
+
+void
+BprimeTobH::saveL1T(const edm::Event& iEvent)
+{
+  //   L1 trigger and techincal trigger bits
+  edm::Handle< L1GlobalTriggerReadoutRecord > gtRecord;
+  if(gtdigilabel_.size() > 0) iEvent.getByLabel( gtdigilabel_[0], gtRecord);
+
+  if(gtRecord.isValid()) {
+    DecisionWord dWord = gtRecord->decisionWord();
+    if ( ! dWord.empty() ) { // if board not there this is zero
+      // loop over dec. bit to get total rate (no overlap)
+      for ( int i = 0; i < 128; ++i ) {
+	//	if(dWord[i]!=0 && debug)cout << i << " " << dWord[i] << ": ";
+	EvtInfo.L1[i]=dWord[i];
+      }
+    }
+    TechnicalTriggerWord tw = gtRecord->technicalTriggerWord();
+    if ( ! tw.empty() ) {
+      // loop over dec. bit to get total rate (no overlap)
+      for ( int i = 0; i < 64; ++i ) {
+	//	if(tw[i]!=0 && debug) cout << i << "  " << tw[i] << ": ";
+	EvtInfo.TT[i]=tw[i];
+      }
+    }
+  }
+
+}
+
 
 //define this as a plug-in
 DEFINE_FWK_MODULE(BprimeTobH);
