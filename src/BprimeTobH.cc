@@ -111,6 +111,7 @@ class BprimeTobH : public edm::EDAnalyzer {
 
 		bool includeL7_;
 		bool doSubjets_; 
+                bool doElectrons_; 
 
 		edm::InputTag BeamSpotLabel_;
 		edm::InputTag VertexLabel_;
@@ -156,6 +157,7 @@ BprimeTobH::BprimeTobH(const edm::ParameterSet& iConfig):
 	tree_(0), 
 	includeL7_(iConfig.getUntrackedParameter<bool>("IncludeL7",false)), 
 	doSubjets_(iConfig.getUntrackedParameter<bool>("DoSubjets",true)), 
+        doElectrons_(iConfig.getUntrackedParameter<bool>("DoElectrons",false)), 
 	BeamSpotLabel_(iConfig.getParameter<edm::InputTag>("BeamSpotLabel")),
 	VertexLabel_(iConfig.getParameter<edm::InputTag>("VertexLabel")), 
 	VertexBSLabel_(iConfig.getParameter<edm::InputTag>("VertexBSLabel")), 
@@ -204,7 +206,7 @@ BprimeTobH::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	   ) {
 
 		hasMuons(iEvent); 
-		//hasElectrons(iEvent); 
+		if (doElectrons_) hasElectrons(iEvent); 
 		hasJets(iEvent, iSetup); 
 		saveHLT(iEvent); 
 		saveL1T(iEvent); 
