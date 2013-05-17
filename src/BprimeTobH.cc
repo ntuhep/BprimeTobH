@@ -610,7 +610,24 @@ BprimeTobH::processJets(const edm::Handle<PatJetCollection>& jetsColl,
 	JetInfo[icoll].Jet_SubJet2Idx[JetInfo[icoll].Size] = subjet2Idx;
 	
       }
-  
+
+      // in the case of subjet, store the fatjet index
+      
+      if (jettypes_[icoll] == "subjet")  {
+	int fatjetIdx=-1;
+	for( PatJetCollection::const_iterator jIt = jetsColl2->begin(); jIt != jetsColl2->end(); ++jIt )
+	  {
+	    if( &(*it_jet) == fatJetToPrunedFatJetMap.find(&(*jIt))->second->daughter(0) ||
+		&(*it_jet) == fatJetToPrunedFatJetMap.find(&(*jIt))->second->daughter(1) )
+	      {
+		fatjetIdx = int( jIt - jetsColl2->begin() );
+		break;
+	      }
+	  }
+	
+	JetInfo[icoll].Jet_FatJetIdx[JetInfo[icoll].Size] = fatjetIdx;
+      
+      }
       
       JetInfo[icoll].Index   [JetInfo[icoll].Size] = JetInfo[icoll].Size;
       JetInfo[icoll].NTracks [JetInfo[icoll].Size] = it_jet->associatedTracks().size();
