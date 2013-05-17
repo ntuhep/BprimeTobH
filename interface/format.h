@@ -384,6 +384,11 @@ class JetInfoBranches {
   float SoftMuonByPtBJetTags[MAX_JETS];  
   float DoubleSVHighEffBJetTags[MAX_JETS]; 
 
+
+  int Jet_FatJetIdx[MAX_JETS];
+  int Jet_SubJet1Idx[MAX_JETS];
+  int Jet_SubJet2Idx[MAX_JETS];
+  
   void RegisterTree(TTree *root, std::string name="JetInfo") {
     root->Branch((name+".Size").c_str(), &Size, (name+".Size/I").c_str() );
     root->Branch((name+".Index").c_str()               , &Index[0]                   , (name+".Index["+name+".Size]/I").c_str());
@@ -437,6 +442,9 @@ class JetInfoBranches {
     root->Branch((name+".GenFlavor").c_str()	       , &GenFlavor[0]  	     , (name+".GenFlavor["+name+".Size]/I").c_str()		);
     root->Branch((name+".GenMCTag").c_str()	       	       , &GenMCTag[0]  	             , (name+".GenMCTag["+name+".Size]/I").c_str()		);
 
+    root->Branch((name+".Jet_FatJetIdx").c_str(),  Jet_FatJetIdx  ,(name+".Jet_FatJetIdx["+name+".Size]/I").c_str());
+    root->Branch((name+".Jet_SubJet1Idx").c_str(),  Jet_SubJet1Idx  ,(name+".Jet_SubJet1Idx["+name+".Size]/I").c_str());
+    root->Branch((name+".Jet_SubJet2Idx").c_str(),  Jet_SubJet2Idx  ,(name+".Jet_SubJet2Idx["+name+".Size]/I").c_str());
 
   }
   
@@ -494,6 +502,11 @@ class JetInfoBranches {
 
     root->SetBranchAddress((name+".Mass").c_str()		 , &Mass[0]		       );
     root->SetBranchAddress((name+".Area").c_str()		 , &Area[0]		       );
+  
+    root->SetBranchAddress((name+".Jet_FatJetIdx").c_str(),  Jet_FatJetIdx );
+    root->SetBranchAddress((name+".Jet_SubJet1Idx").c_str(),  Jet_SubJet1Idx );
+    root->SetBranchAddress((name+".Jet_SubJet2Idx").c_str(),  Jet_SubJet2Idx );
+  
   }
 
 };
