@@ -592,6 +592,26 @@ BprimeTobH::processJets(const edm::Handle<PatJetCollection>& jetsColl,
     for( vector<pat::Jet>::const_iterator it_jet = jetsColl->begin();
     	 it_jet != jetsColl->end(); it_jet++ ) { 
     
+      // in the case of fatjet, store the two subjets index 
+      if (jettypes_[icoll] == "fatjet")  {
+
+	int subjet1Idx=-1, subjet2Idx=-1;
+	for( PatJetCollection::const_iterator jIt = jetsColl2->begin();
+	     jIt != jetsColl2->end(); ++jIt )
+	  {
+	    if( &(*jIt) == fatJetToPrunedFatJetMap.find(&(*it_jet))->second->daughter(0) )
+	      subjet1Idx = int( jIt - jetsColl2->begin() );
+	    if( &(*jIt) == fatJetToPrunedFatJetMap.find(&(*it_jet))->second->daughter(1) )
+	      subjet2Idx = int( jIt - jetsColl2->begin() );
+	    if( subjet1Idx>=0 && subjet2Idx>=0 ) break;
+	  }
+
+	JetInfo[icoll].Jet_SubJet1Idx[JetInfo[icoll].Size] = subjet1Idx;
+	JetInfo[icoll].Jet_SubJet2Idx[JetInfo[icoll].Size] = subjet2Idx;
+	
+      }
+  
+      
       JetInfo[icoll].Index   [JetInfo[icoll].Size] = JetInfo[icoll].Size;
       JetInfo[icoll].NTracks [JetInfo[icoll].Size] = it_jet->associatedTracks().size();
       JetInfo[icoll].Et  [JetInfo[icoll].Size] = it_jet->et();
