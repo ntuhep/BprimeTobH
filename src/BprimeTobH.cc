@@ -111,18 +111,13 @@ private:
   bool hasJets(const edm::Event &, const edm::EventSetup&); 
   void saveHLT(const edm::Event&);
   void saveL1T(const edm::Event&);
-  void processJets(const edm::Handle<PatJetCollection>& , 
-		   const edm::Handle<PatJetCollection>& ,
-		   const edm::Event& , 
-		   const edm::EventSetup& , 
-		   const JetToJetMap&, 
-		   const unsigned int); 
+  void processJets(const edm::Handle<PatJetCollection>&, const edm::Handle<PatJetCollection>&,
+		   const edm::Event&, const edm::EventSetup&, const JetToJetMap&, const unsigned int); 
 
   // ----------member data ---------------------------
   TTree* tree_;  
 
   bool includeL7_;
-  // bool doSubjets_; 
   bool doElectrons_; 
 
   edm::InputTag BeamSpotLabel_;
@@ -138,7 +133,6 @@ private:
   VertexInfoBranches VertexInfo;
   LepInfoBranches LepInfo[MAX_LEPCOLLECTIONS];
   JetInfoBranches JetInfo[MAX_JETCOLLECTIONS];
-  // JetInfoBranches SubJetInfo[MAX_JETCOLLECTIONS];
 
   // Across the event 
   reco::BeamSpot beamSpot_;  
@@ -165,7 +159,6 @@ private:
 BprimeTobH::BprimeTobH(const edm::ParameterSet& iConfig):
   tree_(0), 
   includeL7_(iConfig.getUntrackedParameter<bool>("IncludeL7",false)), 
-  // doSubjets_(iConfig.getUntrackedParameter<bool>("DoSubjets",true)), 
   doElectrons_(iConfig.getUntrackedParameter<bool>("DoElectrons",false)), 
   BeamSpotLabel_(iConfig.getParameter<edm::InputTag>("BeamSpotLabel")),
   VertexLabel_(iConfig.getParameter<edm::InputTag>("VertexLabel")), 
@@ -247,7 +240,6 @@ BprimeTobH::beginJob()
     if(i >= MAX_JETCOLLECTIONS) break;
 
     JetInfo[i].RegisterTree(tree_,jetcollections_[i]);
-    // SubJetInfo[i].RegisterTree(tree_,jetcollections_[i].append("_subjets"));
   }
 
 }
@@ -315,14 +307,12 @@ BprimeTobH::hasBeamSpot(const edm::Event& iEvent)
 void 
 BprimeTobH::clearVariables(){
   memset(&EvtInfo,0x00,sizeof(EvtInfo));
-  //   memset(&VertexInfo,0x00,sizeof(VertexInfo));
 }
 
 bool
 BprimeTobH::hasPrimaryVertex(const edm::Event& iEvent)
 {
   memset(&VertexInfo,0x00,sizeof(VertexInfo));
-  // Signal_Vz = 0.; 
 
   edm::Handle<reco::VertexCollection> recoVertexHandle;
   iEvent.getByLabel(VertexLabel_, recoVertexHandle);
@@ -332,7 +322,6 @@ BprimeTobH::hasPrimaryVertex(const edm::Event& iEvent)
        or recoVertexHandle->size() <= 0 )
     return false;
 
-  // nprivtx = recoVertexHandle->size(); 
   bool gotPrimVtx = false;
 
   for (std::vector<reco::Vertex>::const_iterator iVertex = recoVertexHandle->begin();
@@ -341,7 +330,7 @@ BprimeTobH::hasPrimaryVertex(const edm::Event& iEvent)
     if (VertexInfo.Size>=MAX_VERTICES) {
       cout << "PV " << VertexInfo.Size << endl;
       fprintf(stderr,"ERROR: number of  Tracks exceeds the size of array.\n");
-      break;//exit(0);
+      break; 
     }
 
     VertexInfo.Type[VertexInfo.Size] = 0; //Vertices WITHOUT the Beam Spot constraint
@@ -356,12 +345,6 @@ BprimeTobH::hasPrimaryVertex(const edm::Event& iEvent)
     VertexInfo.Pt_Sum[VertexInfo.Size] = 0.;
     VertexInfo.Pt_Sum2[VertexInfo.Size] = 0.;
 
-    //for (reco::Vertex::trackRef_iterator it = iVertex->tracks_begin(); 
-    // it != iVertex->tracks_end(); it++) {
-    //  VertexInfo.Pt_Sum[VertexInfo.Size] += (*it)->pt();
-    //  VertexInfo.Pt_Sum2[VertexInfo.Size] += ((*it)->pt() * (*it)->pt());
-    //}
-
     if (!gotPrimVtx && (!iVertex->isFake() && iVertex->ndof()>=4. && iVertex->z() <=24.
 			&& iVertex->position().Rho()<=2.)) {
       primaryVertex_ = *(iVertex); 
@@ -372,11 +355,8 @@ BprimeTobH::hasPrimaryVertex(const edm::Event& iEvent)
   }
 
   if (!primaryVertex_.isValid()) {
-    // edm::LogError("myVertex") << "No valid vertex found!." ;
     return false; 
   }
-
-  // edm::LogInfo("myVertex") << "Found number of vertex: " << recVtxs->size(); 
 
   return true; 
 }
@@ -400,7 +380,7 @@ BprimeTobH::hasPrimaryVertexBS(const edm::Event& iEvent)
     if (VertexInfo.Size>=MAX_VERTICES) {
       cout << "PVBS " << VertexInfo.Size << endl;
       fprintf(stderr,"ERROR: number of  Vertices exceeds the size of array.\n");
-      break;//exit(0);
+      break;
     }
     VertexInfo.Type[VertexInfo.Size] = 1;  //Vertices WITH the Beam Spot constraint
     VertexInfo.isValid[VertexInfo.Size] = it_vtx->isValid();
@@ -413,10 +393,7 @@ BprimeTobH::hasPrimaryVertexBS(const edm::Event& iEvent)
     VertexInfo.Rho[VertexInfo.Size] = it_vtx->position().Rho();
     VertexInfo.Pt_Sum[VertexInfo.Size] = 0.;
     VertexInfo.Pt_Sum2[VertexInfo.Size] = 0.;
-    //for (reco::Vertex::trackRef_iterator it = it_vtx->tracks_begin(); it != it_vtx->tracks_end(); it++) {
-    //  VertexInfo.Pt_Sum[VertexInfo.Size] += (*it)->pt();
-    //  VertexInfo.Pt_Sum2[VertexInfo.Size] += ((*it)->pt() * (*it)->pt());
-    //}
+
     if( VertexInfo.Pt_Sum[VertexInfo.Size] >= PVBS_Pt_Max ){
       PVBS_Pt_Max = VertexInfo.Pt_Sum[VertexInfo.Size];
       primaryVertexBS_ = *it_vtx;
@@ -458,12 +435,8 @@ BprimeTobH::hasMuons(const edm::Event& iEvent)
       }
 
       LepInfo[icoll].Index[LepInfo[icoll].Size] = LepInfo[icoll].Size;
-
     }
-
-
   }
-
   return true; 
 }
 
@@ -510,10 +483,6 @@ BprimeTobH::hasJets(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   vector<edm::Handle<vector<pat::Jet> > > JetHandle;
   for(unsigned il=0; il<jetlabel_.size(); il++) {
     JetHandle.push_back(edm::Handle<vector<pat::Jet> >());
-
-    // if ( jetlabel_[il].encode() == "goodPatJetsCA8PrunedPackedSubjet1")
-    //   iEvent.getByLabel( "goodPatJetsCA8PrunedPacked", JetHandle[il]);
-    // else
     iEvent.getByLabel( jetlabel_[il], JetHandle[il]);
   }
 
@@ -571,253 +540,158 @@ BprimeTobH::processJets(const edm::Handle<PatJetCollection>& jetsColl,
 			const JetToJetMap& fatJetToPrunedFatJetMap, 
 			const unsigned int icoll)
 {
-  // for(unsigned icoll=0; icoll<jetcollections_.size(); icoll++) {
-    //loop over collections
-    if(icoll >= MAX_JETCOLLECTIONS) return;
+  if(icoll >= MAX_JETCOLLECTIONS) return;
 
-    memset(&JetInfo[icoll],0x00,sizeof(JetInfo[icoll]));
-    // memset(&SubJetInfo[icoll],0x00,sizeof(SubJetInfo[icoll]));
+  memset(&JetInfo[icoll],0x00,sizeof(JetInfo[icoll]));
 
-    // For Jet Uncertainty
+  // For Jet Uncertainty
 
-    edm::ESHandle<JetCorrectorParametersCollection> JetCorParColl;
-    iSetup.get<JetCorrectionsRecord>().get("AK5PF", JetCorParColl); //?? Hardcode ??
-    JetCorrectorParameters const & JetCorPar = (*JetCorParColl)["Uncertainty"];
-    JetCorrectionUncertainty *jecUnc = new JetCorrectionUncertainty(JetCorPar);
+  edm::ESHandle<JetCorrectorParametersCollection> JetCorParColl;
+  iSetup.get<JetCorrectionsRecord>().get("AK5PF", JetCorParColl); //?? Hardcode ??
+  JetCorrectorParameters const & JetCorPar = (*JetCorParColl)["Uncertainty"];
+  JetCorrectionUncertainty *jecUnc = new JetCorrectionUncertainty(JetCorPar);
 
-    // if (JetHandle.size() <= icoll) continue;  
-
-    // for( vector<pat::Jet>::const_iterator it_jet = JetHandle[icoll]->begin();
-    // 	 it_jet != JetHandle[icoll]->end(); it_jet++ ) { 
-    for( vector<pat::Jet>::const_iterator it_jet = jetsColl->begin();
-    	 it_jet != jetsColl->end(); it_jet++ ) { 
+  for( vector<pat::Jet>::const_iterator it_jet = jetsColl->begin();
+       it_jet != jetsColl->end(); it_jet++ ) { 
     
-      // in the case of fatjet, store the two subjets index 
-      if (jettypes_[icoll] == "fatjet")  {
+    // in the case of fatjet, store the two subjets index 
+    if (jettypes_[icoll] == "fatjet")  {
 
-	int subjet1Idx=-1, subjet2Idx=-1;
-	for( PatJetCollection::const_iterator jIt = jetsColl2->begin();
-	     jIt != jetsColl2->end(); ++jIt )
-	  {
-	    if( &(*jIt) == fatJetToPrunedFatJetMap.find(&(*it_jet))->second->daughter(0) )
-	      subjet1Idx = int( jIt - jetsColl2->begin() );
-	    if( &(*jIt) == fatJetToPrunedFatJetMap.find(&(*it_jet))->second->daughter(1) )
-	      subjet2Idx = int( jIt - jetsColl2->begin() );
-	    if( subjet1Idx>=0 && subjet2Idx>=0 ) break;
-	  }
-
-	JetInfo[icoll].Jet_SubJet1Idx[JetInfo[icoll].Size] = subjet1Idx;
-	JetInfo[icoll].Jet_SubJet2Idx[JetInfo[icoll].Size] = subjet2Idx;
-	
-      }
-
-      // in the case of subjet, store the fatjet index
-      
-      if (jettypes_[icoll] == "subjet")  {
-	int fatjetIdx=-1;
-	for( PatJetCollection::const_iterator jIt = jetsColl2->begin(); jIt != jetsColl2->end(); ++jIt )
-	  {
-	    if( &(*it_jet) == fatJetToPrunedFatJetMap.find(&(*jIt))->second->daughter(0) ||
-		&(*it_jet) == fatJetToPrunedFatJetMap.find(&(*jIt))->second->daughter(1) )
-	      {
-		fatjetIdx = int( jIt - jetsColl2->begin() );
-		break;
-	      }
-	  }
-	
-	JetInfo[icoll].Jet_FatJetIdx[JetInfo[icoll].Size] = fatjetIdx;
-      
-      }
-      
-      JetInfo[icoll].Index   [JetInfo[icoll].Size] = JetInfo[icoll].Size;
-      JetInfo[icoll].NTracks [JetInfo[icoll].Size] = it_jet->associatedTracks().size();
-      JetInfo[icoll].Et  [JetInfo[icoll].Size] = it_jet->et();
-      JetInfo[icoll].Pt  [JetInfo[icoll].Size] = it_jet->pt();
-      JetInfo[icoll].Eta [JetInfo[icoll].Size] = it_jet->eta();
-      JetInfo[icoll].Phi [JetInfo[icoll].Size] = it_jet->phi();
-
-      jecUnc->setJetEta(it_jet->eta());
-      jecUnc->setJetPt(it_jet->pt()); // here you must use the CORRECTED jet pt
-      if(fabs(it_jet->eta())<=5.0) JetInfo[icoll].Unc  [JetInfo[icoll].Size] = jecUnc->getUncertainty(true);
-
-
-      JetInfo[icoll].JetCharge   [JetInfo[icoll].Size] = it_jet->jetCharge();
-      JetInfo[icoll].NConstituents[JetInfo[icoll].Size] = it_jet->numberOfDaughters();
-
-      if (it_jet->isPFJet())  {
-	JetInfo[icoll].NCH[JetInfo[icoll].Size] = it_jet->chargedMultiplicity();
-	JetInfo[icoll].CEF[JetInfo[icoll].Size] = it_jet->chargedEmEnergyFraction();
-	JetInfo[icoll].NHF[JetInfo[icoll].Size] = it_jet->neutralHadronEnergyFraction();
-	JetInfo[icoll].NEF[JetInfo[icoll].Size] = it_jet->neutralEmEnergyFraction();
-	JetInfo[icoll].CHF[JetInfo[icoll].Size] = it_jet->chargedHadronEnergyFraction();
-      }
-
-      bool JetID(false);
-
-      if (jettypes_[icoll] == "fatjet")  {
-	JetID = true; //Apply JetID in PAT level
-      }
-      else if(it_jet->isPFJet()) {
-	//Jet ID for PFJet
-	edm::ParameterSet PS_pf;
-	PS_pf.addParameter<std::string>("version", "FIRSTDATA");
-	PS_pf.addParameter<std::string>("quality", "LOOSE");
-	PFJetIDSelectionFunctor pfjetIDLOOSE(PS_pf) ;
-	pat::strbitset ret = pfjetIDLOOSE.getBitTemplate() ;
-	ret.set(false);
-	JetID = pfjetIDLOOSE(*it_jet, ret);
-      }
-      else JetID = false; 
-
-      JetInfo[icoll].JetIDLOOSE[JetInfo[icoll].Size] = (JetID) ?  1 : 0;
-
-      // Jet corrections, B-tagging, and Jet ID information
-      // now we just fill everything (regardless of availability)
-      JetInfo[icoll].PtCorrRaw   [JetInfo[icoll].Size] = it_jet->correctedJet("Uncorrected").pt();	   
-      JetInfo[icoll].PtCorrL2[JetInfo[icoll].Size] = it_jet->correctedJet("L2Relative" ).pt(); // L2(rel) 
-      JetInfo[icoll].PtCorrL3[JetInfo[icoll].Size] = it_jet->correctedJet("L3Absolute" ).pt(); // L3(abs) 
-      if(includeL7_) {
-	JetInfo[icoll].PtCorrL7g   [JetInfo[icoll].Size] = it_jet->correctedJet("L7Parton", "gluon" ).pt(); // L7(gluon)
-	JetInfo[icoll].PtCorrL7uds [JetInfo[icoll].Size] = it_jet->correctedJet("L7Parton", "uds"   ).pt(); // L7(uds-jet) 
-	JetInfo[icoll].PtCorrL7c   [JetInfo[icoll].Size] = it_jet->correctedJet("L7Parton", "charm" ).pt(); // L7(c-jet)  
-	JetInfo[icoll].PtCorrL7b   [JetInfo[icoll].Size] = it_jet->correctedJet("L7Parton", "bottom").pt(); // L7(b-jet) 
-      }
-
-      JetInfo[icoll].JetBProbBJetTags[JetInfo[icoll].Size] = it_jet->bDiscriminator("jetBProbabilityBJetTags");
-      JetInfo[icoll].JetProbBJetTags [JetInfo[icoll].Size] = it_jet->bDiscriminator("jetProbabilityBJetTags");
-      JetInfo[icoll].TrackCountHiPurBJetTags [JetInfo[icoll].Size] = it_jet->bDiscriminator("trackCountingHighPurBJetTags"); 
-      JetInfo[icoll].CombinedSVBJetTags  [JetInfo[icoll].Size] = it_jet->bDiscriminator("combinedSecondaryVertexBJetTags");
-      JetInfo[icoll].CombinedSVMVABJetTags   [JetInfo[icoll].Size] = it_jet->bDiscriminator("combinedSecondaryVertexMVABJetTags");
-      JetInfo[icoll].SoftElecByIP3dBJetTags  [JetInfo[icoll].Size] = it_jet->bDiscriminator("softElectronByIP3dBJetTags");
-      JetInfo[icoll].SoftElecByPtBJetTags[JetInfo[icoll].Size] = it_jet->bDiscriminator("softElectronByPtBJetTags");
-      JetInfo[icoll].SoftMuonBJetTags[JetInfo[icoll].Size] = it_jet->bDiscriminator("softMuonBJetTags");
-      JetInfo[icoll].SoftMuonByIP3dBJetTags  [JetInfo[icoll].Size] = it_jet->bDiscriminator("softMuonByIP3dBJetTags");
-      JetInfo[icoll].SoftMuonByPtBJetTags[JetInfo[icoll].Size] = it_jet->bDiscriminator("softMuonByPtBJetTags");
-      JetInfo[icoll].DoubleSVHighEffBJetTags [JetInfo[icoll].Size] = it_jet->bDiscriminator("doubleSecondaryVertexHighEffBJetTags"); 
-
-      JetInfo[icoll].Px  [JetInfo[icoll].Size] = it_jet->px(); 
-      JetInfo[icoll].Py  [JetInfo[icoll].Size] = it_jet->py(); 
-      JetInfo[icoll].Pz  [JetInfo[icoll].Size] = it_jet->pz(); 
-      JetInfo[icoll].Energy  [JetInfo[icoll].Size] = it_jet->energy(); 
-
-      JetInfo[icoll].Mass[JetInfo[icoll].Size] = it_jet->mass();
-      JetInfo[icoll].Area[JetInfo[icoll].Size] = it_jet->jetArea();
-
-      if (!iEvent.isRealData()) {
-	JetInfo[icoll].GenFlavor[JetInfo[icoll].Size] = it_jet->partonFlavour(); 
-	if (doGenJets_) {
-	  const reco::GenJet * genjet = it_jet->genJet();
-	  JetInfo[icoll].GenJetPt [JetInfo[icoll].Size] = genjet->pt(); 
-	  JetInfo[icoll].GenJetEta[JetInfo[icoll].Size] = genjet->eta();
-	  JetInfo[icoll].GenJetPhi[JetInfo[icoll].Size] = genjet->eta(); 
-	  const reco::GenParticle* parton = it_jet->genParton();
-	  const reco::Candidate* genCand = parton;
-	  int qpTag(0) ; 
-	  while (genCand!=NULL && genCand->numberOfMothers()==1) {
-	    genCand = genCand->mother(0);
-	    if (abs(genCand->pdgId())==7 ) qpTag = 7;	// check if it's bprime
-	    else if (abs(genCand->pdgId())==8 ) qpTag = 8;	// check if it's tprime.
-	    else qpTag = 0 ; 
-	    if (abs(genCand->pdgId())==23) JetInfo[icoll].GenMCTag[JetInfo[icoll].Size] = 23;
-	    if (abs(genCand->pdgId())==24) JetInfo[icoll].GenMCTag[JetInfo[icoll].Size] = 24;
-	    if (abs(genCand->pdgId())==25) JetInfo[icoll].GenMCTag[JetInfo[icoll].Size] = 25;
-	  }
-	  JetInfo[icoll].GenMCTag[JetInfo[icoll].Size] += qpTag*100 ; 
+      int subjet1Idx=-1, subjet2Idx=-1;
+      for( PatJetCollection::const_iterator jIt = jetsColl2->begin();
+	   jIt != jetsColl2->end(); ++jIt )
+	{
+	  if( &(*jIt) == fatJetToPrunedFatJetMap.find(&(*it_jet))->second->daughter(0) )
+	    subjet1Idx = int( jIt - jetsColl2->begin() );
+	  if( &(*jIt) == fatJetToPrunedFatJetMap.find(&(*it_jet))->second->daughter(1) )
+	    subjet2Idx = int( jIt - jetsColl2->begin() );
+	  if( subjet1Idx>=0 && subjet2Idx>=0 ) break;
 	}
+
+      JetInfo[icoll].Jet_SubJet1Idx[JetInfo[icoll].Size] = subjet1Idx;
+      JetInfo[icoll].Jet_SubJet2Idx[JetInfo[icoll].Size] = subjet2Idx;
+	
+    }
+
+    // in the case of subjet, store the fatjet index
+      
+    if (jettypes_[icoll] == "subjet")  {
+      int fatjetIdx=-1;
+      for( PatJetCollection::const_iterator jIt = jetsColl2->begin(); jIt != jetsColl2->end(); ++jIt )
+	{
+	  if( &(*it_jet) == fatJetToPrunedFatJetMap.find(&(*jIt))->second->daughter(0) ||
+	      &(*it_jet) == fatJetToPrunedFatJetMap.find(&(*jIt))->second->daughter(1) )
+	    {
+	      fatjetIdx = int( jIt - jetsColl2->begin() );
+	      break;
+	    }
+	}
+	
+      JetInfo[icoll].Jet_FatJetIdx[JetInfo[icoll].Size] = fatjetIdx;
+      
+    }
+      
+    JetInfo[icoll].Index   [JetInfo[icoll].Size] = JetInfo[icoll].Size;
+    JetInfo[icoll].NTracks [JetInfo[icoll].Size] = it_jet->associatedTracks().size();
+    JetInfo[icoll].Et  [JetInfo[icoll].Size] = it_jet->et();
+    JetInfo[icoll].Pt  [JetInfo[icoll].Size] = it_jet->pt();
+    JetInfo[icoll].Eta [JetInfo[icoll].Size] = it_jet->eta();
+    JetInfo[icoll].Phi [JetInfo[icoll].Size] = it_jet->phi();
+
+    jecUnc->setJetEta(it_jet->eta());
+    jecUnc->setJetPt(it_jet->pt()); // here you must use the CORRECTED jet pt
+    if(fabs(it_jet->eta())<=5.0) JetInfo[icoll].Unc  [JetInfo[icoll].Size] = jecUnc->getUncertainty(true);
+
+
+    JetInfo[icoll].JetCharge   [JetInfo[icoll].Size] = it_jet->jetCharge();
+    JetInfo[icoll].NConstituents[JetInfo[icoll].Size] = it_jet->numberOfDaughters();
+
+    if (it_jet->isPFJet())  {
+      JetInfo[icoll].NCH[JetInfo[icoll].Size] = it_jet->chargedMultiplicity();
+      JetInfo[icoll].CEF[JetInfo[icoll].Size] = it_jet->chargedEmEnergyFraction();
+      JetInfo[icoll].NHF[JetInfo[icoll].Size] = it_jet->neutralHadronEnergyFraction();
+      JetInfo[icoll].NEF[JetInfo[icoll].Size] = it_jet->neutralEmEnergyFraction();
+      JetInfo[icoll].CHF[JetInfo[icoll].Size] = it_jet->chargedHadronEnergyFraction();
+    }
+
+    bool JetID(false);
+
+    if (jettypes_[icoll] == "fatjet")  {
+      JetID = true; //Apply JetID in PAT level
+    }
+    else if(it_jet->isPFJet()) {
+      //Jet ID for PFJet
+      edm::ParameterSet PS_pf;
+      PS_pf.addParameter<std::string>("version", "FIRSTDATA");
+      PS_pf.addParameter<std::string>("quality", "LOOSE");
+      PFJetIDSelectionFunctor pfjetIDLOOSE(PS_pf) ;
+      pat::strbitset ret = pfjetIDLOOSE.getBitTemplate() ;
+      ret.set(false);
+      JetID = pfjetIDLOOSE(*it_jet, ret);
+    }
+    else JetID = false; 
+
+    JetInfo[icoll].JetIDLOOSE[JetInfo[icoll].Size] = (JetID) ?  1 : 0;
+
+    // Jet corrections, B-tagging, and Jet ID information
+    // now we just fill everything (regardless of availability)
+    JetInfo[icoll].PtCorrRaw   [JetInfo[icoll].Size] = it_jet->correctedJet("Uncorrected").pt();	   
+    JetInfo[icoll].PtCorrL2[JetInfo[icoll].Size] = it_jet->correctedJet("L2Relative" ).pt(); // L2(rel) 
+    JetInfo[icoll].PtCorrL3[JetInfo[icoll].Size] = it_jet->correctedJet("L3Absolute" ).pt(); // L3(abs) 
+    if(includeL7_) {
+      JetInfo[icoll].PtCorrL7g   [JetInfo[icoll].Size] = it_jet->correctedJet("L7Parton", "gluon" ).pt(); // L7(gluon)
+      JetInfo[icoll].PtCorrL7uds [JetInfo[icoll].Size] = it_jet->correctedJet("L7Parton", "uds"   ).pt(); // L7(uds-jet) 
+      JetInfo[icoll].PtCorrL7c   [JetInfo[icoll].Size] = it_jet->correctedJet("L7Parton", "charm" ).pt(); // L7(c-jet)  
+      JetInfo[icoll].PtCorrL7b   [JetInfo[icoll].Size] = it_jet->correctedJet("L7Parton", "bottom").pt(); // L7(b-jet) 
+    }
+
+    JetInfo[icoll].JetBProbBJetTags[JetInfo[icoll].Size] = it_jet->bDiscriminator("jetBProbabilityBJetTags");
+    JetInfo[icoll].JetProbBJetTags [JetInfo[icoll].Size] = it_jet->bDiscriminator("jetProbabilityBJetTags");
+    JetInfo[icoll].TrackCountHiPurBJetTags [JetInfo[icoll].Size] = it_jet->bDiscriminator("trackCountingHighPurBJetTags"); 
+    JetInfo[icoll].CombinedSVBJetTags  [JetInfo[icoll].Size] = it_jet->bDiscriminator("combinedSecondaryVertexBJetTags");
+    JetInfo[icoll].CombinedSVMVABJetTags   [JetInfo[icoll].Size] = it_jet->bDiscriminator("combinedSecondaryVertexMVABJetTags");
+    JetInfo[icoll].SoftElecByIP3dBJetTags  [JetInfo[icoll].Size] = it_jet->bDiscriminator("softElectronByIP3dBJetTags");
+    JetInfo[icoll].SoftElecByPtBJetTags[JetInfo[icoll].Size] = it_jet->bDiscriminator("softElectronByPtBJetTags");
+    JetInfo[icoll].SoftMuonBJetTags[JetInfo[icoll].Size] = it_jet->bDiscriminator("softMuonBJetTags");
+    JetInfo[icoll].SoftMuonByIP3dBJetTags  [JetInfo[icoll].Size] = it_jet->bDiscriminator("softMuonByIP3dBJetTags");
+    JetInfo[icoll].SoftMuonByPtBJetTags[JetInfo[icoll].Size] = it_jet->bDiscriminator("softMuonByPtBJetTags");
+    JetInfo[icoll].DoubleSVHighEffBJetTags [JetInfo[icoll].Size] = it_jet->bDiscriminator("doubleSecondaryVertexHighEffBJetTags"); 
+
+    JetInfo[icoll].Px  [JetInfo[icoll].Size] = it_jet->px(); 
+    JetInfo[icoll].Py  [JetInfo[icoll].Size] = it_jet->py(); 
+    JetInfo[icoll].Pz  [JetInfo[icoll].Size] = it_jet->pz(); 
+    JetInfo[icoll].Energy  [JetInfo[icoll].Size] = it_jet->energy(); 
+
+    JetInfo[icoll].Mass[JetInfo[icoll].Size] = it_jet->mass();
+    JetInfo[icoll].Area[JetInfo[icoll].Size] = it_jet->jetArea();
+
+    if (!iEvent.isRealData()) {
+      JetInfo[icoll].GenFlavor[JetInfo[icoll].Size] = it_jet->partonFlavour(); 
+      if (doGenJets_) {
+	const reco::GenJet * genjet = it_jet->genJet();
+	JetInfo[icoll].GenJetPt [JetInfo[icoll].Size] = genjet->pt(); 
+	JetInfo[icoll].GenJetEta[JetInfo[icoll].Size] = genjet->eta();
+	JetInfo[icoll].GenJetPhi[JetInfo[icoll].Size] = genjet->eta(); 
+	const reco::GenParticle* parton = it_jet->genParton();
+	const reco::Candidate* genCand = parton;
+	int qpTag(0) ; 
+	while (genCand!=NULL && genCand->numberOfMothers()==1) {
+	  genCand = genCand->mother(0);
+	  if (abs(genCand->pdgId())==7 ) qpTag = 7;	// check if it's bprime
+	  else if (abs(genCand->pdgId())==8 ) qpTag = 8;	// check if it's tprime.
+	  else qpTag = 0 ; 
+	  if (abs(genCand->pdgId())==23) JetInfo[icoll].GenMCTag[JetInfo[icoll].Size] = 23;
+	  if (abs(genCand->pdgId())==24) JetInfo[icoll].GenMCTag[JetInfo[icoll].Size] = 24;
+	  if (abs(genCand->pdgId())==25) JetInfo[icoll].GenMCTag[JetInfo[icoll].Size] = 25;
+	}
+	JetInfo[icoll].GenMCTag[JetInfo[icoll].Size] += qpTag*100 ; 
       }
+    }
 
-      // loop for subjets
+    JetInfo[icoll].Size++;
 
-      /* 
-      if (doSubjets_) { 
+  } //loop over jets in collection
 
-	for (unsigned ndau = 0; ndau < it_jet->numberOfDaughters(); ++ndau) {
-	  reco::CandidatePtr dptr = it_jet->daughterPtr(ndau);
-	  if(dptr.isAvailable()){
-	    pat::Jet const * subjet = dynamic_cast<pat::Jet const *>( &(*dptr));
-	    if (subjet) { 
-	      if (subjet->isPFJet()) { 
-
-		//edm::LogInfo("Subjets") << " Coll = " << jetcollections_[icoll] << " Jet no. =  " << JetInfo[icoll].Size << " Exist for jetCollection " << jetcollections_[icoll] << " index = " << SubJetInfo[icoll].Size ; 
-
-		SubJetInfo[icoll].Index   [SubJetInfo[icoll].Size] = SubJetInfo[icoll].Size;
-		SubJetInfo[icoll].ParentIndex [SubJetInfo[icoll].Size] = JetInfo[icoll].Size;
-
-		SubJetInfo[icoll].NTracks [SubJetInfo[icoll].Size] = subjet->associatedTracks().size();
-		SubJetInfo[icoll].Et  [SubJetInfo[icoll].Size] = subjet->et();
-		SubJetInfo[icoll].Pt  [SubJetInfo[icoll].Size] = subjet->pt();
-		SubJetInfo[icoll].Eta [SubJetInfo[icoll].Size] = subjet->eta();
-		SubJetInfo[icoll].Phi [SubJetInfo[icoll].Size] = subjet->phi();
-
-		SubJetInfo[icoll].JetCharge[SubJetInfo[icoll].Size] = subjet->jetCharge();
-
-		if (subjet->isPFJet())  {
-		  SubJetInfo[icoll].NCH[JetInfo[icoll].Size] = subjet->chargedMultiplicity();
-		  SubJetInfo[icoll].CEF[JetInfo[icoll].Size] = subjet->chargedEmEnergyFraction();
-		  SubJetInfo[icoll].NHF[JetInfo[icoll].Size] = subjet->neutralHadronEnergyFraction();
-		  SubJetInfo[icoll].NEF[JetInfo[icoll].Size] = subjet->neutralEmEnergyFraction();
-		  SubJetInfo[icoll].CHF[JetInfo[icoll].Size] = subjet->chargedHadronEnergyFraction();
-		}
-
-		SubJetInfo[icoll].JetBProbBJetTags[SubJetInfo[icoll].Size] = subjet->bDiscriminator("jetBProbabilityBJetTags");
-		SubJetInfo[icoll].JetProbBJetTags [SubJetInfo[icoll].Size] = subjet->bDiscriminator("jetProbabilityBJetTags");
-		SubJetInfo[icoll].TrackCountHiPurBJetTags [SubJetInfo[icoll].Size] = subjet->bDiscriminator("trackCountingHighPurBJetTags"); 
-		SubJetInfo[icoll].CombinedSVBJetTags  [SubJetInfo[icoll].Size] = subjet->bDiscriminator("combinedSecondaryVertexBJetTags");
-		SubJetInfo[icoll].CombinedSVMVABJetTags   [SubJetInfo[icoll].Size] = subjet->bDiscriminator("combinedSecondaryVertexMVABJetTags");
-		SubJetInfo[icoll].SoftElecByIP3dBJetTags  [SubJetInfo[icoll].Size] = subjet->bDiscriminator("softElectronByIP3dBJetTags");
-		SubJetInfo[icoll].SoftElecByPtBJetTags[SubJetInfo[icoll].Size] = subjet->bDiscriminator("softElectronByPtBJetTags");
-		SubJetInfo[icoll].SoftMuonBJetTags[SubJetInfo[icoll].Size] = subjet->bDiscriminator("softMuonBJetTags");
-		SubJetInfo[icoll].SoftMuonByIP3dBJetTags  [SubJetInfo[icoll].Size] = subjet->bDiscriminator("softMuonByIP3dBJetTags");
-		SubJetInfo[icoll].SoftMuonByPtBJetTags[SubJetInfo[icoll].Size] = subjet->bDiscriminator("softMuonByPtBJetTags");
-		SubJetInfo[icoll].DoubleSVHighEffBJetTags [SubJetInfo[icoll].Size] = subjet->bDiscriminator("doubleSecondaryVertexHighEffBJetTags"); 
-
-		SubJetInfo[icoll].Px  [SubJetInfo[icoll].Size] = subjet->px(); 
-		SubJetInfo[icoll].Py  [SubJetInfo[icoll].Size] = subjet->py(); 
-		SubJetInfo[icoll].Pz  [SubJetInfo[icoll].Size] = subjet->pz(); 
-		SubJetInfo[icoll].Energy  [SubJetInfo[icoll].Size] = subjet->energy(); 
-		SubJetInfo[icoll].Mass[SubJetInfo[icoll].Size] = subjet->mass();
-		SubJetInfo[icoll].Area[SubJetInfo[icoll].Size] = subjet->jetArea();
-
-		if (!iEvent.isRealData()) {
-		  SubJetInfo[icoll].GenFlavor[SubJetInfo[icoll].Size] = subjet->partonFlavour(); 
-		  if (doGenJets_) {
-		    const reco::GenJet * genjetSubJet = subjet->genJet();
-		    SubJetInfo[icoll].GenJetPt [SubJetInfo[icoll].Size] = genjetSubJet->pt(); 
-		    SubJetInfo[icoll].GenJetEta[SubJetInfo[icoll].Size] = genjetSubJet->eta();
-		    SubJetInfo[icoll].GenJetPhi[SubJetInfo[icoll].Size] = genjetSubJet->eta(); 
-		    const reco::GenParticle* partonSubJet = subjet->genParton();
-		    const reco::Candidate*   genCandSubJet = partonSubJet;
-		    int qpTagSubJet(0) ; 
-		    while (genCandSubJet!=NULL && genCandSubJet->numberOfMothers()==1) {
-		      genCandSubJet = genCandSubJet->mother(0);
-		      if (abs(genCandSubJet->pdgId())==7 ) qpTagSubJet = 7;	// check if it's bprime
-		      else if (abs(genCandSubJet->pdgId())==8 ) qpTagSubJet = 8;	// check if it's tprime.
-		      else qpTagSubJet = 0 ; 
-		      if (abs(genCandSubJet->pdgId())==23) SubJetInfo[icoll].GenMCTag[JetInfo[icoll].Size] = 23;
-		      if (abs(genCandSubJet->pdgId())==24) SubJetInfo[icoll].GenMCTag[JetInfo[icoll].Size] = 24;
-		      if (abs(genCandSubJet->pdgId())==25) SubJetInfo[icoll].GenMCTag[JetInfo[icoll].Size] = 25;
-		    }
-		    SubJetInfo[icoll].GenMCTag[JetInfo[icoll].Size] += qpTagSubJet*100 ; 
-		  }
-		}
-
-		SubJetInfo[icoll].Size++;
-
-	      }
-	      else {
-		edm::LogInfo("Subjets") << " Coll = " << jetcollections_[icoll] << " Jet no. =  " << JetInfo[icoll].Size << " Does not for jetCollection " << jetcollections_[icoll] ; 
-	      }
-	    } // subjet pointer exists
-	  }
-
-	} // loop over subjets 
-      } // if doSubJets 
-      */ 
-
-      JetInfo[icoll].Size++;
-
-    }//loop over jets in collection
-    //}//have jet collection
 }
 
 
@@ -854,9 +728,7 @@ BprimeTobH::saveHLT(const edm::Event& iEvent)
       // Print out Trigger table
       //std::cout << "trigger path= " << TrgNames.triggerName(i) << std::endl;
     }
-
   }
-
 }
 
 void
