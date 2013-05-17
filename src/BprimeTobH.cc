@@ -71,8 +71,15 @@
 
 using namespace std;
 
+//
+// constants, enums and typedefs
+//
+
 const unsigned int MAX_LEPCOLLECTIONS=3; 
 const unsigned int MAX_JETCOLLECTIONS=3; 
+
+typedef vector<pat::Jet> PatJetCollection;
+typedef map<const pat::Jet* ,const pat::Jet*> JetToJetMap;
 
 //
 // class declaration
@@ -142,9 +149,6 @@ private:
 
 };
 
-//
-// constants, enums and typedefs
-//
 
 //
 // static data member definitions
@@ -507,6 +511,44 @@ BprimeTobH::hasJets(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     // else
     iEvent.getByLabel( jetlabel_[il], JetHandle[il]);
   }
+
+  // currently, just deal with these three jetlabels as defined in the py: 
+  // jetlabel = cms.VInputTag(
+  //   'selectedPatJets',
+  //   'selectedPatJetsCA8PrunedPFPacked', 
+  //   'selectedPatJetsCA8PrunedSubJetsPF'), 
+
+  edm::Handle <PatJetCollection> fatjetsColl = JetHandle[0];
+  edm::Handle <PatJetCollection> prunedfatjetsColl = JetHandle[1];
+  edm::Handle <PatJetCollection> subjetsColl = JetHandle[2];
+
+  // get the fatjet to prunedfat jet match map
+
+  JetToJetMap fatJetToPrunedFatJetMap;
+
+  for(PatJetCollection::const_iterator it = fatjetsColl->begin(); it != fatjetsColl->end(); ++it)
+    {
+      PatJetCollection::const_iterator prunedJetMatch;
+      bool prunedJetMatchFound = false;
+      float dR = 0.8; // hard coded for now. 
+      for(PatJetCollection::const_iterator pjIt = prunedfatjetsColl->begin();
+	  pjIt != prunedfatjetsColl->end(); ++pjIt)
+	{
+	  float dR_temp = reco::deltaR( it->p4(), pjIt->p4() );
+	  if( dR_temp < dR )
+	    {
+	      prunedJetMatchFound = true;
+	      dR = dR_temp;
+	      prunedJetMatch = pjIt;
+	    }
+	}
+      if( !prunedJetMatchFound )
+	edm::LogError("NoMatchingGroomedJet") << 
+	  "Matching pruned jet not found."; // This should never happen but just in case
+      fatJetToPrunedFatJetMap[&(*it)] = &(*prunedJetMatch);
+    }
+  
+
 
   for(unsigned icoll=0; icoll<jetcollections_.size(); icoll++) {
     //loop over collections
