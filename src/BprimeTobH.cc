@@ -553,9 +553,13 @@ BprimeTobH::hasJets(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       fatJetToPrunedFatJetMap[&(*it)] = &(*prunedJetMatch);
     }
 
-  
+  // Now process 'FatJetInfo', 'SubJetInfo':
+  unsigned int iJetColl = 0 ; // FatJetInfo 
+  processJets(fatjetsColl, subjetsColl, iEvent, iSetup, fatJetToPrunedFatJetMap, iJetColl) ;
 
-  
+  iJetColl = 1; // SubJetInfo 
+  processJets(subjetsColl, fatjetsColl, iEvent, iSetup, fatJetToPrunedFatJetMap, iJetColl) ;
+
   return true; 
 }
 
