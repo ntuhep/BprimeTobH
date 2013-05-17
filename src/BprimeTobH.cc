@@ -111,7 +111,12 @@ private:
   bool hasJets(const edm::Event &, const edm::EventSetup&); 
   void saveHLT(const edm::Event&);
   void saveL1T(const edm::Event&);
-
+  void processJets(const edm::Handle<PatJetCollection>& , 
+		   const edm::Handle<PatJetCollection>& ,
+		   const edm::Event& , 
+		   const edm::EventSetup& , 
+		   const JetToJetMap&, 
+		   const unsigned int); 
 
   // ----------member data ---------------------------
   TTree* tree_;  
@@ -547,12 +552,24 @@ BprimeTobH::hasJets(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	  "Matching pruned jet not found."; // This should never happen but just in case
       fatJetToPrunedFatJetMap[&(*it)] = &(*prunedJetMatch);
     }
+
   
 
+  
+  return true; 
+}
 
-  for(unsigned icoll=0; icoll<jetcollections_.size(); icoll++) {
+void 
+BprimeTobH::processJets(const edm::Handle<PatJetCollection>& jetsColl, 
+			const edm::Handle<PatJetCollection>& jetsColl2,
+			const edm::Event& iEvent, 
+			const edm::EventSetup& iSetup, 
+			const JetToJetMap& fatJetToPrunedFatJetMap, 
+			const unsigned int icoll)
+{
+  // for(unsigned icoll=0; icoll<jetcollections_.size(); icoll++) {
     //loop over collections
-    if(icoll >= MAX_JETCOLLECTIONS) break;
+    if(icoll >= MAX_JETCOLLECTIONS) return;
 
     memset(&JetInfo[icoll],0x00,sizeof(JetInfo[icoll]));
     // memset(&SubJetInfo[icoll],0x00,sizeof(SubJetInfo[icoll]));
@@ -564,11 +581,13 @@ BprimeTobH::hasJets(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     JetCorrectorParameters const & JetCorPar = (*JetCorParColl)["Uncertainty"];
     JetCorrectionUncertainty *jecUnc = new JetCorrectionUncertainty(JetCorPar);
 
-    if (JetHandle.size() <= icoll) continue;  
+    // if (JetHandle.size() <= icoll) continue;  
 
-    for( vector<pat::Jet>::const_iterator it_jet = JetHandle[icoll]->begin();
-	 it_jet != JetHandle[icoll]->end(); it_jet++ ) { 
-
+    // for( vector<pat::Jet>::const_iterator it_jet = JetHandle[icoll]->begin();
+    // 	 it_jet != JetHandle[icoll]->end(); it_jet++ ) { 
+    for( vector<pat::Jet>::const_iterator it_jet = jetsColl->begin();
+    	 it_jet != jetsColl->end(); it_jet++ ) { 
+    
       JetInfo[icoll].Index   [JetInfo[icoll].Size] = JetInfo[icoll].Size;
       JetInfo[icoll].NTracks [JetInfo[icoll].Size] = it_jet->associatedTracks().size();
       JetInfo[icoll].Et  [JetInfo[icoll].Size] = it_jet->et();
@@ -757,9 +776,7 @@ BprimeTobH::hasJets(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       JetInfo[icoll].Size++;
 
     }//loop over jets in collection
-  }//have jet collection
-
-  return true; 
+    //}//have jet collection
 }
 
 
