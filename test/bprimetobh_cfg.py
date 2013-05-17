@@ -62,22 +62,32 @@ process.source = cms.Source(
 			)
 		)
 
-process.ntuple = cms.EDAnalyzer('BprimeTobH',
-		IncludeL7 = cms.untracked.bool(False), 
-		DoSubjets = cms.untracked.bool(True), 
-		BeamSpotLabel = cms.InputTag('offlineBeamSpot'), 
-		VertexLabel = cms.InputTag('goodOfflinePrimaryVertices'),
-		VertexBSLabel = cms.InputTag('goodOfflinePrimaryVertices'), 
-		muonlabel = cms.VInputTag('selectedPatMuonsPFlow','selectedPatMuons'),
-		electronlabel = cms.VInputTag('selectedPatElectrons::PAT', 'selectedPatElectronsPFlow::PAT'),
-		jetlabel = cms.VInputTag('goodPatJetsCA8PrunedPFPacked', 'goodPatJetsCA8PF'), 
-		hltlabel  = cms.VInputTag("TriggerResults::HLT"),
-		gtdigilabel = cms.VInputTag("gtDigis"),
-		LepCollections = cms.vstring('PFLepInfo', 'LepInfo'),
-		JetCollections = cms.vstring('PatJetsCA8PrunedPFPacked', 'PatJetsCA8PF'),
-		JetTypes = cms.vstring('fatjet', 'subjet'),
-		DoGenJets = cms.untracked.bool(False), 
-		)
+process.ntuple = cms.EDAnalyzer(
+    'BprimeTobH',
+    IncludeL7 = cms.untracked.bool(False), 
+    #DoSubjets = cms.untracked.bool(True), 
+    BeamSpotLabel = cms.InputTag('offlineBeamSpot'), 
+    VertexLabel = cms.InputTag('goodOfflinePrimaryVertices'),
+    VertexBSLabel = cms.InputTag('goodOfflinePrimaryVertices'), 
+    muonlabel = cms.VInputTag('selectedPatMuonsPFlow','selectedPatMuons'),
+    electronlabel = cms.VInputTag('selectedPatElectrons::PAT', 'selectedPatElectronsPFlow::PAT'),
 
+    # These are the three types of jets to be processed. 
+    jetlabel = cms.VInputTag(
+        'selectedPatJets',
+        'selectedPatJetsCA8PrunedPFPacked', 
+        'selectedPatJetsCA8PrunedSubJetsPF' ), 
+    
+    hltlabel  = cms.VInputTag("TriggerResults::HLT"),
+    gtdigilabel = cms.VInputTag("gtDigis"),
+    LepCollections = cms.vstring('PFLepInfo', 'LepInfo'),
 
+    # the jet branch names appear in the ntuple
+    JetCollections = cms.vstring('FatJetInfo', 'SubJetInfo'),
+    # the types for the jets, must be correspond to the above types
+    JetTypes = cms.vstring('fatjet', 'subjet'),
+    DoGenJets = cms.untracked.bool(False), 
+)
+
+ 
 process.p = cms.Path(process.ntuple)
