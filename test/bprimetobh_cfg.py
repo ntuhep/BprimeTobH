@@ -6,7 +6,7 @@ import copy
 options = VarParsing ('python')
 
 options.register('outFilename',
-		'BprimeTobH.root', 
+		'BprimeTobH_Test05Jul.root', 
 		VarParsing.multiplicity.singleton,
 		VarParsing.varType.string,
 		"Output file name"
@@ -56,8 +56,8 @@ process.TFileService = cms.Service(
 process.source = cms.Source(
 		"PoolSource",
 		fileNames = cms.untracked.vstring(
-			'root://eoscms//eos/cms/store/user/devdatta/TTBSM_PatTuples53x_v3_SlimFat/BprimeBprimeToBHBHinc_M-1500_TuneZ2star_8TeV-madgraph_Summer12_DR53X-PU_S10_START53_V7C-v1_AODSIM/tlbsm_53x_v3_Slim_mc_fat_1_1_J3g.root', 
-			'root://eoscms//eos/cms/store/user/devdatta/TTBSM_PatTuples53x_v3_SlimFat/BprimeBprimeToBHBHinc_M-1500_TuneZ2star_8TeV-madgraph_Summer12_DR53X-PU_S10_START53_V7C-v1_AODSIM/tlbsm_53x_v3_Slim_mc_fat_4_1_UOz.root'
+			'file:/tmp/petrakou/BprimeBprimeToBHBHinc_M-1000_TuneZ2star_8TeV-madgraph_Summer12_DR53X-PU_S10_START53_V7C-v1_TLBSM_53x_v3.root'
+			#'root://eoscms//eos/cms/store/user/devdatta/TTBSM_PatTuples53x_v3_SlimFat/BprimeBprimeToBHBHinc_M-1500_TuneZ2star_8TeV-madgraph_Summer12_DR53X-PU_S10_START53_V7C-v1_AODSIM/tlbsm_53x_v3_Slim_mc_fat_1_1_J3g.root', 
 			#'file:tlbsm_53x_v3_mc_14_1_fZB.root'
 			)
 		)
@@ -74,9 +74,9 @@ process.ntuple = cms.EDAnalyzer(
 
     # These are the three types of jets to be processed. 
     jetlabel = cms.VInputTag(
-        'selectedPatJets',
-        'selectedPatJetsCA8PrunedPFPacked', 
-        'selectedPatJetsCA8PrunedSubJetsPF' ), 
+        'goodPatJetsCA8PF',
+        'goodPatJetsCA8PrunedPFPacked', 
+        'selectedPatJetsCA8PrunedSubjetsPF' ), 
     
     hltlabel  = cms.VInputTag("TriggerResults::HLT"),
     gtdigilabel = cms.VInputTag("gtDigis"),

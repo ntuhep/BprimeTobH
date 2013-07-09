@@ -502,13 +502,16 @@ BprimeTobH::hasJets(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
   for(PatJetCollection::const_iterator it = fatjetsColl->begin(); it != fatjetsColl->end(); ++it)
     {
+cout << endl << "*** PatJet iter: pt =  " << it->pt() << endl;
       PatJetCollection::const_iterator prunedJetMatch;
       bool prunedJetMatchFound = false;
-      float dR = 0.8; // hard coded for now. 
+      float dR = 100.;//0.8; // hard coded for now. 
       for(PatJetCollection::const_iterator pjIt = prunedfatjetsColl->begin();
 	  pjIt != prunedfatjetsColl->end(); ++pjIt)
 	{
+//cout << ". ";
 	  float dR_temp = reco::deltaR( it->p4(), pjIt->p4() );
+cout << " .) " << dR_temp << ", " << pjIt->pt();
 	  if( dR_temp < dR )
 	    {
 	      prunedJetMatchFound = true;
