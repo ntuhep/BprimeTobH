@@ -325,6 +325,7 @@ class GenInfoBranches {
 
 
 class JetInfoBranches {
+
  public:
   int   Size; 
   int   Index[MAX_JETS];
@@ -340,9 +341,18 @@ class JetInfoBranches {
   float Px[MAX_JETS];     
   float Py[MAX_JETS];     
   float Pz[MAX_JETS];     
-
   float Mass[MAX_JETS];
   float Area[MAX_JETS];
+
+  float EnergyPruned[MAX_JETS]; //// To add 
+  float PxPruned[MAX_JETS]; //// To add     
+  float PyPruned[MAX_JETS]; //// To add     
+  float PzPruned[MAX_JETS]; //// To add     
+  float MassPruned[MAX_JETS]; //// To add
+  float AreaPruned[MAX_JETS]; //// To add
+
+  float tau1[MAX_JETS]; //// To add 
+  float tau2[MAX_JETS]; //// To add 
 
   float GenJetPt[MAX_JETS];
   float GenJetEta[MAX_JETS];
@@ -355,6 +365,7 @@ class JetInfoBranches {
   int   GenMCTag[MAX_JETS]; 
 
   bool  JetIDLOOSE[MAX_JETS]; 
+  bool  JetIDTIGHT[MAX_JETS]; //// To add 
   float JetCharge[MAX_JETS];
   int   NConstituents[MAX_JETS];
   int   NTracks[MAX_JETS];
@@ -384,11 +395,10 @@ class JetInfoBranches {
   float SoftMuonByPtBJetTags[MAX_JETS];  
   float DoubleSVHighEffBJetTags[MAX_JETS]; 
 
-
   int Jet_FatJetIdx[MAX_JETS];
   int Jet_SubJet1Idx[MAX_JETS];
   int Jet_SubJet2Idx[MAX_JETS];
-  
+
   void RegisterTree(TTree *root, std::string name="JetInfo") {
     root->Branch((name+".Size").c_str(), &Size, (name+".Size/I").c_str() );
     root->Branch((name+".Index").c_str()               , &Index[0]                   , (name+".Index["+name+".Size]/I").c_str());
@@ -447,7 +457,7 @@ class JetInfoBranches {
     root->Branch((name+".Jet_SubJet2Idx").c_str(),  Jet_SubJet2Idx  ,(name+".Jet_SubJet2Idx["+name+".Size]/I").c_str());
 
   }
-  
+
   void Register(TTree *root, std::string name="JetInfo") {
     root->SetBranchAddress((name+".Size").c_str() , &Size);
     root->SetBranchAddress((name+".Index").c_str(), &Index[0]);
@@ -502,11 +512,11 @@ class JetInfoBranches {
 
     root->SetBranchAddress((name+".Mass").c_str()		 , &Mass[0]		       );
     root->SetBranchAddress((name+".Area").c_str()		 , &Area[0]		       );
-  
+
     root->SetBranchAddress((name+".Jet_FatJetIdx").c_str(),  Jet_FatJetIdx );
     root->SetBranchAddress((name+".Jet_SubJet1Idx").c_str(),  Jet_SubJet1Idx );
     root->SetBranchAddress((name+".Jet_SubJet2Idx").c_str(),  Jet_SubJet2Idx );
-  
+
   }
 
 };
@@ -516,4 +526,4 @@ class JetInfoBranches {
 
 
 #endif
-    
+

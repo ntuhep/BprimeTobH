@@ -67,7 +67,8 @@
 
 #include "RecoEgamma/EgammaTools/interface/ConversionFinder.h" // make isetup work
 
-
+#include "fastjet/PseudoJet.hh"
+#include "BprimebHAnalysis/BprimeTobH/interface/Njettiness.hh" 
 
 using namespace std;
 
@@ -76,7 +77,7 @@ using namespace std;
 //
 
 const unsigned int MAX_LEPCOLLECTIONS=3; 
-const unsigned int MAX_JETCOLLECTIONS=3; 
+const unsigned int MAX_JETCOLLECTIONS=5; 
 
 typedef vector<pat::Jet> PatJetCollection;
 typedef map<const pat::Jet* ,const pat::Jet*> JetToJetMap;
@@ -112,7 +113,7 @@ private:
   void saveHLT(const edm::Event&);
   void saveL1T(const edm::Event&);
   void processJets(const edm::Handle<PatJetCollection>&, const edm::Handle<PatJetCollection>&,
-		   const edm::Event&, const edm::EventSetup&, const JetToJetMap&, const unsigned int); 
+      const edm::Event&, const edm::EventSetup&, const JetToJetMap&, const unsigned int); 
 
   // ----------member data ---------------------------
   TTree* tree_;  
@@ -145,6 +146,7 @@ private:
 
   bool doGenJets_ ; 
 
+  Njettiness nsubjettinessCalculator;
 
 };
 
@@ -171,7 +173,8 @@ BprimeTobH::BprimeTobH(const edm::ParameterSet& iConfig):
   lepcollections_(iConfig.getParameter<std::vector<std::string> >("LepCollections")),
   jetcollections_(iConfig.getParameter<std::vector<std::string> >("JetCollections")),
   jettypes_(iConfig.getParameter<std::vector<std::string> >("JetTypes")),
-  doGenJets_(iConfig.getUntrackedParameter<bool>("DoGenJets")) 
+  doGenJets_(iConfig.getUntrackedParameter<bool>("DoGenJets")),
+  nsubjettinessCalculator(Njettiness::onepass_kt_axes, NsubParameters(1.0, 0.8, 0.8)) 
 {
   edm::Service<TFileService> fs;
   TFileDirectory results = TFileDirectory( fs->mkdir("results") );
@@ -194,7 +197,7 @@ BprimeTobH::~BprimeTobH()
 //
 
 // ------------ method called for each event  ------------
-void
+  void
 BprimeTobH::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
   clearVariables(); 
@@ -203,9 +206,9 @@ BprimeTobH::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   EvtInfo.EvtNo = iEvent.id().event();
 
   if ( hasBeamSpot(iEvent) 
-       && hasPrimaryVertex(iEvent)
-       && hasPrimaryVertexBS(iEvent)
-       ) {
+      && hasPrimaryVertex(iEvent)
+      && hasPrimaryVertexBS(iEvent)
+     ) {
 
     hasMuons(iEvent); 
     if (doElectrons_) hasElectrons(iEvent); 
@@ -220,7 +223,7 @@ BprimeTobH::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 }
 
 // ------------ method called once each job just before starting event loop  ------------
-void 
+  void 
 BprimeTobH::beginJob()
 {
   tree_ = new TTree ("tree", "BprimeTobH");
@@ -229,7 +232,7 @@ BprimeTobH::beginJob()
 
   if(lepcollections_.size() > MAX_LEPCOLLECTIONS) 
     cout << "WARNING: Too many lep collections, using first " 
-	 << MAX_LEPCOLLECTIONS << endl;
+      << MAX_LEPCOLLECTIONS << endl;
 
   for(unsigned i=0; i<lepcollections_.size(); i++) {
     if(i >= MAX_LEPCOLLECTIONS) break;
@@ -245,31 +248,31 @@ BprimeTobH::beginJob()
 }
 
 // ------------ method called once each job just after ending the event loop  ------------
-void 
+  void 
 BprimeTobH::endJob() 
 {
 }
 
 // ------------ method called when starting to processes a run  ------------
-void 
+  void 
 BprimeTobH::beginRun(edm::Run const&, edm::EventSetup const&)
 {
 }
 
 // ------------ method called when ending the processing of a run  ------------
-void 
+  void 
 BprimeTobH::endRun(edm::Run const&, edm::EventSetup const&)
 {
 }
 
 // ------------ method called when starting to processes a luminosity block  ------------
-void 
+  void 
 BprimeTobH::beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&)
 {
 }
 
 // ------------ method called when ending the processing of a luminosity block  ------------
-void 
+  void 
 BprimeTobH::endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&)
 {
 }
@@ -284,7 +287,7 @@ BprimeTobH::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   descriptions.addDefault(desc);
 }
 
-bool
+  bool
 BprimeTobH::hasBeamSpot(const edm::Event& iEvent)
 {
   edm::Handle<reco::BeamSpot> beamSpotHandle;
@@ -309,7 +312,7 @@ BprimeTobH::clearVariables(){
   memset(&EvtInfo,0x00,sizeof(EvtInfo));
 }
 
-bool
+  bool
 BprimeTobH::hasPrimaryVertex(const edm::Event& iEvent)
 {
   memset(&VertexInfo,0x00,sizeof(VertexInfo));
@@ -318,14 +321,14 @@ BprimeTobH::hasPrimaryVertex(const edm::Event& iEvent)
   iEvent.getByLabel(VertexLabel_, recoVertexHandle);
 
   if ( ! recoVertexHandle.isValid() 
-       or recoVertexHandle.failedToGet() 
-       or recoVertexHandle->size() <= 0 )
+      or recoVertexHandle.failedToGet() 
+      or recoVertexHandle->size() <= 0 )
     return false;
 
   bool gotPrimVtx = false;
 
   for (std::vector<reco::Vertex>::const_iterator iVertex = recoVertexHandle->begin();
-       iVertex != recoVertexHandle->end(); iVertex++) { 
+      iVertex != recoVertexHandle->end(); iVertex++) { 
 
     if (VertexInfo.Size>=MAX_VERTICES) {
       cout << "PV " << VertexInfo.Size << endl;
@@ -346,7 +349,7 @@ BprimeTobH::hasPrimaryVertex(const edm::Event& iEvent)
     VertexInfo.Pt_Sum2[VertexInfo.Size] = 0.;
 
     if (!gotPrimVtx && (!iVertex->isFake() && iVertex->ndof()>=4. && iVertex->z() <=24.
-			&& iVertex->position().Rho()<=2.)) {
+          && iVertex->position().Rho()<=2.)) {
       primaryVertex_ = *(iVertex); 
       gotPrimVtx=true;
     }
@@ -362,7 +365,7 @@ BprimeTobH::hasPrimaryVertex(const edm::Event& iEvent)
 }
 
 
-bool
+  bool
 BprimeTobH::hasPrimaryVertexBS(const edm::Event& iEvent)
 {
   edm::Handle<reco::VertexCollection>  VertexHandleBS; 
@@ -408,7 +411,7 @@ BprimeTobH::hasPrimaryVertexBS(const edm::Event& iEvent)
 }
 
 
-bool
+  bool
 BprimeTobH::hasMuons(const edm::Event& iEvent)
 {
   vector<edm::Handle<vector<pat::Muon> > > MuonHandle;
@@ -427,11 +430,11 @@ BprimeTobH::hasMuons(const edm::Event& iEvent)
 
     //loop over muons in collection
     for(vector<pat::Muon>::const_iterator it_mu = MuonHandle[icoll]->begin(); 
-	it_mu != MuonHandle[icoll]->end(); it_mu++ ) { 
+        it_mu != MuonHandle[icoll]->end(); it_mu++ ) { 
 
       if (LepInfo[icoll].Size>=MAX_LEPTONS) {
-	fprintf(stderr,"ERROR: number of leptons exceeds the size of array.\n");
-	break;//exit(0);
+        fprintf(stderr,"ERROR: number of leptons exceeds the size of array.\n");
+        break;//exit(0);
       }
 
       LepInfo[icoll].Index[LepInfo[icoll].Size] = LepInfo[icoll].Size;
@@ -440,17 +443,17 @@ BprimeTobH::hasMuons(const edm::Event& iEvent)
   return true; 
 }
 
-bool
+  bool
 BprimeTobH::hasElectrons(const edm::Event& iEvent)
 {
   vector<edm::Handle<vector<pat::Electron> > > ElectronHandle;
   for(unsigned il=0; il<electronlabel_.size(); il++) {
     do { {	
-	ElectronHandle.push_back(edm::Handle<vector<pat::Electron> >());
-	iEvent.getByLabel( electronlabel_[il], ElectronHandle[il]);
-      } {
-	throw edm::Exception(edm::errors::NotFound) << " Object " << electronlabel_[il] << " not found" ; 
-      } } while (false) ; 
+      ElectronHandle.push_back(edm::Handle<vector<pat::Electron> >());
+      iEvent.getByLabel( electronlabel_[il], ElectronHandle[il]);
+    } {
+      throw edm::Exception(edm::errors::NotFound) << " Object " << electronlabel_[il] << " not found" ; 
+    } } while (false) ; 
   }
 
   for(unsigned icoll=0; icoll<lepcollections_.size(); icoll++) {
@@ -462,11 +465,11 @@ BprimeTobH::hasElectrons(const edm::Event& iEvent)
     if (ElectronHandle.size() <= icoll) continue;  
 
     for( vector<pat::Electron>::const_iterator it_el = ElectronHandle[icoll]->begin(); 
-	 it_el != ElectronHandle[icoll]->end(); it_el++ ) {
+        it_el != ElectronHandle[icoll]->end(); it_el++ ) {
 
       if (LepInfo[icoll].Size>=MAX_LEPTONS) {
-	fprintf(stderr,"ERROR: number of leptons exceeds the size of array.\n");
-	break;//exit(0);
+        fprintf(stderr,"ERROR: number of leptons exceeds the size of array.\n");
+        break;//exit(0);
       }
 
       LepInfo[icoll].Index[LepInfo[icoll].Size] = LepInfo[icoll].Size;
@@ -477,7 +480,7 @@ BprimeTobH::hasElectrons(const edm::Event& iEvent)
   return true; 
 }
 
-bool
+  bool
 BprimeTobH::hasJets(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
   vector<edm::Handle<vector<pat::Jet> > > JetHandle;
@@ -501,29 +504,29 @@ BprimeTobH::hasJets(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   JetToJetMap fatJetToPrunedFatJetMap;
 
   for(PatJetCollection::const_iterator it = fatjetsColl->begin(); it != fatjetsColl->end(); ++it)
+  {
+    cout << endl << "*** PatJet iter: pt =  " << it->pt() << endl;
+    PatJetCollection::const_iterator prunedJetMatch;
+    bool prunedJetMatchFound = false;
+    float dR = 100.;//0.8; // hard coded for now. 
+    for(PatJetCollection::const_iterator pjIt = prunedfatjetsColl->begin();
+        pjIt != prunedfatjetsColl->end(); ++pjIt)
     {
-cout << endl << "*** PatJet iter: pt =  " << it->pt() << endl;
-      PatJetCollection::const_iterator prunedJetMatch;
-      bool prunedJetMatchFound = false;
-      float dR = 100.;//0.8; // hard coded for now. 
-      for(PatJetCollection::const_iterator pjIt = prunedfatjetsColl->begin();
-	  pjIt != prunedfatjetsColl->end(); ++pjIt)
-	{
-//cout << ". ";
-	  float dR_temp = reco::deltaR( it->p4(), pjIt->p4() );
-cout << " .) " << dR_temp << ", " << pjIt->pt();
-	  if( dR_temp < dR )
-	    {
-	      prunedJetMatchFound = true;
-	      dR = dR_temp;
-	      prunedJetMatch = pjIt;
-	    }
-	}
-      if( !prunedJetMatchFound )
-	edm::LogError("NoMatchingGroomedJet") << 
-	  "Matching pruned jet not found."; // This should never happen but just in case
-      fatJetToPrunedFatJetMap[&(*it)] = &(*prunedJetMatch);
+      //cout << ". ";
+      float dR_temp = reco::deltaR( it->p4(), pjIt->p4() );
+      cout << " .) " << dR_temp << ", " << pjIt->pt();
+      if( dR_temp < dR )
+      {
+        prunedJetMatchFound = true;
+        dR = dR_temp;
+        prunedJetMatch = pjIt;
+      }
     }
+    if( !prunedJetMatchFound )
+      edm::LogError("NoMatchingGroomedJet") << 
+        "Matching pruned jet not found."; // This should never happen but just in case
+    fatJetToPrunedFatJetMap[&(*it)] = &(*prunedJetMatch);
+  }
 
   // Now process 'FatJetInfo', 'SubJetInfo':
   unsigned int iJetColl = 0 ; // FatJetInfo 
@@ -535,17 +538,22 @@ cout << " .) " << dR_temp << ", " << pjIt->pt();
   return true; 
 }
 
-void 
+  void 
 BprimeTobH::processJets(const edm::Handle<PatJetCollection>& jetsColl, 
-			const edm::Handle<PatJetCollection>& jetsColl2,
-			const edm::Event& iEvent, 
-			const edm::EventSetup& iSetup, 
-			const JetToJetMap& fatJetToPrunedFatJetMap, 
-			const unsigned int icoll)
+    const edm::Handle<PatJetCollection>& jetsColl2,
+    const edm::Event& iEvent, 
+    const edm::EventSetup& iSetup, 
+    const JetToJetMap& fatJetToPrunedFatJetMap, 
+    const unsigned int icoll)
 {
   if(icoll >= MAX_JETCOLLECTIONS) return;
 
   memset(&JetInfo[icoll],0x00,sizeof(JetInfo[icoll]));
+
+  //// Jet ID 
+  PFJetIDSelectionFunctor pfjetIDLoose( PFJetIDSelectionFunctor::FIRSTDATA, PFJetIDSelectionFunctor::LOOSE ) ;
+  PFJetIDSelectionFunctor pfjetIDTight( PFJetIDSelectionFunctor::FIRSTDATA, PFJetIDSelectionFunctor::TIGHT );
+  pat::strbitset ret = pfjetIDLoose.getBitTemplate() ;
 
   // For Jet Uncertainty
 
@@ -555,45 +563,60 @@ BprimeTobH::processJets(const edm::Handle<PatJetCollection>& jetsColl,
   JetCorrectionUncertainty *jecUnc = new JetCorrectionUncertainty(JetCorPar);
 
   for( vector<pat::Jet>::const_iterator it_jet = jetsColl->begin();
-       it_jet != jetsColl->end(); it_jet++ ) { 
-    
+      it_jet != jetsColl->end(); it_jet++ ) { 
+
     // in the case of fatjet, store the two subjets index 
     if (jettypes_[icoll] == "fatjet")  {
 
       int subjet1Idx=-1, subjet2Idx=-1;
       for( PatJetCollection::const_iterator jIt = jetsColl2->begin();
-	   jIt != jetsColl2->end(); ++jIt )
-	{
-	  if( &(*jIt) == fatJetToPrunedFatJetMap.find(&(*it_jet))->second->daughter(0) )
-	    subjet1Idx = int( jIt - jetsColl2->begin() );
-	  if( &(*jIt) == fatJetToPrunedFatJetMap.find(&(*it_jet))->second->daughter(1) )
-	    subjet2Idx = int( jIt - jetsColl2->begin() );
-	  if( subjet1Idx>=0 && subjet2Idx>=0 ) break;
-	}
+          jIt != jetsColl2->end(); ++jIt )
+      {
+        if( &(*jIt) == fatJetToPrunedFatJetMap.find(&(*it_jet))->second->daughter(0) )
+          subjet1Idx = int( jIt - jetsColl2->begin() );
+        if( &(*jIt) == fatJetToPrunedFatJetMap.find(&(*it_jet))->second->daughter(1) )
+          subjet2Idx = int( jIt - jetsColl2->begin() );
+        if( subjet1Idx>=0 && subjet2Idx>=0 ) break;
+      }
 
       JetInfo[icoll].Jet_SubJet1Idx[JetInfo[icoll].Size] = subjet1Idx;
       JetInfo[icoll].Jet_SubJet2Idx[JetInfo[icoll].Size] = subjet2Idx;
-	
-    }
+
+      std::vector<fastjet::PseudoJet> fjConstituents;
+      std::vector<edm::Ptr<reco::PFCandidate> > constituents = it_jet->getPFConstituents();
+      std::vector<edm::Ptr<reco::PFCandidate> >::const_iterator m;
+      for ( m = constituents.begin(); m != constituents.end(); ++m ) {
+        reco::PFCandidatePtr constit = *m;
+        if (constit->pt() == 0) {
+          edm::LogWarning("NullTransverseMomentum") << "dropping input candidate with pt=0";
+          continue;
+        } 
+        fjConstituents.push_back(fastjet::PseudoJet(constit->px(),constit->py(),constit->pz(),constit->energy()));
+        fjConstituents.back().set_user_index(m - constituents.begin());
+      } //// Loop over fat jet constituents 
+      JetInfo[icoll].tau1[JetInfo[icoll].Size] = nsubjettinessCalculator.getTau(1,fjConstituents);
+      JetInfo[icoll].tau2[JetInfo[icoll].Size] = nsubjettinessCalculator.getTau(2,fjConstituents);
+
+    } //// If fat jets 
 
     // in the case of subjet, store the fatjet index
-      
+
     if (jettypes_[icoll] == "subjet")  {
       int fatjetIdx=-1;
       for( PatJetCollection::const_iterator jIt = jetsColl2->begin(); jIt != jetsColl2->end(); ++jIt )
-	{
-	  if( &(*it_jet) == fatJetToPrunedFatJetMap.find(&(*jIt))->second->daughter(0) ||
-	      &(*it_jet) == fatJetToPrunedFatJetMap.find(&(*jIt))->second->daughter(1) )
-	    {
-	      fatjetIdx = int( jIt - jetsColl2->begin() );
-	      break;
-	    }
-	}
-	
+      {
+        if( &(*it_jet) == fatJetToPrunedFatJetMap.find(&(*jIt))->second->daughter(0) ||
+            &(*it_jet) == fatJetToPrunedFatJetMap.find(&(*jIt))->second->daughter(1) )
+        {
+          fatjetIdx = int( jIt - jetsColl2->begin() );
+          break;
+        }
+      }
+
       JetInfo[icoll].Jet_FatJetIdx[JetInfo[icoll].Size] = fatjetIdx;
-      
+
     }
-      
+
     JetInfo[icoll].Index   [JetInfo[icoll].Size] = JetInfo[icoll].Size;
     JetInfo[icoll].NTracks [JetInfo[icoll].Size] = it_jet->associatedTracks().size();
     JetInfo[icoll].Et  [JetInfo[icoll].Size] = it_jet->et();
@@ -617,24 +640,23 @@ BprimeTobH::processJets(const edm::Handle<PatJetCollection>& jetsColl,
       JetInfo[icoll].CHF[JetInfo[icoll].Size] = it_jet->chargedHadronEnergyFraction();
     }
 
-    bool JetID(false);
+    bool JetIDLoose(false);
+    bool JetIDTight(false);
 
-    if (jettypes_[icoll] == "fatjet")  {
-      JetID = true; //Apply JetID in PAT level
-    }
-    else if(it_jet->isPFJet()) {
+    if(it_jet->isPFJet()) {
       //Jet ID for PFJet
-      edm::ParameterSet PS_pf;
-      PS_pf.addParameter<std::string>("version", "FIRSTDATA");
-      PS_pf.addParameter<std::string>("quality", "LOOSE");
-      PFJetIDSelectionFunctor pfjetIDLOOSE(PS_pf) ;
-      pat::strbitset ret = pfjetIDLOOSE.getBitTemplate() ;
       ret.set(false);
-      JetID = pfjetIDLOOSE(*it_jet, ret);
+      JetIDLoose = pfjetIDLoose(*it_jet, ret);
+      ret.set(false);
+      JetIDTight = pfjetIDTight(*it_jet, ret); 
     }
-    else JetID = false; 
+    else { 
+      JetIDLoose = false; 
+      JetIDTight = false; 
+    }
 
-    JetInfo[icoll].JetIDLOOSE[JetInfo[icoll].Size] = (JetID) ?  1 : 0;
+    JetInfo[icoll].JetIDLOOSE[JetInfo[icoll].Size] = (JetIDLoose) ?  1 : 0;
+    JetInfo[icoll].JetIDTIGHT[JetInfo[icoll].Size] = (JetIDTight) ?  1 : 0;
 
     // Jet corrections, B-tagging, and Jet ID information
     // now we just fill everything (regardless of availability)
@@ -671,23 +693,23 @@ BprimeTobH::processJets(const edm::Handle<PatJetCollection>& jetsColl,
     if (!iEvent.isRealData()) {
       JetInfo[icoll].GenFlavor[JetInfo[icoll].Size] = it_jet->partonFlavour(); 
       if (doGenJets_) {
-	const reco::GenJet * genjet = it_jet->genJet();
-	JetInfo[icoll].GenJetPt [JetInfo[icoll].Size] = genjet->pt(); 
-	JetInfo[icoll].GenJetEta[JetInfo[icoll].Size] = genjet->eta();
-	JetInfo[icoll].GenJetPhi[JetInfo[icoll].Size] = genjet->eta(); 
-	const reco::GenParticle* parton = it_jet->genParton();
-	const reco::Candidate* genCand = parton;
-	int qpTag(0) ; 
-	while (genCand!=NULL && genCand->numberOfMothers()==1) {
-	  genCand = genCand->mother(0);
-	  if (abs(genCand->pdgId())==7 ) qpTag = 7;	// check if it's bprime
-	  else if (abs(genCand->pdgId())==8 ) qpTag = 8;	// check if it's tprime.
-	  else qpTag = 0 ; 
-	  if (abs(genCand->pdgId())==23) JetInfo[icoll].GenMCTag[JetInfo[icoll].Size] = 23;
-	  if (abs(genCand->pdgId())==24) JetInfo[icoll].GenMCTag[JetInfo[icoll].Size] = 24;
-	  if (abs(genCand->pdgId())==25) JetInfo[icoll].GenMCTag[JetInfo[icoll].Size] = 25;
-	}
-	JetInfo[icoll].GenMCTag[JetInfo[icoll].Size] += qpTag*100 ; 
+        const reco::GenJet * genjet = it_jet->genJet();
+        JetInfo[icoll].GenJetPt [JetInfo[icoll].Size] = genjet->pt(); 
+        JetInfo[icoll].GenJetEta[JetInfo[icoll].Size] = genjet->eta();
+        JetInfo[icoll].GenJetPhi[JetInfo[icoll].Size] = genjet->eta(); 
+        const reco::GenParticle* parton = it_jet->genParton();
+        const reco::Candidate* genCand = parton;
+        int qpTag(0) ; 
+        while (genCand!=NULL && genCand->numberOfMothers()==1) {
+          genCand = genCand->mother(0);
+          if (abs(genCand->pdgId())==7 ) qpTag = 7;	// check if it's bprime
+          else if (abs(genCand->pdgId())==8 ) qpTag = 8;	// check if it's tprime.
+          else qpTag = 0 ; 
+          if (abs(genCand->pdgId())==23) JetInfo[icoll].GenMCTag[JetInfo[icoll].Size] = 23;
+          if (abs(genCand->pdgId())==24) JetInfo[icoll].GenMCTag[JetInfo[icoll].Size] = 24;
+          if (abs(genCand->pdgId())==25) JetInfo[icoll].GenMCTag[JetInfo[icoll].Size] = 25;
+        }
+        JetInfo[icoll].GenMCTag[JetInfo[icoll].Size] += qpTag*100 ; 
       }
     }
 
@@ -698,7 +720,7 @@ BprimeTobH::processJets(const edm::Handle<PatJetCollection>& jetsColl,
 }
 
 
-void
+  void
 BprimeTobH::saveHLT(const edm::Event& iEvent)
 {
   // HLT: Booking trigger bits  
@@ -713,16 +735,16 @@ BprimeTobH::saveHLT(const edm::Event& iEvent)
       unsigned int TrgIndex = TrgNames.triggerIndex( TriggerBooking[i] );
 
       if (TrgIndex == TrgNames.size()) {
-	EvtInfo.TrgBook[i] = -4; // The trigger path is not known in this event.
+        EvtInfo.TrgBook[i] = -4; // The trigger path is not known in this event.
       }else if ( !TrgResultsHandle->wasrun( TrgIndex ) ) {
-	EvtInfo.TrgBook[i] = -3; // The trigger path was not included in this event.
+        EvtInfo.TrgBook[i] = -3; // The trigger path was not included in this event.
       }else if ( !TrgResultsHandle->accept( TrgIndex ) ) {
-	EvtInfo.TrgBook[i] = -2; // The trigger path was not accepted in this event.
+        EvtInfo.TrgBook[i] = -2; // The trigger path was not accepted in this event.
       }else if (  TrgResultsHandle->error ( TrgIndex ) ) {
-	EvtInfo.TrgBook[i] = -1; // The trigger path has an error in this event.
+        EvtInfo.TrgBook[i] = -1; // The trigger path has an error in this event.
       }else {
-	EvtInfo.TrgBook[i] = +1; // It's triggered.
-	EvtInfo.TrgCount++; 
+        EvtInfo.TrgBook[i] = +1; // It's triggered.
+        EvtInfo.TrgCount++; 
       }
     }
     EvtInfo.nHLT = TrgNames.size();
@@ -734,7 +756,7 @@ BprimeTobH::saveHLT(const edm::Event& iEvent)
   }
 }
 
-void
+  void
 BprimeTobH::saveL1T(const edm::Event& iEvent)
 {
   //   L1 trigger and techincal trigger bits
@@ -746,16 +768,16 @@ BprimeTobH::saveL1T(const edm::Event& iEvent)
     if ( ! dWord.empty() ) { // if board not there this is zero
       // loop over dec. bit to get total rate (no overlap)
       for ( int i = 0; i < 128; ++i ) {
-	//	if(dWord[i]!=0 && debug)cout << i << " " << dWord[i] << ": ";
-	EvtInfo.L1[i]=dWord[i];
+        //	if(dWord[i]!=0 && debug)cout << i << " " << dWord[i] << ": ";
+        EvtInfo.L1[i]=dWord[i];
       }
     }
     TechnicalTriggerWord tw = gtRecord->technicalTriggerWord();
     if ( ! tw.empty() ) {
       // loop over dec. bit to get total rate (no overlap)
       for ( int i = 0; i < 64; ++i ) {
-	//	if(tw[i]!=0 && debug) cout << i << "  " << tw[i] << ": ";
-	EvtInfo.TT[i]=tw[i];
+        //	if(tw[i]!=0 && debug) cout << i << "  " << tw[i] << ": ";
+        EvtInfo.TT[i]=tw[i];
       }
     }
   }
