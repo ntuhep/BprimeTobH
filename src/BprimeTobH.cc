@@ -558,7 +558,8 @@ BprimeTobH::processJets(const edm::Handle<PatJetCollection>& jetsColl,
   // For Jet Uncertainty
 
   edm::ESHandle<JetCorrectorParametersCollection> JetCorParColl;
-  iSetup.get<JetCorrectionsRecord>().get("AK5PF", JetCorParColl); //?? Hardcode ??
+  if (icoll == 0)  iSetup.get<JetCorrectionsRecord>().get("AK7PFchs", JetCorParColl); 
+  else if (icoll == 1)  iSetup.get<JetCorrectionsRecord>().get("AK5PFchs", JetCorParColl); 
   JetCorrectorParameters const & JetCorPar = (*JetCorParColl)["Uncertainty"];
   JetCorrectionUncertainty *jecUnc = new JetCorrectionUncertainty(JetCorPar);
 
@@ -596,11 +597,22 @@ BprimeTobH::processJets(const edm::Handle<PatJetCollection>& jetsColl,
       } //// Loop over fat jet constituents 
       JetInfo[icoll].tau1[JetInfo[icoll].Size] = nsubjettinessCalculator.getTau(1,fjConstituents);
       JetInfo[icoll].tau2[JetInfo[icoll].Size] = nsubjettinessCalculator.getTau(2,fjConstituents);
+      JetInfo[icoll].tau3[JetInfo[icoll].Size] = nsubjettinessCalculator.getTau(3,fjConstituents);
+
+      JetInfo[icoll].EtPruned      [JetInfo[icoll].Size] = fatJetToPrunedFatJetMap.find(&(*it_jet))->second->et();
+      JetInfo[icoll].PtPruned      [JetInfo[icoll].Size] = fatJetToPrunedFatJetMap.find(&(*it_jet))->second->pt();
+      JetInfo[icoll].EtaPruned     [JetInfo[icoll].Size] = fatJetToPrunedFatJetMap.find(&(*it_jet))->second->eta();
+      JetInfo[icoll].PhiPruned     [JetInfo[icoll].Size] = fatJetToPrunedFatJetMap.find(&(*it_jet))->second->phi();
+      JetInfo[icoll].EnergyPruned  [JetInfo[icoll].Size] = fatJetToPrunedFatJetMap.find(&(*it_jet))->second->energy(); 
+      JetInfo[icoll].PxPruned      [JetInfo[icoll].Size] = fatJetToPrunedFatJetMap.find(&(*it_jet))->second->px(); 
+      JetInfo[icoll].PyPruned      [JetInfo[icoll].Size] = fatJetToPrunedFatJetMap.find(&(*it_jet))->second->py(); 
+      JetInfo[icoll].PzPruned      [JetInfo[icoll].Size] = fatJetToPrunedFatJetMap.find(&(*it_jet))->second->pz(); 
+      JetInfo[icoll].MassPruned    [JetInfo[icoll].Size] = fatJetToPrunedFatJetMap.find(&(*it_jet))->second->mass();
+      JetInfo[icoll].AreaPruned    [JetInfo[icoll].Size] = fatJetToPrunedFatJetMap.find(&(*it_jet))->second->jetArea();
 
     } //// If fat jets 
 
     // in the case of subjet, store the fatjet index
-
     if (jettypes_[icoll] == "subjet")  {
       int fatjetIdx=-1;
       for( PatJetCollection::const_iterator jIt = jetsColl2->begin(); jIt != jetsColl2->end(); ++jIt )
@@ -619,10 +631,17 @@ BprimeTobH::processJets(const edm::Handle<PatJetCollection>& jetsColl,
 
     JetInfo[icoll].Index   [JetInfo[icoll].Size] = JetInfo[icoll].Size;
     JetInfo[icoll].NTracks [JetInfo[icoll].Size] = it_jet->associatedTracks().size();
-    JetInfo[icoll].Et  [JetInfo[icoll].Size] = it_jet->et();
-    JetInfo[icoll].Pt  [JetInfo[icoll].Size] = it_jet->pt();
-    JetInfo[icoll].Eta [JetInfo[icoll].Size] = it_jet->eta();
-    JetInfo[icoll].Phi [JetInfo[icoll].Size] = it_jet->phi();
+
+    JetInfo[icoll].Et      [JetInfo[icoll].Size] = it_jet->et();
+    JetInfo[icoll].Pt      [JetInfo[icoll].Size] = it_jet->pt();
+    JetInfo[icoll].Eta     [JetInfo[icoll].Size] = it_jet->eta();
+    JetInfo[icoll].Phi     [JetInfo[icoll].Size] = it_jet->phi();
+    JetInfo[icoll].Energy  [JetInfo[icoll].Size] = it_jet->energy(); 
+    JetInfo[icoll].Px      [JetInfo[icoll].Size] = it_jet->px(); 
+    JetInfo[icoll].Py      [JetInfo[icoll].Size] = it_jet->py(); 
+    JetInfo[icoll].Pz      [JetInfo[icoll].Size] = it_jet->pz(); 
+    JetInfo[icoll].Mass    [JetInfo[icoll].Size] = it_jet->mass();
+    JetInfo[icoll].Area    [JetInfo[icoll].Size] = it_jet->jetArea();
 
     jecUnc->setJetEta(it_jet->eta());
     jecUnc->setJetPt(it_jet->pt()); // here you must use the CORRECTED jet pt
@@ -681,14 +700,6 @@ BprimeTobH::processJets(const edm::Handle<PatJetCollection>& jetsColl,
     JetInfo[icoll].SoftMuonByIP3dBJetTags  [JetInfo[icoll].Size] = it_jet->bDiscriminator("softMuonByIP3dBJetTags");
     JetInfo[icoll].SoftMuonByPtBJetTags[JetInfo[icoll].Size] = it_jet->bDiscriminator("softMuonByPtBJetTags");
     JetInfo[icoll].DoubleSVHighEffBJetTags [JetInfo[icoll].Size] = it_jet->bDiscriminator("doubleSecondaryVertexHighEffBJetTags"); 
-
-    JetInfo[icoll].Px  [JetInfo[icoll].Size] = it_jet->px(); 
-    JetInfo[icoll].Py  [JetInfo[icoll].Size] = it_jet->py(); 
-    JetInfo[icoll].Pz  [JetInfo[icoll].Size] = it_jet->pz(); 
-    JetInfo[icoll].Energy  [JetInfo[icoll].Size] = it_jet->energy(); 
-
-    JetInfo[icoll].Mass[JetInfo[icoll].Size] = it_jet->mass();
-    JetInfo[icoll].Area[JetInfo[icoll].Size] = it_jet->jetArea();
 
     if (!iEvent.isRealData()) {
       JetInfo[icoll].GenFlavor[JetInfo[icoll].Size] = it_jet->partonFlavour(); 
