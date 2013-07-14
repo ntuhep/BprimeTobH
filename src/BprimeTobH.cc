@@ -68,7 +68,7 @@
 #include "RecoEgamma/EgammaTools/interface/ConversionFinder.h" // make isetup work
 
 #include "fastjet/PseudoJet.hh"
-#include "BprimebHAnalysis/BprimeTobH/interface/Njettiness.hh" 
+#include "../interface/Njettiness.hh" 
 
 using namespace std;
 
