@@ -130,6 +130,7 @@ private:
   vector<edm::InputTag> electronlabel_;
   vector<edm::InputTag> jetlabel_;
   edm::InputTag fatjetlabel_;
+  edm::InputTag prunedfatjetlabel_;
   vector<edm::InputTag> hltlabel_;
   vector<edm::InputTag> gtdigilabel_;
   edm::InputTag genlabel_; 
@@ -175,6 +176,7 @@ BprimeTobH::BprimeTobH(const edm::ParameterSet& iConfig):
   electronlabel_(iConfig.getParameter<vector<edm::InputTag> >("electronlabel")),  
   jetlabel_(iConfig.getParameter<vector<edm::InputTag> >("jetlabel")),  
   fatjetlabel_(iConfig.getParameter<edm::InputTag>("fatjetlabel")),  
+  prunedfatjetlabel_(iConfig.getParameter<edm::InputTag>("prunedfatjetlabel")),  
   hltlabel_(iConfig.getParameter<vector<edm::InputTag> >("hltlabel")),  
   gtdigilabel_(iConfig.getParameter<vector<edm::InputTag> >("gtdigilabel")), 
   genlabel_(iConfig.getParameter<edm::InputTag>("genlabel")),
@@ -511,12 +513,13 @@ BprimeTobH::hasJets(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   //   'selectedPatJetsCA8PrunedSubJetsPF'), 
 
   edm::Handle <PatJetCollection> fatjetsColl; //  = JetHandle[0];
-  edm::Handle <PatJetCollection> prunedfatjetsColl = JetHandle[1];
+  edm::Handle <PatJetCollection> prunedfatjetsColl; //  = JetHandle[1];
   edm::Handle <PatJetCollection> subjetsColl = JetHandle[2];
 
   // edm::Handle<pat::Jet> FatJetHandle;
   // iEvent.getByLabel( fatjetlabel_, FatJetHandle);
   iEvent.getByLabel( fatjetlabel_, fatjetsColl);
+  iEvent.getByLabel( prunedfatjetlabel_, prunedfatjetsColl);
   // edm::Handle <PatJetCollection> fatjetsColl = FatJetHandle;
 
   // get the fatjet to prunedfat jet match map
