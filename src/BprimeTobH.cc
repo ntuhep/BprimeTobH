@@ -832,9 +832,8 @@ BprimeTobH::saveGenInfo(const edm::Event& iEvent)
 {
   memset(&GenInfo,0x00,sizeof(GenInfo));
 
-  bool isData = iEvent.isRealData();
   edm::Handle<reco::GenParticleCollection> GenHandle;  
-  if(!isData) iEvent.getByLabel(genlabel_, GenHandle);
+  if(!iEvent.isRealData()) iEvent.getByLabel(genlabel_, GenHandle);
 
   vector<const reco::Candidate *> cands;
   vector<const reco::Candidate *>::const_iterator found = cands.begin();
