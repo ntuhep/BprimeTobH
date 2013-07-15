@@ -131,6 +131,7 @@ private:
   vector<edm::InputTag> gtdigilabel_;
 
   EvtInfoBranches EvtInfo;
+  GenInfoBranches GenInfo;
   VertexInfoBranches VertexInfo;
   LepInfoBranches LepInfo[MAX_LEPCOLLECTIONS];
   JetInfoBranches JetInfo[MAX_JETCOLLECTIONS];
@@ -145,7 +146,8 @@ private:
   vector<std::string> jettypes_;
 
   bool doGenJets_ ; 
-
+  bool doGenInfo_;
+  
   Njettiness nsubjettinessCalculator;
 
 };
@@ -174,6 +176,7 @@ BprimeTobH::BprimeTobH(const edm::ParameterSet& iConfig):
   jetcollections_(iConfig.getParameter<std::vector<std::string> >("JetCollections")),
   jettypes_(iConfig.getParameter<std::vector<std::string> >("JetTypes")),
   doGenJets_(iConfig.getUntrackedParameter<bool>("DoGenJets")),
+  doGenInfo_(iConfig.getUntrackedParameter<bool>("DoGenInfo")),
   nsubjettinessCalculator(Njettiness::onepass_kt_axes, NsubParameters(1.0, 0.8, 0.8)) 
 {
   edm::Service<TFileService> fs;
@@ -244,6 +247,8 @@ BprimeTobH::beginJob()
 
     JetInfo[i].RegisterTree(tree_,jetcollections_[i]);
   }
+
+  if(doGenInfo_) GenInfo.RegisterTree(tree_);  
 
 }
 

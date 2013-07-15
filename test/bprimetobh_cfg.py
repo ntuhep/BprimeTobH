@@ -87,6 +87,7 @@ process.ntuple = cms.EDAnalyzer(
     # the types for the jets, must be correspond to the above types
     JetTypes = cms.vstring('fatjet', 'subjet'),
     DoGenJets = cms.untracked.bool(False), 
+    DoGenInfo = cms.untracked.bool(True), 
 )
 
  
