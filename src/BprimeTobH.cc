@@ -179,7 +179,7 @@ BprimeTobH::BprimeTobH(const edm::ParameterSet& iConfig):
   fatjetlabel_(iConfig.getParameter<edm::InputTag>("fatjetlabel")),  
   prunedfatjetlabel_(iConfig.getParameter<edm::InputTag>("prunedfatjetlabel")),  
   subjetlabel_(iConfig.getParameter<edm::InputTag>("subjetlabel")),  
-  hltla  hltlabel_(iConfig.getParameter<vector<edm::InputTag> >("hltlabel")),  
+  hltlabel_(iConfig.getParameter<vector<edm::InputTag> >("hltlabel")),  
   gtdigilabel_(iConfig.getParameter<vector<edm::InputTag> >("gtdigilabel")), 
   genlabel_(iConfig.getParameter<edm::InputTag>("genlabel")),
   lepcollections_(iConfig.getParameter<std::vector<std::string> >("LepCollections")),
