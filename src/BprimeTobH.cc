@@ -152,7 +152,7 @@ private:
   bool doGenInfo_;
   
   Njettiness nsubjettinessCalculator;
-
+  double JetMinPt_; 
 };
 
 
@@ -181,7 +181,9 @@ BprimeTobH::BprimeTobH(const edm::ParameterSet& iConfig):
   jettypes_(iConfig.getParameter<std::vector<std::string> >("JetTypes")),
   doGenJets_(iConfig.getUntrackedParameter<bool>("DoGenJets")),
   doGenInfo_(iConfig.getUntrackedParameter<bool>("DoGenInfo")),
-  nsubjettinessCalculator(Njettiness::onepass_kt_axes, NsubParameters(1.0, 0.8, 0.8)) 
+  nsubjettinessCalculator(Njettiness::onepass_kt_axes, NsubParameters(1.0, 0.8, 0.8)), 
+  JetMinPt_(iConfig.getUntrackedParameter<double>("JetMinPt"))
+
 {
   edm::Service<TFileService> fs;
   TFileDirectory results = TFileDirectory( fs->mkdir("results") );
@@ -583,6 +585,8 @@ BprimeTobH::processJets(const edm::Handle<PatJetCollection>& jetsColl,
   
   for( vector<pat::Jet>::const_iterator it_jet = jetsColl->begin();
       it_jet != jetsColl->end(); it_jet++ ) { 
+
+    if (iEvent.isRealData() && it_jet->pt() < JetMinPt_) continue ;
 
     // in the case of fatjet, store the two subjets index 
     if (jettypes_[icoll] == "fatjet")  {
