@@ -128,7 +128,7 @@ private:
   edm::InputTag VertexBSLabel_;
   vector<edm::InputTag> muonlabel_;
   vector<edm::InputTag> electronlabel_;
-  vector<edm::InputTag> jetlabel_;
+  // vector<edm::InputTag> jetlabel_;
   edm::InputTag fatjetlabel_;
   edm::InputTag prunedfatjetlabel_;
   edm::InputTag subjetlabel_;
@@ -175,7 +175,7 @@ BprimeTobH::BprimeTobH(const edm::ParameterSet& iConfig):
   VertexBSLabel_(iConfig.getParameter<edm::InputTag>("VertexBSLabel")), 
   muonlabel_(iConfig.getParameter<vector<edm::InputTag> >("muonlabel")), 
   electronlabel_(iConfig.getParameter<vector<edm::InputTag> >("electronlabel")),  
-  jetlabel_(iConfig.getParameter<vector<edm::InputTag> >("jetlabel")),  
+  // jetlabel_(iConfig.getParameter<vector<edm::InputTag> >("jetlabel")),  
   fatjetlabel_(iConfig.getParameter<edm::InputTag>("fatjetlabel")),  
   prunedfatjetlabel_(iConfig.getParameter<edm::InputTag>("prunedfatjetlabel")),  
   subjetlabel_(iConfig.getParameter<edm::InputTag>("subjetlabel")),  
@@ -502,11 +502,11 @@ BprimeTobH::hasElectrons(const edm::Event& iEvent)
   bool
 BprimeTobH::hasJets(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
-  vector<edm::Handle<vector<pat::Jet> > > JetHandle;
-  for(unsigned il=0; il<jetlabel_.size(); il++) {
-    JetHandle.push_back(edm::Handle<vector<pat::Jet> >());
-    iEvent.getByLabel( jetlabel_[il], JetHandle[il]);
-  }
+  // vector<edm::Handle<vector<pat::Jet> > > JetHandle;
+  // for(unsigned il=0; il<jetlabel_.size(); il++) {
+  //   JetHandle.push_back(edm::Handle<vector<pat::Jet> >());
+  //   iEvent.getByLabel( jetlabel_[il], JetHandle[il]);
+  // }
 
   // currently, just deal with these three jetlabels as defined in the py: 
   // jetlabel = cms.VInputTag(
