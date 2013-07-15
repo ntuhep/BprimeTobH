@@ -79,6 +79,7 @@ process.ntuple = cms.EDAnalyzer(
         'selectedPatJetsCA8PrunedSubjetsPF' ), 
     fatjetlabel = cms.InputTag('goodPatJetsCA8PF'), 
     prunedfatjetlabel = cms.InputTag('goodPatJetsCA8PrunedPFPacked'),  
+    subjetlabel = cms.InputTag('selectedPatJetsCA8PrunedSubjetsPF'),  
     hltlabel  = cms.VInputTag("TriggerResults::HLT"),
     gtdigilabel = cms.VInputTag("gtDigis"),
     genlabel = cms.InputTag("genParticles"), 
