@@ -44,6 +44,7 @@
 
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
+#include "SimDataFormats/GeneratorProducts/interface/GenEventInfoProduct.h"
 
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
@@ -110,6 +111,7 @@ private:
   bool hasMuons(const edm::Event &); 
   bool hasElectrons(const edm::Event &); 
   bool hasJets(const edm::Event &, const edm::EventSetup&); 
+  void saveGenInfo(const edm::Event &); 
   void saveHLT(const edm::Event&);
   void saveL1T(const edm::Event&);
   void processJets(const edm::Handle<PatJetCollection>&, const edm::Handle<PatJetCollection>&,
@@ -218,6 +220,8 @@ BprimeTobH::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     hasJets(iEvent, iSetup); 
     saveHLT(iEvent); 
     saveL1T(iEvent); 
+
+    if ( doGenInfo_) saveGenInfo(iEvent); 
 
     tree_->Fill();
   }
@@ -757,7 +761,7 @@ BprimeTobH::processJets(const edm::Handle<PatJetCollection>& jetsColl,
 }
 
 
-  void
+void
 BprimeTobH::saveHLT(const edm::Event& iEvent)
 {
   // HLT: Booking trigger bits  
@@ -821,6 +825,13 @@ BprimeTobH::saveL1T(const edm::Event& iEvent)
 
 }
 
+void
+BprimeTobH::saveGenInfo(const edm::Event& iEvent)
+{
+  edm::Handle< GenEventInfoProduct > genEventInfo;
+  iEvent.getByLabel("generator", genEventInfo);
+
+}
 
 //define this as a plug-in
 DEFINE_FWK_MODULE(BprimeTobH);
