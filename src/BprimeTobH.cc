@@ -68,7 +68,7 @@
 #include "RecoEgamma/EgammaTools/interface/ConversionFinder.h" // make isetup work
 
 #include "fastjet/PseudoJet.hh"
-#include "BprimebHAnalysis/BprimeTobH/interface/Njettiness.hh" 
+#include "../interface/Njettiness.hh" 
 
 using namespace std;
 
@@ -563,6 +563,13 @@ BprimeTobH::processJets(const edm::Handle<PatJetCollection>& jetsColl,
   JetCorrectorParameters const & JetCorPar = (*JetCorParColl)["Uncertainty"];
   JetCorrectionUncertainty *jecUnc = new JetCorrectionUncertainty(JetCorPar);
 
+
+  // Gluon tagger
+  edm::Handle<edm::ValueMap<float> >  QGTagsHandleMLP;
+  edm::Handle<edm::ValueMap<float> >  QGTagsHandleLikelihood;
+  iEvent.getByLabel("QGTagger","qgMLP", QGTagsHandleMLP);
+  iEvent.getByLabel("QGTagger","qgLikelihood", QGTagsHandleLikelihood);
+  
   for( vector<pat::Jet>::const_iterator it_jet = jetsColl->begin();
       it_jet != jetsColl->end(); it_jet++ ) { 
 
@@ -662,13 +669,27 @@ BprimeTobH::processJets(const edm::Handle<PatJetCollection>& jetsColl,
     bool JetIDLoose(false);
     bool JetIDTight(false);
 
+    JetInfo[icoll].QGTagsMLP       [JetInfo[icoll].Size] = -999;
+    JetInfo[icoll].QGTagsLikelihood       [JetInfo[icoll].Size] = -1;
+    
     if(it_jet->isPFJet()) {
       //Jet ID for PFJet
       ret.set(false);
       JetIDLoose = pfjetIDLoose(*it_jet, ret);
       ret.set(false);
       JetIDTight = pfjetIDTight(*it_jet, ret); 
-    }
+
+      // QGTagger
+      int ijet = it_jet - jetsColl->begin();
+      edm::RefToBase<reco::Jet> jetRef(edm::Ref<std::vector <pat::Jet> >(jetsColl,ijet));
+ 
+      if (QGTagsHandleMLP.isValid()){
+	JetInfo[icoll].QGTagsMLP       [JetInfo[icoll].Size] = (*QGTagsHandleMLP)[jetRef];
+      }
+      if (QGTagsHandleLikelihood.isValid()){
+	JetInfo[icoll].QGTagsLikelihood       [JetInfo[icoll].Size] = (*QGTagsHandleLikelihood)[jetRef];
+      }
+     }
     else { 
       JetIDLoose = false; 
       JetIDTight = false; 

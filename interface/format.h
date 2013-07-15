@@ -417,6 +417,8 @@ class JetInfoBranches {
     bool  JetIDLOOSE[MAX_JETS]; 
     bool  JetIDTIGHT[MAX_JETS]; //// To add 
     float JetCharge[MAX_JETS];
+    float QGTagsMLP[MAX_JETS];
+    float QGTagsLikelihood[MAX_JETS];
     int   NConstituents[MAX_JETS];
     int   NTracks[MAX_JETS];
     int   NCH[MAX_JETS];
@@ -481,6 +483,8 @@ class JetInfoBranches {
       root->Branch((name+".JetIDLOOSE").c_str()	       ,&JetIDLOOSE[0]	     , (name+".JetIDLOOSE["+name+".Size]/I").c_str()		); 
       root->Branch((name+".JetIDTIGHT").c_str()	       ,&JetIDLOOSE[0]	     , (name+".JetIDTIGHT["+name+".Size]/I").c_str()		); 
       root->Branch((name+".JetCharge").c_str()	       , &JetCharge[0]  	     , (name+".JetCharge["+name+".Size]/F").c_str()		);
+      root->Branch((name+".QGTagsMLP").c_str()	       , &QGTagsMLP[0]  	     , (name+".QGTagsMLP["+name+".Size]/F").c_str()		);
+      root->Branch((name+".QGTagsLikelihood").c_str()	       , &QGTagsLikelihood[0]  	     , (name+".QGTagsLikelihood["+name+".Size]/F").c_str()		);
       root->Branch((name+".NConstituents").c_str()	       , &NConstituents[0]	     , (name+".NConstituents["+name+".Size]/I").c_str()		);
       root->Branch((name+".NCH").c_str()	       , &NCH[0]	     , (name+".NCH["+name+".Size]/I").c_str()		);
       root->Branch((name+".CEF").c_str() 	       	       , &CEF[0]		     , (name+".CEF["+name+".Size]/F").c_str()		);
@@ -549,6 +553,8 @@ class JetInfoBranches {
       root->SetBranchAddress((name+".JetIDLOOSE").c_str()		 , &JetIDLOOSE[0]	       ); 
       root->SetBranchAddress((name+".JetIDTIGHT").c_str()		 , &JetIDTIGHT[0]	       ); 
       root->SetBranchAddress((name+".JetCharge").c_str()		 , &JetCharge[0]	       );
+      root->SetBranchAddress((name+".QGTagsMLP").c_str()		 , &QGTagsMLP[0]	       );
+      root->SetBranchAddress((name+".QGTagsLikelihood").c_str()		 , &QGTagsLikelihood[0]	       );
       root->SetBranchAddress((name+".NConstituents").c_str()		 , &NConstituents[0]	       );
       root->SetBranchAddress((name+".NCH").c_str()		 , &NCH[0]	       );
       root->SetBranchAddress((name+".CEF").c_str()		 , &CEF[0]  	       );
