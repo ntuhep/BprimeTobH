@@ -131,6 +131,7 @@ private:
   vector<edm::InputTag> jetlabel_;
   vector<edm::InputTag> hltlabel_;
   vector<edm::InputTag> gtdigilabel_;
+  edm::InputTag genlabel_; 
 
   EvtInfoBranches EvtInfo;
   GenInfoBranches GenInfo;
@@ -173,7 +174,8 @@ BprimeTobH::BprimeTobH(const edm::ParameterSet& iConfig):
   electronlabel_(iConfig.getParameter<vector<edm::InputTag> >("electronlabel")),  
   jetlabel_(iConfig.getParameter<vector<edm::InputTag> >("jetlabel")),  
   hltlabel_(iConfig.getParameter<vector<edm::InputTag> >("hltlabel")),  
-  gtdigilabel_(iConfig.getParameter<vector<edm::InputTag> >("gtdigilabel")),  
+  gtdigilabel_(iConfig.getParameter<vector<edm::InputTag> >("gtdigilabel")), 
+  genlabel_(iConfig.getParameter<edm::InputTag>("genlabel")),
   lepcollections_(iConfig.getParameter<std::vector<std::string> >("LepCollections")),
   jetcollections_(iConfig.getParameter<std::vector<std::string> >("JetCollections")),
   jettypes_(iConfig.getParameter<std::vector<std::string> >("JetTypes")),
@@ -828,6 +830,10 @@ BprimeTobH::saveL1T(const edm::Event& iEvent)
 void
 BprimeTobH::saveGenInfo(const edm::Event& iEvent)
 {
+  bool isData = iEvent.isRealData();
+  edm::Handle<reco::GenParticleCollection> GenHandle;  
+  if(!isData) iEvent.getByLabel(genlabel_, GenHandle);
+
   edm::Handle< GenEventInfoProduct > genEventInfo;
   iEvent.getByLabel("generator", genEventInfo);
 
