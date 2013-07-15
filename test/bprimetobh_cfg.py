@@ -80,6 +80,7 @@ process.ntuple = cms.EDAnalyzer(
     
     hltlabel  = cms.VInputTag("TriggerResults::HLT"),
     gtdigilabel = cms.VInputTag("gtDigis"),
+    genlabel = cms.InputTag("genParticles"), 
     LepCollections = cms.vstring('PFLepInfo', 'LepInfo'),
 
     # the jet branch names appear in the ntuple
