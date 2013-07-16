@@ -56,6 +56,7 @@
 #include "DataFormats/PatCandidates/interface/Electron.h"
 #include "DataFormats/PatCandidates/interface/Jet.h"
 
+
 // For JEC
 #include "CondFormats/JetMETObjects/interface/FactorizedJetCorrector.h"
 #include "CondFormats/JetMETObjects/interface/JetCorrectorParameters.h"
@@ -70,6 +71,8 @@
 
 #include "fastjet/PseudoJet.hh"
 #include "../interface/Njettiness.hh" 
+
+#include "QuarkGluonTagger/EightTeV/interface/QGTagger.h"
 
 using namespace std;
 
@@ -531,7 +534,7 @@ BprimeTobH::hasJets(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
   for(PatJetCollection::const_iterator it = fatjetsColl->begin(); it != fatjetsColl->end(); ++it)
   {
-    cout << endl << "*** PatJet iter: pt =  " << it->pt() << endl;
+    // cout << endl << "*** PatJet iter: pt =  " << it->pt() << endl;
     PatJetCollection::const_iterator prunedJetMatch;
     bool prunedJetMatchFound = false;
     float dR = 100.;//0.8; // hard coded for now. 
@@ -540,7 +543,7 @@ BprimeTobH::hasJets(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     {
       //cout << ". ";
       float dR_temp = reco::deltaR( it->p4(), pjIt->p4() );
-      cout << " .) " << dR_temp << ", " << pjIt->pt();
+      // cout << " .) " << dR_temp << ", " << pjIt->pt();
       if( dR_temp < dR )
       {
         prunedJetMatchFound = true;
