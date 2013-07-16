@@ -73,13 +73,16 @@ process.ntuple = cms.EDAnalyzer(
     electronlabel = cms.VInputTag('selectedPatElectrons::PAT', 'selectedPatElectronsPFlow::PAT'),
 
     # These are the three types of jets to be processed. 
-    jetlabel = cms.VInputTag(
-        'goodPatJetsCA8PF',
-        'goodPatJetsCA8PrunedPFPacked', 
-        'selectedPatJetsCA8PrunedSubjetsPF' ), 
-    
+    # jetlabel = cms.VInputTag(
+    #     'goodPatJetsCA8PF',
+    #     'goodPatJetsCA8PrunedPFPacked', 
+    #     'selectedPatJetsCA8PrunedSubjetsPF' ), 
+    fatjetlabel = cms.InputTag('goodPatJetsCA8PF'), 
+    prunedfatjetlabel = cms.InputTag('goodPatJetsCA8PrunedPFPacked'),  
+    subjetlabel = cms.InputTag('selectedPatJetsCA8PrunedSubjetsPF'),  
     hltlabel  = cms.VInputTag("TriggerResults::HLT"),
     gtdigilabel = cms.VInputTag("gtDigis"),
+    genlabel = cms.InputTag("genParticles"), 
     LepCollections = cms.vstring('PFLepInfo', 'LepInfo'),
 
     # the jet branch names appear in the ntuple
@@ -87,6 +90,8 @@ process.ntuple = cms.EDAnalyzer(
     # the types for the jets, must be correspond to the above types
     JetTypes = cms.vstring('fatjet', 'subjet'),
     DoGenJets = cms.untracked.bool(False), 
+    DoGenInfo = cms.untracked.bool(True), 
+    JetMinPt = cms.untracked.double(20), # [GeV]
 )
 
  

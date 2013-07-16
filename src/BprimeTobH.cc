@@ -44,6 +44,7 @@
 
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
+#include "SimDataFormats/GeneratorProducts/interface/GenEventInfoProduct.h"
 
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
@@ -110,6 +111,7 @@ private:
   bool hasMuons(const edm::Event &); 
   bool hasElectrons(const edm::Event &); 
   bool hasJets(const edm::Event &, const edm::EventSetup&); 
+  void saveGenInfo(const edm::Event &); 
   void saveHLT(const edm::Event&);
   void saveL1T(const edm::Event&);
   void processJets(const edm::Handle<PatJetCollection>&, const edm::Handle<PatJetCollection>&,
@@ -126,11 +128,16 @@ private:
   edm::InputTag VertexBSLabel_;
   vector<edm::InputTag> muonlabel_;
   vector<edm::InputTag> electronlabel_;
-  vector<edm::InputTag> jetlabel_;
+  // vector<edm::InputTag> jetlabel_;
+  edm::InputTag fatjetlabel_;
+  edm::InputTag prunedfatjetlabel_;
+  edm::InputTag subjetlabel_;
   vector<edm::InputTag> hltlabel_;
   vector<edm::InputTag> gtdigilabel_;
+  edm::InputTag genlabel_; 
 
   EvtInfoBranches EvtInfo;
+  GenInfoBranches GenInfo;
   VertexInfoBranches VertexInfo;
   LepInfoBranches LepInfo[MAX_LEPCOLLECTIONS];
   JetInfoBranches JetInfo[MAX_JETCOLLECTIONS];
@@ -145,9 +152,10 @@ private:
   vector<std::string> jettypes_;
 
   bool doGenJets_ ; 
-
+  bool doGenInfo_;
+  
   Njettiness nsubjettinessCalculator;
-
+  double JetMinPt_; 
 };
 
 
@@ -167,14 +175,21 @@ BprimeTobH::BprimeTobH(const edm::ParameterSet& iConfig):
   VertexBSLabel_(iConfig.getParameter<edm::InputTag>("VertexBSLabel")), 
   muonlabel_(iConfig.getParameter<vector<edm::InputTag> >("muonlabel")), 
   electronlabel_(iConfig.getParameter<vector<edm::InputTag> >("electronlabel")),  
-  jetlabel_(iConfig.getParameter<vector<edm::InputTag> >("jetlabel")),  
+  // jetlabel_(iConfig.getParameter<vector<edm::InputTag> >("jetlabel")),  
+  fatjetlabel_(iConfig.getParameter<edm::InputTag>("fatjetlabel")),  
+  prunedfatjetlabel_(iConfig.getParameter<edm::InputTag>("prunedfatjetlabel")),  
+  subjetlabel_(iConfig.getParameter<edm::InputTag>("subjetlabel")),  
   hltlabel_(iConfig.getParameter<vector<edm::InputTag> >("hltlabel")),  
-  gtdigilabel_(iConfig.getParameter<vector<edm::InputTag> >("gtdigilabel")),  
+  gtdigilabel_(iConfig.getParameter<vector<edm::InputTag> >("gtdigilabel")), 
+  genlabel_(iConfig.getParameter<edm::InputTag>("genlabel")),
   lepcollections_(iConfig.getParameter<std::vector<std::string> >("LepCollections")),
   jetcollections_(iConfig.getParameter<std::vector<std::string> >("JetCollections")),
   jettypes_(iConfig.getParameter<std::vector<std::string> >("JetTypes")),
   doGenJets_(iConfig.getUntrackedParameter<bool>("DoGenJets")),
-  nsubjettinessCalculator(Njettiness::onepass_kt_axes, NsubParameters(1.0, 0.8, 0.8)) 
+  doGenInfo_(iConfig.getUntrackedParameter<bool>("DoGenInfo")),
+  nsubjettinessCalculator(Njettiness::onepass_kt_axes, NsubParameters(1.0, 0.8, 0.8)), 
+  JetMinPt_(iConfig.getUntrackedParameter<double>("JetMinPt"))
+
 {
   edm::Service<TFileService> fs;
   TFileDirectory results = TFileDirectory( fs->mkdir("results") );
@@ -216,6 +231,8 @@ BprimeTobH::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     saveHLT(iEvent); 
     saveL1T(iEvent); 
 
+    if ( doGenInfo_) saveGenInfo(iEvent); 
+
     tree_->Fill();
   }
 
@@ -244,6 +261,8 @@ BprimeTobH::beginJob()
 
     JetInfo[i].RegisterTree(tree_,jetcollections_[i]);
   }
+
+  if(doGenInfo_) GenInfo.RegisterTree(tree_);  
 
 }
 
@@ -483,11 +502,11 @@ BprimeTobH::hasElectrons(const edm::Event& iEvent)
   bool
 BprimeTobH::hasJets(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
-  vector<edm::Handle<vector<pat::Jet> > > JetHandle;
-  for(unsigned il=0; il<jetlabel_.size(); il++) {
-    JetHandle.push_back(edm::Handle<vector<pat::Jet> >());
-    iEvent.getByLabel( jetlabel_[il], JetHandle[il]);
-  }
+  // vector<edm::Handle<vector<pat::Jet> > > JetHandle;
+  // for(unsigned il=0; il<jetlabel_.size(); il++) {
+  //   JetHandle.push_back(edm::Handle<vector<pat::Jet> >());
+  //   iEvent.getByLabel( jetlabel_[il], JetHandle[il]);
+  // }
 
   // currently, just deal with these three jetlabels as defined in the py: 
   // jetlabel = cms.VInputTag(
@@ -495,9 +514,16 @@ BprimeTobH::hasJets(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   //   'selectedPatJetsCA8PrunedPFPacked', 
   //   'selectedPatJetsCA8PrunedSubJetsPF'), 
 
-  edm::Handle <PatJetCollection> fatjetsColl = JetHandle[0];
-  edm::Handle <PatJetCollection> prunedfatjetsColl = JetHandle[1];
-  edm::Handle <PatJetCollection> subjetsColl = JetHandle[2];
+  edm::Handle <PatJetCollection> fatjetsColl; //  = JetHandle[0];
+  edm::Handle <PatJetCollection> prunedfatjetsColl; //  = JetHandle[1];
+  edm::Handle <PatJetCollection> subjetsColl; //  = JetHandle[2];
+
+  // edm::Handle<pat::Jet> FatJetHandle;
+  // iEvent.getByLabel( fatjetlabel_, FatJetHandle);
+  iEvent.getByLabel( fatjetlabel_, fatjetsColl);
+  iEvent.getByLabel( prunedfatjetlabel_, prunedfatjetsColl);
+  iEvent.getByLabel( subjetlabel_, subjetsColl);
+  // edm::Handle <PatJetCollection> fatjetsColl = FatJetHandle;
 
   // get the fatjet to prunedfat jet match map
 
@@ -572,6 +598,8 @@ BprimeTobH::processJets(const edm::Handle<PatJetCollection>& jetsColl,
   
   for( vector<pat::Jet>::const_iterator it_jet = jetsColl->begin();
       it_jet != jetsColl->end(); it_jet++ ) { 
+
+    if (iEvent.isRealData() && it_jet->pt() < JetMinPt_) continue ;
 
     // in the case of fatjet, store the two subjets index 
     if (jettypes_[icoll] == "fatjet")  {
@@ -752,7 +780,7 @@ BprimeTobH::processJets(const edm::Handle<PatJetCollection>& jetsColl,
 }
 
 
-  void
+void
 BprimeTobH::saveHLT(const edm::Event& iEvent)
 {
   // HLT: Booking trigger bits  
@@ -816,6 +844,62 @@ BprimeTobH::saveL1T(const edm::Event& iEvent)
 
 }
 
+void
+BprimeTobH::saveGenInfo(const edm::Event& iEvent)
+{
+  memset(&GenInfo,0x00,sizeof(GenInfo));
+
+  edm::Handle<reco::GenParticleCollection> GenHandle;  
+  if(!iEvent.isRealData()) iEvent.getByLabel(genlabel_, GenHandle);
+
+  vector<const reco::Candidate *> cands;
+  vector<const reco::Candidate *>::const_iterator found = cands.begin();
+
+  for( std::vector<reco::GenParticle>::const_iterator it_gen = GenHandle->begin(); 
+       it_gen != GenHandle->end(); it_gen++ ) 
+    {
+      if(it_gen->status() == 3){	//Book GenInfo for DC table
+	// Particles Mothers and Daighters
+	int iMo1 = -1;
+	int iMo2 = -1;
+	int iDa1 = -1;
+	int iDa2 = -1;
+	int NMo = it_gen->numberOfMothers();
+	int NDa = it_gen->numberOfDaughters();
+	found = find(cands.begin(), cands.end(), it_gen->mother(0));
+	if(found != cands.end()) iMo1 = found - cands.begin() ;
+	
+	found = find(cands.begin(), cands.end(), it_gen->mother(NMo-1));
+	if(found != cands.end()) iMo2 = found - cands.begin() ;
+	
+	found = find(cands.begin(), cands.end(), it_gen->daughter(0));
+	if(found != cands.end()) iDa1 = found - cands.begin() ;
+	
+	found = find(cands.begin(), cands.end(), it_gen->daughter(NDa-1));
+	if(found != cands.end()) iDa2 = found - cands.begin() ;
+
+	GenInfo.Pt[GenInfo.Size] 		= it_gen->pt();
+	GenInfo.Eta[GenInfo.Size]	 	= it_gen->eta();
+	GenInfo.Phi[GenInfo.Size]	 	= it_gen->phi();
+	GenInfo.Mass[GenInfo.Size]		= it_gen->mass();
+	GenInfo.PdgID[GenInfo.Size]		= it_gen->pdgId();
+	GenInfo.Status[GenInfo.Size]	        = it_gen->status();
+
+	GenInfo.nMo[GenInfo.Size]		= NMo; 
+	GenInfo.nDa[GenInfo.Size]		= NDa; 
+	GenInfo.Mo1[GenInfo.Size]		= iMo1; 
+	GenInfo.Mo2[GenInfo.Size]		= iMo2; 
+	GenInfo.Da1[GenInfo.Size]		= iDa1; 
+	GenInfo.Da2[GenInfo.Size]		= iDa2; 
+
+      }
+    }
+  
+		     
+  // edm::Handle< GenEventInfoProduct > genEventInfo;
+  // iEvent.getByLabel("generator", genEventInfo);
+
+}
 
 //define this as a plug-in
 DEFINE_FWK_MODULE(BprimeTobH);
