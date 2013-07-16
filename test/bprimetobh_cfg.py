@@ -56,11 +56,9 @@ process.TFileService = cms.Service(
 process.source = cms.Source(
 		"PoolSource",
 		fileNames = cms.untracked.vstring(
-			'file:/tmp/petrakou/BprimeBprimeToBHBHinc_M-1000_TuneZ2star_8TeV-madgraph_Summer12_DR53X-PU_S10_START53_V7C-v1_TLBSM_53x_v3.root'
-			#'root://eoscms//eos/cms/store/user/devdatta/TTBSM_PatTuples53x_v3_SlimFat/BprimeBprimeToBHBHinc_M-1500_TuneZ2star_8TeV-madgraph_Summer12_DR53X-PU_S10_START53_V7C-v1_AODSIM/tlbsm_53x_v3_Slim_mc_fat_1_1_J3g.root', 
-			#'file:tlbsm_53x_v3_mc_14_1_fZB.root'
-			)
-		)
+                    'file:tlbsm_53x_v3_mc_14_1_fZB.root'
+                )
+)
 
 process.ntuple = cms.EDAnalyzer(
     'BprimeTobH',
@@ -82,7 +80,7 @@ process.ntuple = cms.EDAnalyzer(
     subjetlabel = cms.InputTag('selectedPatJetsCA8PrunedSubjetsPF'),  
     hltlabel  = cms.VInputTag("TriggerResults::HLT"),
     gtdigilabel = cms.VInputTag("gtDigis"),
-    genlabel = cms.InputTag("genParticles"), 
+    genlabel = cms.InputTag("prunedGenParticles"), 
     LepCollections = cms.vstring('PFLepInfo', 'LepInfo'),
 
     # the jet branch names appear in the ntuple
