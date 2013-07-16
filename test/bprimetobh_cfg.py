@@ -70,11 +70,6 @@ process.ntuple = cms.EDAnalyzer(
     muonlabel = cms.VInputTag('selectedPatMuonsPFlow','selectedPatMuons'),
     electronlabel = cms.VInputTag('selectedPatElectrons::PAT', 'selectedPatElectronsPFlow::PAT'),
 
-    # These are the three types of jets to be processed. 
-    # jetlabel = cms.VInputTag(
-    #     'goodPatJetsCA8PF',
-    #     'goodPatJetsCA8PrunedPFPacked', 
-    #     'selectedPatJetsCA8PrunedSubjetsPF' ), 
     fatjetlabel = cms.InputTag('goodPatJetsCA8PF'), 
     prunedfatjetlabel = cms.InputTag('goodPatJetsCA8PrunedPFPacked'),  
     subjetlabel = cms.InputTag('selectedPatJetsCA8PrunedSubjetsPF'),  
