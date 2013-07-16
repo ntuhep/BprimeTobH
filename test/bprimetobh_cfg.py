@@ -56,19 +56,11 @@ process.TFileService = cms.Service(
 process.source = cms.Source(
 		"PoolSource",
 		fileNames = cms.untracked.vstring(
-<<<<<<< HEAD
 			#'file:/tmp/petrakou/BprimeBprimeToBHBHinc_M-1000_TuneZ2star_8TeV-madgraph_Summer12_DR53X-PU_S10_START53_V7C-v1_TLBSM_53x_v3.root'
 			'root://eoscms//eos/cms/store/user/devdatta/BprimeBprimeToBHBHinc_M-1000_TuneZ2star_8TeV-madgraph_Summer12_DR53X-PU_S10_START53_V7C-v1_TLBSM_53x_v3.root'
 			#'file:tlbsm_53x_v3_mc_14_1_fZB.root'
 			)
 		)
-=======
-                    'file:tlbsm_53x_v3_mc_14_1_fZB.root'
-                )
-)
-
-
->>>>>>> 7f461a5e5501cb3aa1836595d30b0e2f7cf1ab5e
 
 process.ntuple = cms.EDAnalyzer(
     'BprimeTobH',

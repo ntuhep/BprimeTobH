@@ -502,11 +502,6 @@ bool BprimeTobH::hasJets(const edm::Event& iEvent, const edm::EventSetup& iSetup
 
   for(PatJetCollection::const_iterator it = fatjetsColl->begin(); it != fatjetsColl->end(); ++it)
   {
-<<<<<<< HEAD
-    //DM cout << endl << "*** PatJet iter: pt =  " << it->pt() << endl;
-=======
-    // cout << endl << "*** PatJet iter: pt =  " << it->pt() << endl;
->>>>>>> 7f461a5e5501cb3aa1836595d30b0e2f7cf1ab5e
     PatJetCollection::const_iterator prunedJetMatch;
     bool prunedJetMatchFound = false;
     float dR = 100.;//0.8; // hard coded for now. 
@@ -515,11 +510,6 @@ bool BprimeTobH::hasJets(const edm::Event& iEvent, const edm::EventSetup& iSetup
     {
       //cout << ". ";
       float dR_temp = reco::deltaR( it->p4(), pjIt->p4() );
-<<<<<<< HEAD
-      //DM cout << " .) " << dR_temp << ", " << pjIt->pt();
-=======
-      // cout << " .) " << dR_temp << ", " << pjIt->pt();
->>>>>>> 7f461a5e5501cb3aa1836595d30b0e2f7cf1ab5e
       if( dR_temp < dR )
       {
         prunedJetMatchFound = true;
