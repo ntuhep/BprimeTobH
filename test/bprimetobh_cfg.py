@@ -60,6 +60,8 @@ process.source = cms.Source(
                 )
 )
 
+
+
 process.ntuple = cms.EDAnalyzer(
     'BprimeTobH',
     IncludeL7 = cms.untracked.bool(False), 
@@ -87,5 +89,14 @@ process.ntuple = cms.EDAnalyzer(
     JetMinPt = cms.untracked.double(20), # [GeV]
 )
 
+
+#------------------------------------------------------------
+#  Gluon Tagger 
+#------------------------------------------------------------
+process.load('QuarkGluonTagger.EightTeV.QGTagger_RecoJets_cff')  
+process.QGTagger.srcJets = cms.InputTag("selectedPatJetsPFlow")
+process.QGTagger.isPatJet  = cms.untracked.bool(True) 
+process.QGTagger.useCHS  = cms.untracked.bool(True)
+
  
-process.p = cms.Path(process.ntuple)
+process.p = cms.Path(process.QuarkGluonTagger*process.ntuple)
