@@ -6,7 +6,7 @@ import copy
 options = VarParsing ('python')
 
 options.register('outFilename',
-		'BprimeTobH_Test05Jul.root', 
+		'BprimeTobH.root', 
 		VarParsing.multiplicity.singleton,
 		VarParsing.varType.string,
 		"Output file name"
