@@ -71,7 +71,7 @@ process.ntuple = cms.EDAnalyzer(
     VertexBSLabel = cms.InputTag('goodOfflinePrimaryVertices'), 
     muonlabel = cms.VInputTag('selectedPatMuonsPFlow','selectedPatMuons'),
     electronlabel = cms.VInputTag('selectedPatElectrons::PAT', 'selectedPatElectronsPFlow::PAT'),
-
+    jetlabel = cms.InputTag('goodPatJetsPFlow'),  
     fatjetlabel = cms.InputTag('goodPatJetsCA8PF'), 
     prunedfatjetlabel = cms.InputTag('goodPatJetsCA8PrunedPFPacked'),  
     subjetlabel = cms.InputTag('selectedPatJetsCA8PrunedSubjetsPF'),  
@@ -81,9 +81,9 @@ process.ntuple = cms.EDAnalyzer(
     LepCollections = cms.vstring('PFLepInfo', 'LepInfo'),
 
     # the jet branch names appear in the ntuple
-    JetCollections = cms.vstring('FatJetInfo', 'SubJetInfo'),
+    JetCollections = cms.vstring('FatJetInfo', 'SubJetInfo', 'JetInfo'), 
     # the types for the jets, must be correspond to the above types
-    JetTypes = cms.vstring('fatjet', 'subjet'),
+    JetTypes = cms.vstring('fatjet', 'subjet', 'jet'),
     DoGenJets = cms.untracked.bool(False), 
     DoGenInfo = cms.untracked.bool(True), 
     JetMinPt = cms.untracked.double(20), # [GeV]
@@ -94,9 +94,12 @@ process.ntuple = cms.EDAnalyzer(
 #  Gluon Tagger 
 #------------------------------------------------------------
 process.load('QuarkGluonTagger.EightTeV.QGTagger_RecoJets_cff')  
+process.goodOfflinePrimaryVerticesQG.src  = cms.InputTag('goodOfflinePrimaryVertices')
 process.QGTagger.srcJets = cms.InputTag("selectedPatJetsPFlow")
 process.QGTagger.isPatJet  = cms.untracked.bool(True) 
 process.QGTagger.useCHS  = cms.untracked.bool(True)
+process.QGTagger.srcRho  = cms.InputTag('kt6PFJets','rho') 
+process.QGTagger.srcRhoIso  = cms.InputTag('kt6PFJets','rho') 
 
- 
-process.p = cms.Path(process.QuarkGluonTagger*process.ntuple)
+#process.p = cms.Path(process.QuarkGluonTagger*process.ntuple)
+process.p = cms.Path(process.ntuple)
