@@ -612,15 +612,15 @@ void BprimeTobH::processJets(const edm::Handle<PatJetCollection>& jetsColl,
     edm::RefToBase<reco::Jet> jetRef(edm::Ref<std::vector <pat::Jet> >(jetsColl,ijet));
 
     if (QGTagsHandleMLP.isValid()){
-      std::cout << "QGTagsHandleMLP is Valid\n" ; 
+      // std::cout << "QGTagsHandleMLP is Valid\n" ; 
       JetInfo[icoll].QGTagsMLP       [JetInfo[icoll].Size] = (*QGTagsHandleMLP)[jetRef];
     }
-    else std::cout << "QGTagsHandleMLP is not Valid\n" ;
+    // else std::cout << "QGTagsHandleMLP is not Valid\n" ;
     if (QGTagsHandleLikelihood.isValid()){
-      std::cout << "QGTagsHandleLikelihood is Valid\n" ; 
+      // std::cout << "QGTagsHandleLikelihood is Valid\n" ; 
       JetInfo[icoll].QGTagsLikelihood       [JetInfo[icoll].Size] = (*QGTagsHandleLikelihood)[jetRef];
     } 
-    else std::cout << "QGTagsHandleLikelihood is not Valid\n" ; 
+    // else std::cout << "QGTagsHandleLikelihood is not Valid\n" ; 
 
     if(it_jet->isPFJet()) {
       //Jet ID for PFJet
