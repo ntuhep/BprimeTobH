@@ -492,7 +492,7 @@ bool BprimeTobH::hasJets(const edm::Event& iEvent, const edm::EventSetup& iSetup
   edm::Handle <PatJetCollection> fatjetsColl; //  = JetHandle[0];
   edm::Handle <PatJetCollection> prunedfatjetsColl; //  = JetHandle[1];
   edm::Handle <PatJetCollection> subjetsColl; //  = JetHandle[2];
-  // edm::Handle <GenJetCollection> genjetsColl; 
+  edm::Handle <GenJetCollection> genjetsColl; 
 
   // edm::Handle<pat::Jet> FatJetHandle;
   // iEvent.getByLabel( fatjetlabel_, FatJetHandle);
@@ -500,7 +500,7 @@ bool BprimeTobH::hasJets(const edm::Event& iEvent, const edm::EventSetup& iSetup
   iEvent.getByLabel( fatjetlabel_, fatjetsColl);
   iEvent.getByLabel( prunedfatjetlabel_, prunedfatjetsColl);
   iEvent.getByLabel( subjetlabel_, subjetsColl);
-  // iEvent.getByLabel( genjetlabel_, genjetsColl);
+  iEvent.getByLabel( genjetlabel_, genjetsColl);
   // edm::Handle <PatJetCollection> fatjetsColl = FatJetHandle;
 
   // get the fatjet to prunedfat jet match map
