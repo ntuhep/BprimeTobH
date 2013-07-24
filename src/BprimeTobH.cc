@@ -119,7 +119,9 @@ class BprimeTobH : public edm::EDAnalyzer {
     void saveHLT(const edm::Event&);
     void saveL1T(const edm::Event&);
     void processJets(const edm::Handle<PatJetCollection>&, const edm::Handle<PatJetCollection>&,
-        const edm::Event&, const edm::EventSetup&, const JetToJetMap&, const unsigned int); 
+		     const edm::Event&, const edm::EventSetup&, const JetToJetMap&, const unsigned int); 
+    void processGenJets(const edm::Handle<GenJetCollection>&,
+			const edm::Event&, const edm::EventSetup&, const unsigned int); 
 
     // ----------member data ---------------------------
     TTree* tree_;  
@@ -540,7 +542,7 @@ bool BprimeTobH::hasJets(const edm::Event& iEvent, const edm::EventSetup& iSetup
   processJets(jetsColl, subjetsColl, iEvent, iSetup, fatJetToPrunedFatJetMap, iJetColl) ;
 
   iJetColl = 3 ; // GenJetInfo 
-  // processJets(jetsColl, subjetsColl, iEvent, iSetup, fatJetToPrunedFatJetMap, iJetColl) ;
+  processGenJets(genjetsColl, iEvent, iSetup, iJetColl) ;
 
   return true; 
 }
@@ -870,6 +872,18 @@ void BprimeTobH::saveGenInfo(const edm::Event& iEvent) {
       ++GenInfo.Size ; 
     } //// Storing status == 3 particles only 
   } //// Looping over GenParticles
+
+}
+
+
+void BprimeTobH::processGenJets(const edm::Handle<GenJetCollection>& jetsColl, 
+				const edm::Event& iEvent, 
+				const edm::EventSetup& iSetup, 
+				const unsigned int icoll) { 
+
+  if(icoll >= MAX_JETCOLLECTIONS) return;
+
+  memset(&JetInfo[icoll],0x00,sizeof(JetInfo[icoll]));
 
 }
 
