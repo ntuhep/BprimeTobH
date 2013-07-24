@@ -84,6 +84,7 @@ const unsigned int MAX_LEPCOLLECTIONS=3;
 const unsigned int MAX_JETCOLLECTIONS=5; 
 
 typedef vector<pat::Jet> PatJetCollection;
+typedef vector<reco::GenJet> GenJetCollection;
 typedef map<const pat::Jet* ,const pat::Jet*> JetToJetMap;
 
 //
@@ -491,7 +492,7 @@ bool BprimeTobH::hasJets(const edm::Event& iEvent, const edm::EventSetup& iSetup
   edm::Handle <PatJetCollection> fatjetsColl; //  = JetHandle[0];
   edm::Handle <PatJetCollection> prunedfatjetsColl; //  = JetHandle[1];
   edm::Handle <PatJetCollection> subjetsColl; //  = JetHandle[2];
-  edm::Handle <PatJetCollection> genjetsColl; 
+  // edm::Handle <GenJetCollection> genjetsColl; 
 
   // edm::Handle<pat::Jet> FatJetHandle;
   // iEvent.getByLabel( fatjetlabel_, FatJetHandle);
@@ -499,7 +500,7 @@ bool BprimeTobH::hasJets(const edm::Event& iEvent, const edm::EventSetup& iSetup
   iEvent.getByLabel( fatjetlabel_, fatjetsColl);
   iEvent.getByLabel( prunedfatjetlabel_, prunedfatjetsColl);
   iEvent.getByLabel( subjetlabel_, subjetsColl);
-  iEvent.getByLabel( genjetlabel_, genjetsColl);
+  // iEvent.getByLabel( genjetlabel_, genjetsColl);
   // edm::Handle <PatJetCollection> fatjetsColl = FatJetHandle;
 
   // get the fatjet to prunedfat jet match map
@@ -528,15 +529,18 @@ bool BprimeTobH::hasJets(const edm::Event& iEvent, const edm::EventSetup& iSetup
     fatJetToPrunedFatJetMap[&(*it)] = &(*prunedJetMatch);
   }
 
-  // Now process 'FatJetInfo', 'SubJetInfo':
+  // Now process 'FatJetInfo', 'SubJetInfo', 'JetInfo', 'GenJetInfo':
   unsigned int iJetColl = 0 ; // FatJetInfo 
   processJets(fatjetsColl, subjetsColl, iEvent, iSetup, fatJetToPrunedFatJetMap, iJetColl) ;
 
   iJetColl = 1; // SubJetInfo 
   processJets(subjetsColl, fatjetsColl, iEvent, iSetup, fatJetToPrunedFatJetMap, iJetColl) ;
 
-  iJetColl = 2 ; // FatJetInfo 
+  iJetColl = 2 ; // JetInfo 
   processJets(jetsColl, subjetsColl, iEvent, iSetup, fatJetToPrunedFatJetMap, iJetColl) ;
+
+  iJetColl = 3 ; // GenJetInfo 
+  // processJets(jetsColl, subjetsColl, iEvent, iSetup, fatJetToPrunedFatJetMap, iJetColl) ;
 
   return true; 
 }
