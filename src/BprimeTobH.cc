@@ -902,9 +902,12 @@ void BprimeTobH::processGenJets(const edm::Handle<GenJetCollection>& jetsColl,
      JetInfo[icoll].Pz      [JetInfo[icoll].Size] = it_jet->pz(); 
      JetInfo[icoll].Mass    [JetInfo[icoll].Size] = it_jet->mass();
      JetInfo[icoll].Area    [JetInfo[icoll].Size] = it_jet->jetArea();
-   
-  }
+      
+     // JetInfo[icoll].JetCharge   [JetInfo[icoll].Size] = it_jet->jetCharge();
+     JetInfo[icoll].NConstituents[JetInfo[icoll].Size] = it_jet->numberOfDaughters();
 
+     JetInfo[icoll].Size++;
+  }
 }
 
 //define this as a plug-in
