@@ -1,28 +1,28 @@
 import FWCore.ParameterSet.Config as cms
 
-from FWCore.ParameterSet.VarParsing import VarParsing
+#from FWCore.ParameterSet.VarParsing import VarParsing
 import copy
 
-options = VarParsing ('python')
+# options = VarParsing ('python')
 
-options.register('outFilename',
-		'BprimeTobH.root', 
-		VarParsing.multiplicity.singleton,
-		VarParsing.varType.string,
-		"Output file name"
-		)
+# options.register('outFilename',
+# 		'BprimeTobH.root', 
+# 		VarParsing.multiplicity.singleton,
+# 		VarParsing.varType.string,
+# 		"Output file name"
+# 		)
 
-options.register('useData',
-		False,
-		VarParsing.multiplicity.singleton,
-		VarParsing.varType.int,
-		'Run this on real data')
+# options.register('useData',
+# 		False,
+# 		VarParsing.multiplicity.singleton,
+# 		VarParsing.varType.int,
+# 		'Run this on real data')
 
-options.setDefault('maxEvents', -1) 
+# options.setDefault('maxEvents', -1) 
 
-options.parseArguments()
+# options.parseArguments()
 
-print options
+#print options
 
 process = cms.Process("Ntuple")
 
@@ -41,7 +41,8 @@ process.load("FWCore.MessageService.MessageLogger_cfi")
 #		suppressInfo = cms.untracked.vstring("BprimeTobH"), 
 #		)
 
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(options.maxEvents) )
+#process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(options.maxEvents) )
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(100) )
 
 process.options = cms.untracked.PSet(
 		SkipEvent = cms.untracked.vstring('ProductNotFound')
@@ -50,8 +51,9 @@ process.options = cms.untracked.PSet(
 
 process.TFileService = cms.Service(
 		"TFileService",
-		fileName = cms.string(options.outFilename) 
-		)
+    #fileName = cms.string(options.outFilename) 
+    fileName = cms.string('BprimeTobH.root')
+)
 
 process.source = cms.Source(
 		"PoolSource",
