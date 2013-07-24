@@ -885,6 +885,26 @@ void BprimeTobH::processGenJets(const edm::Handle<GenJetCollection>& jetsColl,
 
   memset(&JetInfo[icoll],0x00,sizeof(JetInfo[icoll]));
 
+  for( vector<reco::GenJet>::const_iterator it_jet = jetsColl->begin();
+       it_jet != jetsColl->end(); it_jet++ ) { 
+    
+    if (iEvent.isRealData() && it_jet->pt() < JetMinPt_) continue ;
+     JetInfo[icoll].Index   [JetInfo[icoll].Size] = JetInfo[icoll].Size;
+     // JetInfo[icoll].NTracks [JetInfo[icoll].Size] = it_jet->associatedTracks().size();
+
+     JetInfo[icoll].Et      [JetInfo[icoll].Size] = it_jet->et();
+     JetInfo[icoll].Pt      [JetInfo[icoll].Size] = it_jet->pt();
+     JetInfo[icoll].Eta     [JetInfo[icoll].Size] = it_jet->eta();
+     JetInfo[icoll].Phi     [JetInfo[icoll].Size] = it_jet->phi();
+     JetInfo[icoll].Energy  [JetInfo[icoll].Size] = it_jet->energy(); 
+     JetInfo[icoll].Px      [JetInfo[icoll].Size] = it_jet->px(); 
+     JetInfo[icoll].Py      [JetInfo[icoll].Size] = it_jet->py(); 
+     JetInfo[icoll].Pz      [JetInfo[icoll].Size] = it_jet->pz(); 
+     JetInfo[icoll].Mass    [JetInfo[icoll].Size] = it_jet->mass();
+     JetInfo[icoll].Area    [JetInfo[icoll].Size] = it_jet->jetArea();
+   
+  }
+
 }
 
 //define this as a plug-in
