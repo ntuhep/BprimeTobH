@@ -42,7 +42,7 @@ process.load("FWCore.MessageService.MessageLogger_cfi")
 #		)
 
 #process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(options.maxEvents) )
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(100) )
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-100) )
 
 process.options = cms.untracked.PSet(
 		SkipEvent = cms.untracked.vstring('ProductNotFound')
@@ -89,7 +89,8 @@ process.ntuple = cms.EDAnalyzer(
     JetTypes = cms.vstring('fatjet', 'subjet', 'jet', 'genjet'),
     DoGenJets = cms.untracked.bool(False), 
     DoGenInfo = cms.untracked.bool(True), 
-    JetMinPt = cms.untracked.double(20), # [GeV]
+    JetPtMin = cms.untracked.double(300), 
+    JetYMax = cms.untracked.double(2.5)  
 )
 
 
