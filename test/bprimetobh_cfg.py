@@ -58,8 +58,8 @@ process.TFileService = cms.Service(
 process.source = cms.Source(
 		"PoolSource",
 		fileNames = cms.untracked.vstring(
-			#'file:/tmp/petrakou/BprimeBprimeToBHBHinc_M-1000_TuneZ2star_8TeV-madgraph_Summer12_DR53X-PU_S10_START53_V7C-v1_TLBSM_53x_v3.root'
-			'root://eoscms//eos/cms/store/user/devdatta/BprimeBprimeToBHBHinc_M-1000_TuneZ2star_8TeV-madgraph_Summer12_DR53X-PU_S10_START53_V7C-v1_TLBSM_53x_v3.root'
+			#'root://eoscms//eos/cms/store/user/devdatta/BprimeBprimeToBHBHinc_M-1000_TuneZ2star_8TeV-madgraph_Summer12_DR53X-PU_S10_START53_V7C-v1_TLBSM_53x_v3.root'
+      'root://eoscms//eos/cms/store/user/devdatta/QCD_Pt-1000to1400_TuneZ2star_8TeV-pythia6_Summer12_DR53X-PU_S10_START53_V7A-v1_TLBSM_53x_v3.root' 
 			#'file:tlbsm_53x_v3_mc_14_1_fZB.root'
 			)
 		)
@@ -77,7 +77,6 @@ process.ntuple = cms.EDAnalyzer(
     fatjetlabel = cms.InputTag('goodPatJetsCA8PF'), 
     prunedfatjetlabel = cms.InputTag('goodPatJetsCA8PrunedPFPacked'),  
     subjetlabel = cms.InputTag('selectedPatJetsCA8PrunedSubjetsPF'),  
-    #genjetlabel = cms.InputTag('selectedPatJetsPFlow'),  # this does not work 
     genjetlabel = cms.InputTag('ak5GenJetsNoNu'),  
     hltlabel  = cms.VInputTag("TriggerResults::HLT"),
     gtdigilabel = cms.VInputTag("gtDigis"),
