@@ -579,6 +579,12 @@ void BprimeTobH::processJets(const edm::Handle<PatJetCollection>& jetsColl,
   for( vector<pat::Jet>::const_iterator it_jet = jetsColl->begin();
       it_jet != jetsColl->end(); it_jet++ ) {
 
+    const pat::Jet* p_jet = &(*it_jet); 
+
+    // avoid no match found jets
+    if ( fatJetToPrunedFatJetMap.find(p_jet) == fatJetToPrunedFatJetMap.end() )
+      continue; 
+
     double fatjety = TMath::Log( (TMath::Sqrt( (it_jet->mass()*it_jet->mass()) + (it_jet->pt()*it_jet->pt())*(TMath::CosH(it_jet->eta())*TMath::CosH(it_jet->eta())) ) + (it_jet->pt()*TMath::SinH(it_jet->eta()) ) ) / (TMath::Sqrt( (it_jet->mass()*it_jet->mass()) + (it_jet->pt()*it_jet->pt()) )) ) ; 
 
     if (it_jet->pt() < JetPtMin_ || fabs(fatjety) > JetYMax_) continue ;
@@ -702,12 +708,12 @@ void BprimeTobH::processJets(const edm::Handle<PatJetCollection>& jetsColl,
       }
     } //// GenJet for MC
 
-    const pat::Jet* p_jet = &(*it_jet); 
+
 
     // in the case of fatjet, store the two subjets index
     if (jettypes_[icoll] == "fatjet") {
 
-      if ( fatJetToPrunedFatJetMap.find(p_jet) != fatJetToPrunedFatJetMap.end() ) { 
+      // if ( fatJetToPrunedFatJetMap.find(p_jet) != fatJetToPrunedFatJetMap.end() ) { 
       JetInfo[icoll].EtPruned [JetInfo[icoll].Size] = fatJetToPrunedFatJetMap.find(p_jet)->second->et();
       JetInfo[icoll].PtPruned [JetInfo[icoll].Size] = fatJetToPrunedFatJetMap.find(p_jet)->second->pt();
       JetInfo[icoll].EtaPruned [JetInfo[icoll].Size] = fatJetToPrunedFatJetMap.find(p_jet)->second->eta();
@@ -731,7 +737,7 @@ void BprimeTobH::processJets(const edm::Handle<PatJetCollection>& jetsColl,
       JetInfo[icoll].Jet_SubJet1Idx[JetInfo[icoll].Size] = subjet1Idx;
       JetInfo[icoll].Jet_SubJet2Idx[JetInfo[icoll].Size] = subjet2Idx;
 
-      } 
+      // } 
 
       std::vector<fastjet::PseudoJet> fjConstituents;
       std::vector<edm::Ptr<reco::PFCandidate> > constituents = it_jet->getPFConstituents();
@@ -760,8 +766,8 @@ void BprimeTobH::processJets(const edm::Handle<PatJetCollection>& jetsColl,
       int fatjetIdx=-1;
       for( PatJetCollection::const_iterator jIt = jetsColl2->begin(); jIt != jetsColl2->end(); ++jIt )
       {
-	if ( fatJetToPrunedFatJetMap.find(p_jet) != fatJetToPrunedFatJetMap.end() && 
-	     fatJetToPrunedFatJetMap.find(&(*jIt)) != fatJetToPrunedFatJetMap.end() ) {  
+	// if ( fatJetToPrunedFatJetMap.find(p_jet) != fatJetToPrunedFatJetMap.end() && 
+	//      fatJetToPrunedFatJetMap.find(&(*jIt)) != fatJetToPrunedFatJetMap.end() ) {  
 
 	  if( p_jet == fatJetToPrunedFatJetMap.find(&(*jIt))->second->daughter(0) ||
 	    p_jet == fatJetToPrunedFatJetMap.find(&(*jIt))->second->daughter(1) )
@@ -769,7 +775,7 @@ void BprimeTobH::processJets(const edm::Handle<PatJetCollection>& jetsColl,
 	      fatjetIdx = int( jIt - jetsColl2->begin() );
 	      break;
 	    }
-	}
+	  // }
 	JetInfo[icoll].Jet_FatJetIdx[JetInfo[icoll].Size] = fatjetIdx;
       }
     } //// If subjets
