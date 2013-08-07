@@ -759,7 +759,8 @@ void BprimeTobH::processJets(const edm::Handle<PatJetCollection>& jetsColl,
       int fatjetIdx=-1;
       for( PatJetCollection::const_iterator jIt = jetsColl2->begin(); jIt != jetsColl2->end(); ++jIt )
       {
-	if ( fatJetToPrunedFatJetMap.at(&(*jIt)) != NULL ) { 
+	if ( fatJetToPrunedFatJetMap.find(&(*it_jet)) != fatJetToPrunedFatJetMap.end() &&
+	     fatJetToPrunedFatJetMap.at(&(*it_jet)) != NULL ) { // && 
 	  if( &(*it_jet) == fatJetToPrunedFatJetMap.find(&(*jIt))->second->daughter(0) ||
 	      &(*it_jet) == fatJetToPrunedFatJetMap.find(&(*jIt))->second->daughter(1) )
 	    {
