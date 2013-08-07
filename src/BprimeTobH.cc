@@ -530,7 +530,7 @@ bool BprimeTobH::hasJets(const edm::Event& iEvent, const edm::EventSetup& iSetup
     }
     if( !prunedJetMatchFound ) {
       edm::LogError("NoMatchingGroomedJet") << " Matching pruned jet not found" << endl; 
-      fatJetToPrunedFatJetMap[&(*it)] = NULL; 
+      // fatJetToPrunedFatJetMap[&(*it)] = NULL; 
     } else fatJetToPrunedFatJetMap[&(*it)] = &(*prunedJetMatch); 
 
   } //// Loop over fat jets 
@@ -706,7 +706,7 @@ void BprimeTobH::processJets(const edm::Handle<PatJetCollection>& jetsColl,
     // in the case of fatjet, store the two subjets index
     if (jettypes_[icoll] == "fatjet") {
 
-      if ( fatJetToPrunedFatJetMap.at(&(*it_jet)) != NULL ) { 
+      if ( fatJetToPrunedFatJetMap.find(&(*it_jet)) != fatJetToPrunedFatJetMap.end() ) { 
       JetInfo[icoll].EtPruned [JetInfo[icoll].Size] = fatJetToPrunedFatJetMap.find(&(*it_jet))->second->et();
       JetInfo[icoll].PtPruned [JetInfo[icoll].Size] = fatJetToPrunedFatJetMap.find(&(*it_jet))->second->pt();
       JetInfo[icoll].EtaPruned [JetInfo[icoll].Size] = fatJetToPrunedFatJetMap.find(&(*it_jet))->second->eta();
@@ -759,19 +759,20 @@ void BprimeTobH::processJets(const edm::Handle<PatJetCollection>& jetsColl,
       int fatjetIdx=-1;
       for( PatJetCollection::const_iterator jIt = jetsColl2->begin(); jIt != jetsColl2->end(); ++jIt )
       {
-	if ( fatJetToPrunedFatJetMap.find(&(*it_jet)) == fatJetToPrunedFatJetMap.end() ) continue; 
-	if ( fatJetToPrunedFatJetMap.find(&(*jIt)) == fatJetToPrunedFatJetMap.end() ) continue;  
+	if ( fatJetToPrunedFatJetMap.find(&(*it_jet)) != fatJetToPrunedFatJetMap.end() && 
+	     fatJetToPrunedFatJetMap.find(&(*jIt)) != fatJetToPrunedFatJetMap.end() ) {  
 
-	if( &(*it_jet) == fatJetToPrunedFatJetMap.find(&(*jIt))->second->daughter(0) ||
+	  if( &(*it_jet) == fatJetToPrunedFatJetMap.find(&(*jIt))->second->daughter(0) ||
 	    &(*it_jet) == fatJetToPrunedFatJetMap.find(&(*jIt))->second->daughter(1) )
-	  {
-	    fatjetIdx = int( jIt - jetsColl2->begin() );
-	    break;
-	  }
+	    {
+	      fatjetIdx = int( jIt - jetsColl2->begin() );
+	      break;
+	    }
+	}
 	JetInfo[icoll].Jet_FatJetIdx[JetInfo[icoll].Size] = fatjetIdx;
       }
     } //// If subjets
-
+    
     JetInfo[icoll].Size++;
 
   } //loop over jets in collection
