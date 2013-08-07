@@ -778,6 +778,8 @@ void BprimeTobH::processJets(const edm::Handle<PatJetCollection>& jetsColl,
 
   } //loop over jets in collection
 
+  delete jecUnc; // thanks to Jacky!  
+  
 }
 
 
