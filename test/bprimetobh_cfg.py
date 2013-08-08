@@ -80,6 +80,8 @@ process.ntuple = cms.EDAnalyzer(
     genjetlabel = cms.InputTag('ak5GenJetsNoNu'),  
     hltlabel  = cms.VInputTag("TriggerResults::HLT"),
     gtdigilabel = cms.VInputTag("gtDigis"),
+    rhocorrectionlabel = cms.VInputTag("kt6PFJetsForIsolation:rho","kt6PFJetsForIsolation:rho"),  # [electron,muon]
+    sigmaLabel = cms.VInputTag("kt6PFJetsForIsolation:sigma","kt6PFJetsForIsolation:rho"),    # [electron,muon]
     genlabel = cms.InputTag("prunedGenParticles"), 
     LepCollections = cms.vstring('PFLepInfo', 'LepInfo'),
 

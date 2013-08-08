@@ -141,6 +141,8 @@ class BprimeTobH : public edm::EDAnalyzer {
     edm::InputTag genjetlabel_;
     vector<edm::InputTag> hltlabel_;
     vector<edm::InputTag> gtdigilabel_;
+    vector<edm::InputTag> rhocorrectionlabel_;
+    vector<edm::InputTag> sigmaLabel_;
     edm::InputTag genlabel_;
 
     EvtInfoBranches EvtInfo;
@@ -189,6 +191,9 @@ BprimeTobH::BprimeTobH(const edm::ParameterSet& iConfig):
   genjetlabel_(iConfig.getParameter<edm::InputTag>("genjetlabel")),
   hltlabel_(iConfig.getParameter<vector<edm::InputTag> >("hltlabel")),
   gtdigilabel_(iConfig.getParameter<vector<edm::InputTag> >("gtdigilabel")),
+  rhocorrectionlabel_(iConfig.getParameter<vector<edm::InputTag>>("rhocorrectionlabel")), 
+  sigmaLabel_(iConfig.getParameter<vector<edm::InputTag>>("sigmaLabel")),
+
   genlabel_(iConfig.getParameter<edm::InputTag>("genlabel")),
   lepcollections_(iConfig.getParameter<std::vector<std::string> >("LepCollections")),
   jetcollections_(iConfig.getParameter<std::vector<std::string> >("JetCollections")),
@@ -222,7 +227,28 @@ void BprimeTobH::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
 
   EvtInfo.RunNo = iEvent.id().run();
   EvtInfo.EvtNo = iEvent.id().event();
+  EvtInfo.BxNo   = iEvent.bunchCrossing();
+  EvtInfo.LumiNo = iEvent.luminosityBlock();
+  EvtInfo.Orbit  = iEvent.orbitNumber();
+  EvtInfo.McFlag = iEvent.isRealData()? 0: 1;  
 
+  EvtInfo.nTrgBook = N_TRIGGER_BOOKINGS;
+  
+  std::vector<edm::Handle<double> > rhoH;
+  std::vector<edm::Handle<double> > sigmaHandle;
+  for(unsigned il=0; il<rhocorrectionlabel_.size(); il++) {
+      rhoH.push_back(edm::Handle<double> ());
+      iEvent.getByLabel( rhocorrectionlabel_[il],rhoH[il]);
+      sigmaHandle.push_back(edm::Handle<double> ());
+      iEvent.getByLabel( sigmaLabel_[il],sigmaHandle[il]);
+  }
+
+  for(unsigned int ri_=0;ri_<2;ri_++){
+    if(rhoH[ri_].isValid()) EvtInfo.RhoPU[ri_] = *(rhoH[ri_].product());
+    if(sigmaHandle[ri_].isValid()) EvtInfo.SigmaPU[ri_] = *(sigmaHandle[ri_].product());
+  }
+  
+  
   if ( hasBeamSpot(iEvent)
       && hasPrimaryVertex(iEvent)
       && hasPrimaryVertexBS(iEvent)
