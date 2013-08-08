@@ -56,6 +56,8 @@ Based on bprimeKit
 #include "DataFormats/PatCandidates/interface/Electron.h"
 #include "DataFormats/PatCandidates/interface/Jet.h"
 
+// PileupSummaryInfo
+#include "SimDataFormats/PileupSummaryInfo/interface/PileupSummaryInfo.h"
 
 // For JEC
 #include "CondFormats/JetMETObjects/interface/FactorizedJetCorrector.h"
@@ -144,6 +146,7 @@ class BprimeTobH : public edm::EDAnalyzer {
     vector<edm::InputTag> gtdigilabel_;
     vector<edm::InputTag> rhocorrectionlabel_;
     vector<edm::InputTag> sigmaLabel_;
+    vector<edm::InputTag> puInfoLabel_;
     edm::InputTag genlabel_;
 
     EvtInfoBranches EvtInfo;
@@ -195,6 +198,7 @@ BprimeTobH::BprimeTobH(const edm::ParameterSet& iConfig):
   gtdigilabel_(iConfig.getParameter<vector<edm::InputTag> >("gtdigilabel")),
   rhocorrectionlabel_(iConfig.getParameter<vector<edm::InputTag>>("rhocorrectionlabel")), 
   sigmaLabel_(iConfig.getParameter<vector<edm::InputTag>>("sigmaLabel")),
+  puInfoLabel_(iConfig.getParameter<vector<edm::InputTag>>("puInfoLabel")),
 
   genlabel_(iConfig.getParameter<edm::InputTag>("genlabel")),
   lepcollections_(iConfig.getParameter<std::vector<std::string> >("LepCollections")),
@@ -227,6 +231,8 @@ BprimeTobH::~BprimeTobH() {
 void BprimeTobH::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   clearVariables();
 
+  bool isData = iEvent.isRealData();
+
   EvtInfo.RunNo = iEvent.id().run();
   EvtInfo.EvtNo = iEvent.id().event();
   EvtInfo.BxNo   = iEvent.bunchCrossing();
@@ -251,7 +257,23 @@ void BprimeTobH::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
   }
   
   edm::Handle<GenEventInfoProduct> GenEventInfoHandle;	 
-  bool with_GenEventInfo = (genevtlabel_.size() >0) ? iEvent.getByLabel( genevtlabel_[0], GenEventInfoHandle ) : false;
+  bool with_GenEventInfo = (genevtlabel_.size() >0) ? 
+    iEvent.getByLabel( genevtlabel_[0], GenEventInfoHandle ) : false;
+  
+  if( !isData ) {
+    // PileupSummaryInfo
+    edm::Handle<vector< PileupSummaryInfo > >  PUInfo;
+    if(puInfoLabel_.size() > 0) iEvent.getByLabel(puInfoLabel_[0], PUInfo);
+    vector<PileupSummaryInfo>::const_iterator PVI;
+
+    for(PVI = PUInfo->begin(); PVI != PUInfo->end(); ++PVI) {
+      EvtInfo.nPU[EvtInfo.nBX] = PVI->getPU_NumInteractions();
+      EvtInfo.BXPU[EvtInfo.nBX] = PVI->getBunchCrossing();
+      EvtInfo.TrueIT[EvtInfo.nBX] = PVI->getTrueNumInteractions();
+      EvtInfo.nBX += 1;
+    }
+  }
+    
   
   if (with_GenEventInfo && GenEventInfoHandle->hasPDF()) {
     EvtInfo.PDFid1   = GenEventInfoHandle->pdf()->id.first;
