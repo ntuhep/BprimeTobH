@@ -648,11 +648,14 @@ void BprimeTobH::processJets(const edm::Handle<PatJetCollection>& jetsColl,
 
     const pat::Jet* p_jet = &(*it_jet); 
 
-   if (it_jet->pt() < JetPtMin_ ) continue ;
+    if (it_jet->pt() < JetPtMin_ ) continue ;
 
     // avoid no match found jets
-   if ( fatJetToPrunedFatJetMap.find(p_jet) == fatJetToPrunedFatJetMap.end() )
-     continue; 
+    
+    if (jettypes_[icoll] == "fatjet" && 
+	fatJetToPrunedFatJetMap.find(p_jet) == fatJetToPrunedFatJetMap.end() )
+      continue; 
+
 
    // For DM: are the belowing code duplicated as in hasJets? 
    // double fatjety = TMath::Log( (TMath::Sqrt( (it_jet->mass()*it_jet->mass()) + (it_jet->pt()*it_jet->pt())*(TMath::CosH(it_jet->eta())*TMath::CosH(it_jet->eta())) ) + (it_jet->pt()*TMath::SinH(it_jet->eta()) ) ) / (TMath::Sqrt( (it_jet->mass()*it_jet->mass()) + (it_jet->pt()*it_jet->pt()) )) ) ; 
@@ -854,22 +857,19 @@ void BprimeTobH::processJets(const edm::Handle<PatJetCollection>& jetsColl,
 
     // in the case of subjet, store the fatjet index
 
-
-
     if (jettypes_[icoll] == "subjet") {
       int fatjetIdx=-1;
       for( PatJetCollection::const_iterator jIt = jetsColl2->begin(); jIt != jetsColl2->end(); ++jIt )
       {
-	// if ( fatJetToPrunedFatJetMap.find(p_jet) != fatJetToPrunedFatJetMap.end() && 
-	//      fatJetToPrunedFatJetMap.find(&(*jIt)) != fatJetToPrunedFatJetMap.end() ) {  
-
+	if ( fatJetToPrunedFatJetMap.find(&(*jIt)) == fatJetToPrunedFatJetMap.end() ) 
+	  continue; 
+	
 	  if( p_jet == fatJetToPrunedFatJetMap.find(&(*jIt))->second->daughter(0) ||
 	    p_jet == fatJetToPrunedFatJetMap.find(&(*jIt))->second->daughter(1) )
 	    {
 	      fatjetIdx = int( jIt - jetsColl2->begin() );
 	      break;
 	    }
-	  // }
 	JetInfo[icoll].Jet_FatJetIdx[JetInfo[icoll].Size] = fatjetIdx;
       }
     } //// If subjets
