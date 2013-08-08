@@ -108,8 +108,10 @@ class BprimeTobH : public edm::EDAnalyzer {
 
     virtual void beginRun(edm::Run const&, edm::EventSetup const&);
     virtual void endRun(edm::Run const&, edm::EventSetup const&);
-    virtual void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&);
-    virtual void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&);
+    virtual void beginLuminosityBlock(edm::LuminosityBlock const&, 
+				      edm::EventSetup const&);
+    virtual void endLuminosityBlock(edm::LuminosityBlock const&, 
+				    edm::EventSetup const&);
     bool hasBeamSpot(const edm::Event&);
     void clearVariables();
     bool hasPrimaryVertex(const edm::Event &);
@@ -120,10 +122,15 @@ class BprimeTobH : public edm::EDAnalyzer {
     void saveGenInfo(const edm::Event &);
     void saveHLT(const edm::Event&);
     void saveL1T(const edm::Event&);
-    void processJets(const edm::Handle<PatJetCollection>&, const edm::Handle<PatJetCollection>&,
-        const edm::Event&, const edm::EventSetup&, const JetToJetMap&, const unsigned int);
+    void processJets(const edm::Handle<PatJetCollection>&, 
+		     const edm::Handle<PatJetCollection>&,
+		     const edm::Event&,
+		     const edm::EventSetup&, const JetToJetMap&,
+		     const unsigned int);
     void processGenJets(const edm::Handle<GenJetCollection>&,
-        const edm::Event&, const edm::EventSetup&, const unsigned int);
+			const edm::Event&, const edm::EventSetup&,
+			const unsigned int);
+  double calcJetY(pat::Jet) ;
 
     // ----------member data ---------------------------
     TTree* tree_;
@@ -419,8 +426,9 @@ bool BprimeTobH::hasPrimaryVertex(const edm::Event& iEvent) {
     VertexInfo.Pt_Sum[VertexInfo.Size] = 0.;
     VertexInfo.Pt_Sum2[VertexInfo.Size] = 0.;
 
-    if (!gotPrimVtx && (!iVertex->isFake() && iVertex->ndof()>=4. && iVertex->z() <=24.
-          && iVertex->position().Rho()<=2.)) {
+    if (!gotPrimVtx && (!iVertex->isFake() && iVertex->ndof()>=4. 
+			&& iVertex->z() <=24.
+			&& iVertex->position().Rho()<=2.)) {
       primaryVertex_ = *(iVertex);
       gotPrimVtx=true;
     }
@@ -546,47 +554,32 @@ bool BprimeTobH::hasElectrons(const edm::Event& iEvent) {
 }
 
 bool BprimeTobH::hasJets(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
-  // vector<edm::Handle<vector<pat::Jet> > > JetHandle;
-  // for(unsigned il=0; il<jetlabel_.size(); il++) {
-  // JetHandle.push_back(edm::Handle<vector<pat::Jet> >());
-  // iEvent.getByLabel( jetlabel_[il], JetHandle[il]);
-  // }
-
-  // currently, just deal with these three jetlabels as defined in the py:
-  // jetlabel = cms.VInputTag(
-  // 'selectedPatJets',
-  // 'selectedPatJetsCA8PrunedPFPacked',
-  // 'selectedPatJetsCA8PrunedSubJetsPF'),
-
   edm::Handle <PatJetCollection> jetsColl; // = JetHandle[0];
   edm::Handle <PatJetCollection> fatjetsColl; // = JetHandle[0];
   edm::Handle <PatJetCollection> prunedfatjetsColl; // = JetHandle[1];
   edm::Handle <PatJetCollection> subjetsColl; // = JetHandle[2];
   edm::Handle <GenJetCollection> genjetsColl;
 
-  // edm::Handle<pat::Jet> FatJetHandle;
-  // iEvent.getByLabel( fatjetlabel_, FatJetHandle);
   iEvent.getByLabel( jetlabel_         , jetsColl);
   iEvent.getByLabel( fatjetlabel_      , fatjetsColl);
   iEvent.getByLabel( prunedfatjetlabel_, prunedfatjetsColl);
   iEvent.getByLabel( subjetlabel_      , subjetsColl);
   iEvent.getByLabel( genjetlabel_      , genjetsColl);
-  // edm::Handle <PatJetCollection> fatjetsColl = FatJetHandle;
 
   // get the fatjet to prunedfat jet match map
-
   JetToJetMap fatJetToPrunedFatJetMap;
 
-  for(PatJetCollection::const_iterator it = fatjetsColl->begin(); it != fatjetsColl->end(); ++it) {
+  for(PatJetCollection::const_iterator it = fatjetsColl->begin(); 
+      it != fatjetsColl->end(); ++it) {
 
-    double fatjety = TMath::Log( (TMath::Sqrt( (it->mass()*it->mass()) + (it->pt()*it->pt())*(TMath::CosH(it->eta())*TMath::CosH(it->eta())) ) + (it->pt()*TMath::SinH(it->eta()) ) ) / (TMath::Sqrt( (it->mass()*it->mass()) + (it->pt()*it->pt()) )) ) ; 
-
+    double fatjety = calcJetY(*it) ; 
     if (it->pt() < FatJetPtMin_ || fabs(fatjety) > JetYMax_) continue ; 
 
     PatJetCollection::const_iterator prunedJetMatch;
     bool prunedJetMatchFound = false;
     float dR = 0.8; //// hard coded for now 
-    for(PatJetCollection::const_iterator pjIt = prunedfatjetsColl->begin(); pjIt != prunedfatjetsColl->end(); ++pjIt) { 
+    for(PatJetCollection::const_iterator pjIt = prunedfatjetsColl->begin(); 
+	pjIt != prunedfatjetsColl->end(); ++pjIt) { 
       float dR_temp = reco::deltaR( it->p4(), pjIt->p4() ); 
       if( dR_temp < dR ) { 
         prunedJetMatchFound = true;
@@ -595,12 +588,13 @@ bool BprimeTobH::hasJets(const edm::Event& iEvent, const edm::EventSetup& iSetup
       }
     }
     if( !prunedJetMatchFound )
-      edm::LogError("NoMatchingGroomedJet") << " Matching pruned jet not found" << endl; 
+      edm::LogError("NoMatchingGroomedJet") << 
+	" Matching pruned jet not found" << endl; 
     else fatJetToPrunedFatJetMap[&(*it)] = &(*prunedJetMatch); 
-
-  } //// Loop over fat jets 
-
-  //// Now process 'FatJetInfo', 'SubJetInfo', 'JetInfo', 'GenJetInfo':
+    
+  } // Loop over fat jets 
+  
+  // Now process 'FatJetInfo', 'SubJetInfo', 'JetInfo', 'GenJetInfo':
   unsigned int iJetColl ;
 
   iJetColl = 0 ; // FatJetInfo
@@ -645,22 +639,14 @@ void BprimeTobH::processJets(const edm::Handle<PatJetCollection>& jetsColl,
   for( vector<pat::Jet>::const_iterator it_jet = jetsColl->begin();
       it_jet != jetsColl->end(); it_jet++ ) {
 
-
-    const pat::Jet* p_jet = &(*it_jet); 
-
-    if (it_jet->pt() < JetPtMin_ ) continue ;
+    double jety = calcJetY(*it_jet) ; 
+    if (it_jet->pt() < JetPtMin_  || fabs(jety) > JetYMax_) continue ;
 
     // avoid no match found jets
-    
+    const pat::Jet* p_jet = &(*it_jet);     
     if (jettypes_[icoll] == "fatjet" && 
 	fatJetToPrunedFatJetMap.find(p_jet) == fatJetToPrunedFatJetMap.end() )
       continue; 
-
-
-   // For DM: are the belowing code duplicated as in hasJets? 
-   // double fatjety = TMath::Log( (TMath::Sqrt( (it_jet->mass()*it_jet->mass()) + (it_jet->pt()*it_jet->pt())*(TMath::CosH(it_jet->eta())*TMath::CosH(it_jet->eta())) ) + (it_jet->pt()*TMath::SinH(it_jet->eta()) ) ) / (TMath::Sqrt( (it_jet->mass()*it_jet->mass()) + (it_jet->pt()*it_jet->pt()) )) ) ; 
-   
-   //  if (it_jet->pt() < JetPtMin_ || fabs(fatjety) > JetYMax_) continue ;
 
     JetInfo[icoll].Index [JetInfo[icoll].Size] = JetInfo[icoll].Size;
     JetInfo[icoll].NTracks [JetInfo[icoll].Size] = it_jet->associatedTracks().size();
@@ -1026,6 +1012,15 @@ void BprimeTobH::processGenJets(const edm::Handle<GenJetCollection>& jetsColl,
 
     JetInfo[icoll].Size++;
   }
+}
+
+double BprimeTobH::calcJetY(pat::Jet it) {
+  return TMath::Log( (TMath::Sqrt( (it.mass()*it.mass()) + (it.pt()*it.pt())*
+				   (TMath::CosH(it.eta())*TMath::CosH(it.eta())) )
+		      + (it.pt()*TMath::SinH(it.eta()) ) ) / 
+		     (TMath::Sqrt( (it.mass()*it.mass())
+				   + (it.pt()*it.pt()) )) ) ; 
+  
 }
 
 //define this as a plug-in
