@@ -768,6 +768,30 @@ void BprimeTobH::processJets(const edm::Handle<PatJetCollection>& jetsColl,
           if (abs(genCand->pdgId())==25) JetInfo[icoll].GenMCTag[JetInfo[icoll].Size] = 25;
         }
         JetInfo[icoll].GenMCTag[JetInfo[icoll].Size] += qpTag*100 ;
+
+	// const reco::GenParticle* parton = it_jet->genParton();
+	if (parton!=NULL) 
+	  {
+	    JetInfo[icoll].GenPt     [JetInfo[icoll].Size] = parton->pt();
+	    JetInfo[icoll].GenEta    [JetInfo[icoll].Size] = parton->eta();
+	    JetInfo[icoll].GenPhi    [JetInfo[icoll].Size] = parton->phi();
+	    JetInfo[icoll].GenPdgID  [JetInfo[icoll].Size] = parton->pdgId();
+	    JetInfo[icoll].GenFlavor [JetInfo[icoll].Size] = it_jet->partonFlavour();
+
+	    const reco::Candidate* genCand = parton;
+
+	    int bprime_tag = 0;	// 0: not b' or t'; 1: b'; 2:t'
+	    while(genCand!=NULL && genCand->numberOfMothers()==1) 
+	      {
+		genCand = genCand->mother(0);
+		if (abs(genCand->pdgId())==7 ) bprime_tag = 1;	// check if it's bprime
+		if (abs(genCand->pdgId())==8 ) bprime_tag = 2;	// check if it's tprime.
+		if (abs(genCand->pdgId())==23) JetInfo[icoll].GenMCTag[JetInfo[icoll].Size] = 2;
+		if (abs(genCand->pdgId())==24) JetInfo[icoll].GenMCTag[JetInfo[icoll].Size] = 1;
+	      }
+	    if (bprime_tag==1) JetInfo[icoll].GenMCTag[JetInfo[icoll].Size] += 10;
+	    if (bprime_tag==2) JetInfo[icoll].GenMCTag[JetInfo[icoll].Size] += 20;
+	  }
       }
     } //// GenJet for MC
 
