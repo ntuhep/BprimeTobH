@@ -140,6 +140,7 @@ class BprimeTobH : public edm::EDAnalyzer {
     edm::InputTag subjetlabel_;
     edm::InputTag genjetlabel_;
     vector<edm::InputTag> hltlabel_;
+    vector<edm::InputTag> genevtlabel_;
     vector<edm::InputTag> gtdigilabel_;
     vector<edm::InputTag> rhocorrectionlabel_;
     vector<edm::InputTag> sigmaLabel_;
@@ -190,6 +191,7 @@ BprimeTobH::BprimeTobH(const edm::ParameterSet& iConfig):
   subjetlabel_(iConfig.getParameter<edm::InputTag>("subjetlabel")),
   genjetlabel_(iConfig.getParameter<edm::InputTag>("genjetlabel")),
   hltlabel_(iConfig.getParameter<vector<edm::InputTag> >("hltlabel")),
+  genevtlabel_(iConfig.getParameter<vector<edm::InputTag> >("genevtlabel")),
   gtdigilabel_(iConfig.getParameter<vector<edm::InputTag> >("gtdigilabel")),
   rhocorrectionlabel_(iConfig.getParameter<vector<edm::InputTag>>("rhocorrectionlabel")), 
   sigmaLabel_(iConfig.getParameter<vector<edm::InputTag>>("sigmaLabel")),
@@ -248,6 +250,10 @@ void BprimeTobH::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
     if(sigmaHandle[ri_].isValid()) EvtInfo.SigmaPU[ri_] = *(sigmaHandle[ri_].product());
   }
   
+  edm::Handle<GenEventInfoProduct> GenEventInfoHandle;	 
+  bool with_GenEventInfo = (genevtlabel_.size() >0) ? iEvent.getByLabel( genevtlabel_[0], GenEventInfoHandle ) : false;
+  
+
   
   if ( hasBeamSpot(iEvent)
       && hasPrimaryVertex(iEvent)

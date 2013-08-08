@@ -79,6 +79,7 @@ process.ntuple = cms.EDAnalyzer(
     subjetlabel = cms.InputTag('selectedPatJetsCA8PrunedSubjetsPF'),  
     genjetlabel = cms.InputTag('ak5GenJetsNoNu'),  
     hltlabel  = cms.VInputTag("TriggerResults::HLT"),
+    genevtlabel = cms.VInputTag("generator"),
     gtdigilabel = cms.VInputTag("gtDigis"),
     rhocorrectionlabel = cms.VInputTag("kt6PFJetsForIsolation:rho","kt6PFJetsForIsolation:rho"),  # [electron,muon]
     sigmaLabel = cms.VInputTag("kt6PFJetsForIsolation:sigma","kt6PFJetsForIsolation:rho"),    # [electron,muon]
