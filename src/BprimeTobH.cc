@@ -168,8 +168,10 @@ class BprimeTobH : public edm::EDAnalyzer {
     bool doGenInfo_;
 
     Njettiness nsubjettinessCalculator;
+
     double JetPtMin_;
     double JetYMax_ ; 
+    double FatJetPtMin_;
 };
 
 //
@@ -208,7 +210,8 @@ BprimeTobH::BprimeTobH(const edm::ParameterSet& iConfig):
   doGenInfo_(iConfig.getUntrackedParameter<bool>("DoGenInfo")),
   nsubjettinessCalculator(Njettiness::onepass_kt_axes, NsubParameters(1.0, 0.8, 0.8)),
   JetPtMin_(iConfig.getUntrackedParameter<double>("JetPtMin")), 
-  JetYMax_(iConfig.getUntrackedParameter<double>("JetYMax"))
+  JetYMax_(iConfig.getUntrackedParameter<double>("JetYMax")), 
+  FatJetPtMin_(iConfig.getUntrackedParameter<double>("FatJetPtMin")) 
 {
 
   edm::Service<TFileService> fs;
@@ -578,7 +581,7 @@ bool BprimeTobH::hasJets(const edm::Event& iEvent, const edm::EventSetup& iSetup
 
     double fatjety = TMath::Log( (TMath::Sqrt( (it->mass()*it->mass()) + (it->pt()*it->pt())*(TMath::CosH(it->eta())*TMath::CosH(it->eta())) ) + (it->pt()*TMath::SinH(it->eta()) ) ) / (TMath::Sqrt( (it->mass()*it->mass()) + (it->pt()*it->pt()) )) ) ; 
 
-    if (it->pt() < JetPtMin_ || fabs(fatjety) > JetYMax_) continue ; 
+    if (it->pt() < FatJetPtMin_ || fabs(fatjety) > JetYMax_) continue ; 
 
     PatJetCollection::const_iterator prunedJetMatch;
     bool prunedJetMatchFound = false;
@@ -642,15 +645,19 @@ void BprimeTobH::processJets(const edm::Handle<PatJetCollection>& jetsColl,
   for( vector<pat::Jet>::const_iterator it_jet = jetsColl->begin();
       it_jet != jetsColl->end(); it_jet++ ) {
 
+
     const pat::Jet* p_jet = &(*it_jet); 
 
+   if (it_jet->pt() < JetPtMin_ ) continue ;
+
     // avoid no match found jets
-    if ( fatJetToPrunedFatJetMap.find(p_jet) == fatJetToPrunedFatJetMap.end() )
-      continue; 
+   if ( fatJetToPrunedFatJetMap.find(p_jet) == fatJetToPrunedFatJetMap.end() )
+     continue; 
 
-    double fatjety = TMath::Log( (TMath::Sqrt( (it_jet->mass()*it_jet->mass()) + (it_jet->pt()*it_jet->pt())*(TMath::CosH(it_jet->eta())*TMath::CosH(it_jet->eta())) ) + (it_jet->pt()*TMath::SinH(it_jet->eta()) ) ) / (TMath::Sqrt( (it_jet->mass()*it_jet->mass()) + (it_jet->pt()*it_jet->pt()) )) ) ; 
-
-    if (it_jet->pt() < JetPtMin_ || fabs(fatjety) > JetYMax_) continue ;
+   // For DM: are the belowing code duplicated as in hasJets? 
+   // double fatjety = TMath::Log( (TMath::Sqrt( (it_jet->mass()*it_jet->mass()) + (it_jet->pt()*it_jet->pt())*(TMath::CosH(it_jet->eta())*TMath::CosH(it_jet->eta())) ) + (it_jet->pt()*TMath::SinH(it_jet->eta()) ) ) / (TMath::Sqrt( (it_jet->mass()*it_jet->mass()) + (it_jet->pt()*it_jet->pt()) )) ) ; 
+   
+   //  if (it_jet->pt() < JetPtMin_ || fabs(fatjety) > JetYMax_) continue ;
 
     JetInfo[icoll].Index [JetInfo[icoll].Size] = JetInfo[icoll].Size;
     JetInfo[icoll].NTracks [JetInfo[icoll].Size] = it_jet->associatedTracks().size();

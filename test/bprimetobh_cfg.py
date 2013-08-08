@@ -93,8 +93,9 @@ process.ntuple = cms.EDAnalyzer(
     JetTypes = cms.vstring('fatjet', 'subjet', 'jet', 'genjet'),
     DoGenJets = cms.untracked.bool(False), 
     DoGenInfo = cms.untracked.bool(True), 
-    JetPtMin = cms.untracked.double(300), 
-    JetYMax = cms.untracked.double(2.5)  
+    JetPtMin = cms.untracked.double(20), 
+    JetYMax = cms.untracked.double(2.5),  
+    FatJetPtMin = cms.untracked.double(150), 
 )
 
 
