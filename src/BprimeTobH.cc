@@ -253,6 +253,15 @@ void BprimeTobH::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
   edm::Handle<GenEventInfoProduct> GenEventInfoHandle;	 
   bool with_GenEventInfo = (genevtlabel_.size() >0) ? iEvent.getByLabel( genevtlabel_[0], GenEventInfoHandle ) : false;
   
+  if (with_GenEventInfo && GenEventInfoHandle->hasPDF()) {
+    EvtInfo.PDFid1   = GenEventInfoHandle->pdf()->id.first;
+    EvtInfo.PDFid2   = GenEventInfoHandle->pdf()->id.second;
+    EvtInfo.PDFx1    = GenEventInfoHandle->pdf()->x.first;
+    EvtInfo.PDFx2    = GenEventInfoHandle->pdf()->x.second;
+    EvtInfo.PDFscale = GenEventInfoHandle->pdf()->scalePDF;
+    EvtInfo.PDFv1    = GenEventInfoHandle->pdf()->xPDF.first;
+    EvtInfo.PDFv2    = GenEventInfoHandle->pdf()->xPDF.second;
+  }
 
   
   if ( hasBeamSpot(iEvent)
