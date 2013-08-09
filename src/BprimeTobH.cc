@@ -74,7 +74,7 @@ Based on bprimeKit
 #include "fastjet/PseudoJet.hh"
 #include "../interface/Njettiness.hh"
 
-#include "QuarkGluonTagger/EightTeV/interface/QGTagger.h"
+// #include "QuarkGluonTagger/EightTeV/interface/QGTagger.h"
 
 using namespace std;
 
@@ -684,24 +684,24 @@ void BprimeTobH::processJets(const edm::Handle<PatJetCollection>& jetsColl,
     JetInfo[icoll].QGTagsLikelihood [JetInfo[icoll].Size] = -1;
 
     //// Gluon tagger
-    edm::Handle<edm::ValueMap<float> > QGTagsHandleMLP;
-    edm::Handle<edm::ValueMap<float> > QGTagsHandleLikelihood;
-    iEvent.getByLabel("QGTagger","qgMLP", QGTagsHandleMLP);
-    //iEvent.getByLabel("QGTagger","qgLikelihood", QGTagsHandleLikelihood);
-    iEvent.getByLabel("QGTagger", QGTagsHandleLikelihood);
+    // edm::Handle<edm::ValueMap<float> > QGTagsHandleMLP;
+    // edm::Handle<edm::ValueMap<float> > QGTagsHandleLikelihood;
+    // iEvent.getByLabel("QGTagger","qgMLP", QGTagsHandleMLP);
+    // //iEvent.getByLabel("QGTagger","qgLikelihood", QGTagsHandleLikelihood);
+    // iEvent.getByLabel("QGTagger", QGTagsHandleLikelihood);
 
     int ijet = it_jet - jetsColl->begin();
     edm::RefToBase<reco::Jet> jetRef(edm::Ref<std::vector <pat::Jet> >(jetsColl,ijet));
 
-    if (QGTagsHandleMLP.isValid()){
-      // std::cout << "QGTagsHandleMLP is Valid\n" ;
-      JetInfo[icoll].QGTagsMLP [JetInfo[icoll].Size] = (*QGTagsHandleMLP)[jetRef];
-    }
-    // else std::cout << "QGTagsHandleMLP is not Valid\n" ;
-    if (QGTagsHandleLikelihood.isValid()){
-      // std::cout << "QGTagsHandleLikelihood is Valid\n" ;
-      JetInfo[icoll].QGTagsLikelihood [JetInfo[icoll].Size] = (*QGTagsHandleLikelihood)[jetRef];
-    }
+    // if (QGTagsHandleMLP.isValid()){
+    //   // std::cout << "QGTagsHandleMLP is Valid\n" ;
+    //   JetInfo[icoll].QGTagsMLP [JetInfo[icoll].Size] = (*QGTagsHandleMLP)[jetRef];
+    // }
+    // // else std::cout << "QGTagsHandleMLP is not Valid\n" ;
+    // if (QGTagsHandleLikelihood.isValid()){
+    //   // std::cout << "QGTagsHandleLikelihood is Valid\n" ;
+    //   JetInfo[icoll].QGTagsLikelihood [JetInfo[icoll].Size] = (*QGTagsHandleLikelihood)[jetRef];
+    // }
     // else std::cout << "QGTagsHandleLikelihood is not Valid\n" ;
 
     if(it_jet->isPFJet()) {
