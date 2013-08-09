@@ -102,13 +102,13 @@ process.ntuple = cms.EDAnalyzer(
 #------------------------------------------------------------
 #  Gluon Tagger 
 #------------------------------------------------------------
-process.load('QuarkGluonTagger.EightTeV.QGTagger_RecoJets_cff')  
-process.goodOfflinePrimaryVerticesQG.src  = cms.InputTag('goodOfflinePrimaryVertices')
-process.QGTagger.srcJets = cms.InputTag("selectedPatJetsPFlow")
-process.QGTagger.isPatJet  = cms.untracked.bool(True) 
-process.QGTagger.useCHS  = cms.untracked.bool(True)
-process.QGTagger.srcRho  = cms.InputTag('kt6PFJets','rho') 
-process.QGTagger.srcRhoIso  = cms.InputTag('kt6PFJets','rho') 
+# process.load('QuarkGluonTagger.EightTeV.QGTagger_RecoJets_cff')  
+# process.goodOfflinePrimaryVerticesQG.src  = cms.InputTag('goodOfflinePrimaryVertices')
+# process.QGTagger.srcJets = cms.InputTag("selectedPatJetsPFlow")
+# process.QGTagger.isPatJet  = cms.untracked.bool(True) 
+# process.QGTagger.useCHS  = cms.untracked.bool(True)
+# process.QGTagger.srcRho  = cms.InputTag('kt6PFJets','rho') 
+# process.QGTagger.srcRhoIso  = cms.InputTag('kt6PFJets','rho') 
 
 #process.p = cms.Path(process.QuarkGluonTagger*process.ntuple)
 process.p = cms.Path(process.ntuple)
