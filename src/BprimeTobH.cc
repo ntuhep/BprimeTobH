@@ -89,6 +89,7 @@ typedef vector<pat::Jet> PatJetCollection;
 typedef vector<reco::GenJet> GenJetCollection;
 typedef map<const pat::Jet* ,const pat::Jet*> JetToJetMap;
 
+
 //
 // class declaration
 //
@@ -134,7 +135,7 @@ class BprimeTobH : public edm::EDAnalyzer {
 
     // ----------member data ---------------------------
     TTree* tree_;
-
+    TH1F* h_events_;
     bool includeL7_;
     bool doElectrons_;
 
@@ -179,6 +180,8 @@ class BprimeTobH : public edm::EDAnalyzer {
     double JetPtMin_;
     double JetYMax_ ; 
     double FatJetPtMin_;
+
+  
 };
 
 //
@@ -189,7 +192,7 @@ class BprimeTobH : public edm::EDAnalyzer {
 // constructors and destructor
 //
 BprimeTobH::BprimeTobH(const edm::ParameterSet& iConfig):
-  tree_(0),
+  tree_(0), h_events_(0), 
   includeL7_(iConfig.getUntrackedParameter<bool>("IncludeL7",false)),
   doElectrons_(iConfig.getUntrackedParameter<bool>("DoElectrons",false)),
   BeamSpotLabel_(iConfig.getParameter<edm::InputTag>("BeamSpotLabel")),
@@ -223,7 +226,7 @@ BprimeTobH::BprimeTobH(const edm::ParameterSet& iConfig):
 
   edm::Service<TFileService> fs;
   TFileDirectory results = TFileDirectory( fs->mkdir("results") );
-
+  h_events_ = fs->make<TH1F>( "h_events", "Processed events", 2,  0, 2);
 }
 
 BprimeTobH::~BprimeTobH() {
@@ -240,6 +243,7 @@ BprimeTobH::~BprimeTobH() {
 // ------------ method called for each event ------------
 void BprimeTobH::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   clearVariables();
+  h_events_->Fill(0); 
 
   bool isData = iEvent.isRealData();
 
@@ -300,15 +304,19 @@ void BprimeTobH::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
       && hasPrimaryVertexBS(iEvent)
      ) {
 
-    hasMuons(iEvent);
-    if (doElectrons_) hasElectrons(iEvent);
-    hasJets(iEvent, iSetup);
-    saveHLT(iEvent);
-    saveL1T(iEvent);
-
-    if ( doGenInfo_ && !iEvent.isRealData() ) saveGenInfo(iEvent);
-
-    tree_->Fill();
+    if ( hasMuons(iEvent) ) {
+      if (doElectrons_) hasElectrons(iEvent);
+      
+      if ( hasJets(iEvent, iSetup) ){
+	saveHLT(iEvent);
+	saveL1T(iEvent);
+	
+	if ( doGenInfo_ && !iEvent.isRealData() ) saveGenInfo(iEvent);
+      
+	tree_->Fill();
+	h_events_->Fill(1); 
+      }
+    }
   }
 
   clearVariables();
@@ -341,6 +349,8 @@ void BprimeTobH::beginJob() {
 
 // ------------ method called once each job just after ending the event loop ------------
 void BprimeTobH::endJob() {
+
+
 }
 
 // ------------ method called when starting to processes a run ------------
