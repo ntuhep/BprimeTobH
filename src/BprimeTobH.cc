@@ -283,7 +283,6 @@ void BprimeTobH::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
       EvtInfo.nBX += 1;
     }
   }
-    
   
   if (with_GenEventInfo && GenEventInfoHandle->hasPDF()) {
     EvtInfo.PDFid1   = GenEventInfoHandle->pdf()->id.first;
@@ -936,6 +935,15 @@ void BprimeTobH::saveGenInfo(const edm::Event& iEvent) {
   edm::Handle<reco::GenParticleCollection> GenHandle;
   iEvent.getByLabel(genlabel_, GenHandle);
 
+  double evWeight = 1.0 ;
+  edm::Handle< GenEventInfoProduct > genEventInfo;
+  iEvent.getByLabel("generator", genEventInfo);
+  if (genEventInfo.isValid()) {
+    evWeight = genEventInfo->weight();
+    // cout << ">>> Evt weight = " << evWeight << endl; 
+  }
+  GenInfo.Weight = evWeight;
+  
   vector<const reco::Candidate *> cands;
   vector<const reco::Candidate *>::const_iterator found = cands.begin();
 
