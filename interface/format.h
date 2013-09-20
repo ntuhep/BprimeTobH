@@ -274,14 +274,45 @@ class GenInfoBranches {
  public:
   int Size;
   float Weight;
+
   float Pt[MAX_GENS];
   float Eta[MAX_GENS];
   float Phi[MAX_GENS];
   float Mass[MAX_GENS];
   int PdgID[MAX_GENS];
   int Status[MAX_GENS];
+
   int nMo[MAX_GENS];
   int nDa[MAX_GENS];
+
+  float Mo0Pt[MAX_GENS];
+  float Mo0Eta[MAX_GENS];
+  float Mo0Phi[MAX_GENS];
+  float Mo0Mass[MAX_GENS];
+  int   Mo0PdgID[MAX_GENS];
+  int   Mo0Status[MAX_GENS];
+
+  float Mo1Pt[MAX_GENS];
+  float Mo1Eta[MAX_GENS];
+  float Mo1Phi[MAX_GENS];
+  float Mo1Mass[MAX_GENS];
+  int   Mo1PdgID[MAX_GENS];
+  int   Mo1Status[MAX_GENS];
+
+  float Da0Pt[MAX_GENS];
+  float Da0Eta[MAX_GENS];
+  float Da0Phi[MAX_GENS];
+  float Da0Mass[MAX_GENS];
+  int   Da0PdgID[MAX_GENS];
+  int   Da0Status[MAX_GENS];
+
+  float Da1Pt[MAX_GENS];
+  float Da1Eta[MAX_GENS];
+  float Da1Phi[MAX_GENS];
+  float Da1Mass[MAX_GENS];
+  int   Da1PdgID[MAX_GENS];
+  int   Da1Status[MAX_GENS];
+
   int Mo1[MAX_GENS];
   int Mo2[MAX_GENS];
   int Da1[MAX_GENS];
@@ -332,6 +363,30 @@ class GenInfoBranches {
     root->Branch("GenInfo.Mass"	, &Mass[0]	, "GenInfo.Mass[GenInfo.Size]/F"	);
     root->Branch("GenInfo.PdgID" , &PdgID[0]	, "GenInfo.PdgID[GenInfo.Size]/I"	);
     root->Branch("GenInfo.Status", &Status[0]	, "GenInfo.Status[GenInfo.Size]/I"	);
+    root->Branch("GenInfo.Mo0Pt"	  , &Mo0Pt[0]	    , "GenInfo.Mo0Pt[GenInfo.Size]/F"		);
+    root->Branch("GenInfo.Mo0Eta"	  , &Mo0Eta[0]	  , "GenInfo.Mo0Eta[GenInfo.Size]/F"		);
+    root->Branch("GenInfo.Mo0Phi"	  , &Mo0Phi[0]	  , "GenInfo.Mo0Phi[GenInfo.Size]/F"		);
+    root->Branch("GenInfo.Mo0Mass"	, &Mo0Mass[0]	  , "GenInfo.Mo0Mass[GenInfo.Size]/F"	);
+    root->Branch("GenInfo.Mo0PdgID" , &Mo0PdgID[0]	, "GenInfo.Mo0PdgID[GenInfo.Size]/I"	);
+    root->Branch("GenInfo.Mo0Status", &Mo0Status[0]	, "GenInfo.Mo0Status[GenInfo.Size]/I"	);
+    root->Branch("GenInfo.Mo1Pt"	  , &Mo1Pt[0]	    , "GenInfo.Mo1Pt[GenInfo.Size]/F"		);
+    root->Branch("GenInfo.Mo1Eta"	  , &Mo1Eta[0]	  , "GenInfo.Mo1Eta[GenInfo.Size]/F"		);
+    root->Branch("GenInfo.Mo1Phi"	  , &Mo1Phi[0]	  , "GenInfo.Mo1Phi[GenInfo.Size]/F"		);
+    root->Branch("GenInfo.Mo1Mass"	, &Mo1Mass[0]	  , "GenInfo.Mo1Mass[GenInfo.Size]/F"	);
+    root->Branch("GenInfo.Mo1PdgID" , &Mo1PdgID[0]	, "GenInfo.Mo1PdgID[GenInfo.Size]/I"	);
+    root->Branch("GenInfo.Mo1Status", &Mo1Status[0]	, "GenInfo.Mo1Status[GenInfo.Size]/I"	);
+    root->Branch("GenInfo.Da0Pt"	  , &Da0Pt[0]	    , "GenInfo.Da0Pt[GenInfo.Size]/F"		);
+    root->Branch("GenInfo.Da0Eta"	  , &Da0Eta[0]	  , "GenInfo.Da0Eta[GenInfo.Size]/F"		);
+    root->Branch("GenInfo.Da0Phi"	  , &Da0Phi[0]	  , "GenInfo.Da0Phi[GenInfo.Size]/F"		);
+    root->Branch("GenInfo.Da0Mass"	, &Da0Mass[0]	  , "GenInfo.Da0Mass[GenInfo.Size]/F"	);
+    root->Branch("GenInfo.Da0PdgID" , &Da0PdgID[0]	, "GenInfo.Da0PdgID[GenInfo.Size]/I"	);
+    root->Branch("GenInfo.Da0Status", &Da0Status[0]	, "GenInfo.Da0Status[GenInfo.Size]/I"	);
+    root->Branch("GenInfo.Da1Pt"	  , &Da1Pt[0]	    , "GenInfo.Da1Pt[GenInfo.Size]/F"		);
+    root->Branch("GenInfo.Da1Eta"	  , &Da1Eta[0]	  , "GenInfo.Da1Eta[GenInfo.Size]/F"		);
+    root->Branch("GenInfo.Da1Phi"	  , &Da1Phi[0]	  , "GenInfo.Da1Phi[GenInfo.Size]/F"		);
+    root->Branch("GenInfo.Da1Mass"	, &Da1Mass[0]	  , "GenInfo.Da1Mass[GenInfo.Size]/F"	);
+    root->Branch("GenInfo.Da1PdgID" , &Da1PdgID[0]	, "GenInfo.Da1PdgID[GenInfo.Size]/I"	);
+    root->Branch("GenInfo.Da1Status", &Da1Status[0]	, "GenInfo.Da1Status[GenInfo.Size]/I"	);
     root->Branch("GenInfo.nMo"	, &nMo[0]	, "GenInfo.nMo[GenInfo.Size]/I"		);
     root->Branch("GenInfo.nDa"	, &nDa[0]	, "GenInfo.nDa[GenInfo.Size]/I"		);
     root->Branch("GenInfo.Mo1"	, &Mo1[0]	, "GenInfo.Mo1[GenInfo.Size]/I"		);
@@ -356,6 +411,18 @@ class GenInfoBranches {
     root->SetBranchAddress("GenInfo.Mass"	, &Mass[0]	);
     root->SetBranchAddress("GenInfo.PdgID"	, &PdgID[0]	);
     root->SetBranchAddress("GenInfo.Status"	, &Status[0]	);
+    root->SetBranchAddress("GenInfo.Mo0Pt"	  , &Mo0Pt[0]	    ) ; 
+    root->SetBranchAddress("GenInfo.Mo0Eta"	  , &Mo0Eta[0]	  ) ; 
+    root->SetBranchAddress("GenInfo.Mo0Phi"	  , &Mo0Phi[0]	  ) ; 
+    root->SetBranchAddress("GenInfo.Mo0Mass"	, &Mo0Mass[0]	  ) ; 
+    root->SetBranchAddress("GenInfo.Mo0PdgID" , &Mo0PdgID[0]	) ; 
+    root->SetBranchAddress("GenInfo.Mo0Status", &Mo0Status[0]	) ; 
+    root->SetBranchAddress("GenInfo.Mo1Pt"	  , &Mo1Pt[0]	    ) ; 
+    root->SetBranchAddress("GenInfo.Mo1Eta"	  , &Mo1Eta[0]	  ) ; 
+    root->SetBranchAddress("GenInfo.Mo1Phi"	  , &Mo1Phi[0]	  ) ; 
+    root->SetBranchAddress("GenInfo.Mo1Mass"	, &Mo1Mass[0]	  ) ; 
+    root->SetBranchAddress("GenInfo.Mo1PdgID" , &Mo1PdgID[0]	) ; 
+    root->SetBranchAddress("GenInfo.Mo1Status", &Mo1Status[0]	) ; 
     root->SetBranchAddress("GenInfo.nMo"	, &nMo[0]	);
     root->SetBranchAddress("GenInfo.nDa"	, &nDa[0]	);
     root->SetBranchAddress("GenInfo.Mo1"	, &Mo1[0]	);

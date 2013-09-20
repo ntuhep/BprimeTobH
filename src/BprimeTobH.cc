@@ -58,8 +58,8 @@ Based on bprimeKit
 
 // PileupSummaryInfo
 #include "SimDataFormats/PileupSummaryInfo/interface/PileupSummaryInfo.h"
-
-// For JEC
+//
+//// For JEC
 #include "CondFormats/JetMETObjects/interface/FactorizedJetCorrector.h"
 #include "CondFormats/JetMETObjects/interface/JetCorrectorParameters.h"
 #include "CondFormats/JetMETObjects/interface/JetCorrectionUncertainty.h"
@@ -89,7 +89,6 @@ typedef vector<pat::Jet> PatJetCollection;
 typedef vector<reco::GenJet> GenJetCollection;
 typedef map<const pat::Jet* ,const pat::Jet*> JetToJetMap;
 
-
 //
 // class declaration
 //
@@ -110,9 +109,9 @@ class BprimeTobH : public edm::EDAnalyzer {
     virtual void beginRun(edm::Run const&, edm::EventSetup const&);
     virtual void endRun(edm::Run const&, edm::EventSetup const&);
     virtual void beginLuminosityBlock(edm::LuminosityBlock const&, 
-				      edm::EventSetup const&);
+        edm::EventSetup const&);
     virtual void endLuminosityBlock(edm::LuminosityBlock const&, 
-				    edm::EventSetup const&);
+        edm::EventSetup const&);
     bool hasBeamSpot(const edm::Event&);
     void clearVariables();
     bool hasPrimaryVertex(const edm::Event &);
@@ -124,18 +123,18 @@ class BprimeTobH : public edm::EDAnalyzer {
     void saveHLT(const edm::Event&);
     void saveL1T(const edm::Event&);
     void processJets(const edm::Handle<PatJetCollection>&, 
-		     const edm::Handle<PatJetCollection>&,
-		     const edm::Event&,
-		     const edm::EventSetup&, const JetToJetMap&,
-		     const unsigned int);
+        const edm::Handle<PatJetCollection>&,
+        const edm::Event&,
+        const edm::EventSetup&, const JetToJetMap&,
+        const unsigned int);
     void processGenJets(const edm::Handle<GenJetCollection>&,
-			const edm::Event&, const edm::EventSetup&,
-			const unsigned int);
-  double calcJetY(pat::Jet) ;
+        const edm::Event&, const edm::EventSetup&,
+        const unsigned int);
+    double calcJetY(pat::Jet) ;
 
     // ----------member data ---------------------------
     TTree* tree_;
-    TH1F* h_events_;
+
     bool includeL7_;
     bool doElectrons_;
 
@@ -180,8 +179,6 @@ class BprimeTobH : public edm::EDAnalyzer {
     double JetPtMin_;
     double JetYMax_ ; 
     double FatJetPtMin_;
-
-  
 };
 
 //
@@ -192,7 +189,7 @@ class BprimeTobH : public edm::EDAnalyzer {
 // constructors and destructor
 //
 BprimeTobH::BprimeTobH(const edm::ParameterSet& iConfig):
-  tree_(0), h_events_(0), 
+  tree_(0),
   includeL7_(iConfig.getUntrackedParameter<bool>("IncludeL7",false)),
   doElectrons_(iConfig.getUntrackedParameter<bool>("DoElectrons",false)),
   BeamSpotLabel_(iConfig.getParameter<edm::InputTag>("BeamSpotLabel")),
@@ -226,7 +223,7 @@ BprimeTobH::BprimeTobH(const edm::ParameterSet& iConfig):
 
   edm::Service<TFileService> fs;
   TFileDirectory results = TFileDirectory( fs->mkdir("results") );
-  h_events_ = fs->make<TH1F>( "h_events", "Processed events", 2,  0, 2);
+
 }
 
 BprimeTobH::~BprimeTobH() {
@@ -243,7 +240,6 @@ BprimeTobH::~BprimeTobH() {
 // ------------ method called for each event ------------
 void BprimeTobH::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   clearVariables();
-  h_events_->Fill(0); 
 
   bool isData = iEvent.isRealData();
 
@@ -255,25 +251,25 @@ void BprimeTobH::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
   EvtInfo.McFlag = iEvent.isRealData()? 0: 1;  
 
   EvtInfo.nTrgBook = N_TRIGGER_BOOKINGS;
-  
+
   std::vector<edm::Handle<double> > rhoH;
   std::vector<edm::Handle<double> > sigmaHandle;
   for(unsigned il=0; il<rhocorrectionlabel_.size(); il++) {
-      rhoH.push_back(edm::Handle<double> ());
-      iEvent.getByLabel( rhocorrectionlabel_[il],rhoH[il]);
-      sigmaHandle.push_back(edm::Handle<double> ());
-      iEvent.getByLabel( sigmaLabel_[il],sigmaHandle[il]);
+    rhoH.push_back(edm::Handle<double> ());
+    iEvent.getByLabel( rhocorrectionlabel_[il],rhoH[il]);
+    sigmaHandle.push_back(edm::Handle<double> ());
+    iEvent.getByLabel( sigmaLabel_[il],sigmaHandle[il]);
   }
 
   for(unsigned int ri_=0;ri_<2;ri_++){
     if(rhoH[ri_].isValid()) EvtInfo.RhoPU[ri_] = *(rhoH[ri_].product());
     if(sigmaHandle[ri_].isValid()) EvtInfo.SigmaPU[ri_] = *(sigmaHandle[ri_].product());
   }
-  
+
   edm::Handle<GenEventInfoProduct> GenEventInfoHandle;	 
   bool with_GenEventInfo = (genevtlabel_.size() >0) ? 
     iEvent.getByLabel( genevtlabel_[0], GenEventInfoHandle ) : false;
-  
+
   if( !isData ) {
     // PileupSummaryInfo
     edm::Handle<vector< PileupSummaryInfo > >  PUInfo;
@@ -287,7 +283,8 @@ void BprimeTobH::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
       EvtInfo.nBX += 1;
     }
   }
-  
+
+
   if (with_GenEventInfo && GenEventInfoHandle->hasPDF()) {
     EvtInfo.PDFid1   = GenEventInfoHandle->pdf()->id.first;
     EvtInfo.PDFid2   = GenEventInfoHandle->pdf()->id.second;
@@ -298,25 +295,21 @@ void BprimeTobH::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
     EvtInfo.PDFv2    = GenEventInfoHandle->pdf()->xPDF.second;
   }
 
-  
+
   if ( hasBeamSpot(iEvent)
       && hasPrimaryVertex(iEvent)
       && hasPrimaryVertexBS(iEvent)
      ) {
 
-    if ( hasMuons(iEvent) ) {
-      if (doElectrons_) hasElectrons(iEvent);
-      
-      if ( hasJets(iEvent, iSetup) ){
-	saveHLT(iEvent);
-	saveL1T(iEvent);
-	
-	if ( doGenInfo_ && !iEvent.isRealData() ) saveGenInfo(iEvent);
-      
-	tree_->Fill();
-	h_events_->Fill(1); 
-      }
-    }
+    hasMuons(iEvent);
+    if (doElectrons_) hasElectrons(iEvent);
+    hasJets(iEvent, iSetup);
+    saveHLT(iEvent);
+    saveL1T(iEvent);
+
+    if ( doGenInfo_ && !iEvent.isRealData() ) saveGenInfo(iEvent);
+
+    tree_->Fill();
   }
 
   clearVariables();
@@ -349,8 +342,6 @@ void BprimeTobH::beginJob() {
 
 // ------------ method called once each job just after ending the event loop ------------
 void BprimeTobH::endJob() {
-
-
 }
 
 // ------------ method called when starting to processes a run ------------
@@ -436,8 +427,8 @@ bool BprimeTobH::hasPrimaryVertex(const edm::Event& iEvent) {
     VertexInfo.Pt_Sum2[VertexInfo.Size] = 0.;
 
     if (!gotPrimVtx && (!iVertex->isFake() && iVertex->ndof()>=4. 
-			&& iVertex->z() <=24.
-			&& iVertex->position().Rho()<=2.)) {
+          && iVertex->z() <=24.
+          && iVertex->position().Rho()<=2.)) {
       primaryVertex_ = *(iVertex);
       gotPrimVtx=true;
     }
@@ -588,7 +579,7 @@ bool BprimeTobH::hasJets(const edm::Event& iEvent, const edm::EventSetup& iSetup
     bool prunedJetMatchFound = false;
     float dR = 0.8; //// hard coded for now 
     for(PatJetCollection::const_iterator pjIt = prunedfatjetsColl->begin(); 
-	pjIt != prunedfatjetsColl->end(); ++pjIt) { 
+        pjIt != prunedfatjetsColl->end(); ++pjIt) { 
       float dR_temp = reco::deltaR( it->p4(), pjIt->p4() ); 
       if( dR_temp < dR ) { 
         prunedJetMatchFound = true;
@@ -598,11 +589,11 @@ bool BprimeTobH::hasJets(const edm::Event& iEvent, const edm::EventSetup& iSetup
     }
     if( !prunedJetMatchFound )
       edm::LogError("NoMatchingGroomedJet") << 
-	" Matching pruned jet not found" << endl; 
+        " Matching pruned jet not found" << endl; 
     else fatJetToPrunedFatJetMap[&(*it)] = &(*prunedJetMatch); 
-    
+
   } // Loop over fat jets 
-  
+
   // Now process 'FatJetInfo', 'SubJetInfo', 'JetInfo', 'GenJetInfo':
   unsigned int iJetColl ;
 
@@ -654,7 +645,7 @@ void BprimeTobH::processJets(const edm::Handle<PatJetCollection>& jetsColl,
     // avoid no match found jets
     const pat::Jet* p_jet = &(*it_jet);     
     if (jettypes_[icoll] == "fatjet" && 
-	fatJetToPrunedFatJetMap.find(p_jet) == fatJetToPrunedFatJetMap.end() )
+        fatJetToPrunedFatJetMap.find(p_jet) == fatJetToPrunedFatJetMap.end() )
       continue; 
 
     JetInfo[icoll].Index [JetInfo[icoll].Size] = JetInfo[icoll].Size;
@@ -774,29 +765,29 @@ void BprimeTobH::processJets(const edm::Handle<PatJetCollection>& jetsColl,
         }
         JetInfo[icoll].GenMCTag[JetInfo[icoll].Size] += qpTag*100 ;
 
-	// const reco::GenParticle* parton = it_jet->genParton();
-	if (parton!=NULL) 
-	  {
-	    JetInfo[icoll].GenPt     [JetInfo[icoll].Size] = parton->pt();
-	    JetInfo[icoll].GenEta    [JetInfo[icoll].Size] = parton->eta();
-	    JetInfo[icoll].GenPhi    [JetInfo[icoll].Size] = parton->phi();
-	    JetInfo[icoll].GenPdgID  [JetInfo[icoll].Size] = parton->pdgId();
-	    JetInfo[icoll].GenFlavor [JetInfo[icoll].Size] = it_jet->partonFlavour();
+        // const reco::GenParticle* parton = it_jet->genParton();
+        if (parton!=NULL) 
+        {
+          JetInfo[icoll].GenPt     [JetInfo[icoll].Size] = parton->pt();
+          JetInfo[icoll].GenEta    [JetInfo[icoll].Size] = parton->eta();
+          JetInfo[icoll].GenPhi    [JetInfo[icoll].Size] = parton->phi();
+          JetInfo[icoll].GenPdgID  [JetInfo[icoll].Size] = parton->pdgId();
+          JetInfo[icoll].GenFlavor [JetInfo[icoll].Size] = it_jet->partonFlavour();
 
-	    const reco::Candidate* genCand = parton;
+          const reco::Candidate* genCand = parton;
 
-	    int bprime_tag = 0;	// 0: not b' or t'; 1: b'; 2:t'
-	    while(genCand!=NULL && genCand->numberOfMothers()==1) 
-	      {
-		genCand = genCand->mother(0);
-		if (abs(genCand->pdgId())==7 ) bprime_tag = 1;	// check if it's bprime
-		if (abs(genCand->pdgId())==8 ) bprime_tag = 2;	// check if it's tprime.
-		if (abs(genCand->pdgId())==23) JetInfo[icoll].GenMCTag[JetInfo[icoll].Size] = 2;
-		if (abs(genCand->pdgId())==24) JetInfo[icoll].GenMCTag[JetInfo[icoll].Size] = 1;
-	      }
-	    if (bprime_tag==1) JetInfo[icoll].GenMCTag[JetInfo[icoll].Size] += 10;
-	    if (bprime_tag==2) JetInfo[icoll].GenMCTag[JetInfo[icoll].Size] += 20;
-	  }
+          int bprime_tag = 0;	// 0: not b' or t'; 1: b'; 2:t'
+          while(genCand!=NULL && genCand->numberOfMothers()==1) 
+          {
+            genCand = genCand->mother(0);
+            if (abs(genCand->pdgId())==7 ) bprime_tag = 1;	// check if it's bprime
+            if (abs(genCand->pdgId())==8 ) bprime_tag = 2;	// check if it's tprime.
+            if (abs(genCand->pdgId())==23) JetInfo[icoll].GenMCTag[JetInfo[icoll].Size] = 2;
+            if (abs(genCand->pdgId())==24) JetInfo[icoll].GenMCTag[JetInfo[icoll].Size] = 1;
+          }
+          if (bprime_tag==1) JetInfo[icoll].GenMCTag[JetInfo[icoll].Size] += 10;
+          if (bprime_tag==2) JetInfo[icoll].GenMCTag[JetInfo[icoll].Size] += 20;
+        }
       }
     } //// GenJet for MC
 
@@ -856,25 +847,25 @@ void BprimeTobH::processJets(const edm::Handle<PatJetCollection>& jetsColl,
       int fatjetIdx=-1;
       for( PatJetCollection::const_iterator jIt = jetsColl2->begin(); jIt != jetsColl2->end(); ++jIt )
       {
-	if ( fatJetToPrunedFatJetMap.find(&(*jIt)) == fatJetToPrunedFatJetMap.end() ) 
-	  continue; 
-	
-	  if( p_jet == fatJetToPrunedFatJetMap.find(&(*jIt))->second->daughter(0) ||
-	    p_jet == fatJetToPrunedFatJetMap.find(&(*jIt))->second->daughter(1) )
-	    {
-	      fatjetIdx = int( jIt - jetsColl2->begin() );
-	      break;
-	    }
-	JetInfo[icoll].Jet_FatJetIdx[JetInfo[icoll].Size] = fatjetIdx;
+        if ( fatJetToPrunedFatJetMap.find(&(*jIt)) == fatJetToPrunedFatJetMap.end() ) 
+          continue; 
+
+        if( p_jet == fatJetToPrunedFatJetMap.find(&(*jIt))->second->daughter(0) ||
+            p_jet == fatJetToPrunedFatJetMap.find(&(*jIt))->second->daughter(1) )
+        {
+          fatjetIdx = int( jIt - jetsColl2->begin() );
+          break;
+        }
+        JetInfo[icoll].Jet_FatJetIdx[JetInfo[icoll].Size] = fatjetIdx;
       }
     } //// If subjets
-    
+
     JetInfo[icoll].Size++;
 
   } //loop over jets in collection
 
   delete jecUnc; // thanks to Jacky!  
-  
+
 }
 
 
@@ -945,37 +936,11 @@ void BprimeTobH::saveGenInfo(const edm::Event& iEvent) {
   edm::Handle<reco::GenParticleCollection> GenHandle;
   iEvent.getByLabel(genlabel_, GenHandle);
 
-  double evWeight = 1.0 ;
-  edm::Handle< GenEventInfoProduct > genEventInfo;
-  iEvent.getByLabel("generator", genEventInfo);
-  if (genEventInfo.isValid()) {
-    evWeight = genEventInfo->weight();
-    // cout << ">>> Evt weight = " << evWeight << endl; 
-  }
-  GenInfo.Weight = evWeight;
-  
-  vector<const reco::Candidate *> cands;
-  vector<const reco::Candidate *>::const_iterator found = cands.begin();
+  //vector<const reco::Candidate *> cands;
+  //vector<const reco::Candidate *>::const_iterator found = cands.begin();
 
   for( std::vector<reco::GenParticle>::const_iterator it_gen = GenHandle->begin(); it_gen != GenHandle->end(); it_gen++ ) {
     if(it_gen->status() == 3){  
-      int iMo1 = -1;
-      int iMo2 = -1;
-      int iDa1 = -1;
-      int iDa2 = -1;
-      int NMo = it_gen->numberOfMothers();
-      int NDa = it_gen->numberOfDaughters();
-      found = find(cands.begin(), cands.end(), it_gen->mother(0));
-      if(found != cands.end()) iMo1 = found - cands.begin() ;
-
-      found = find(cands.begin(), cands.end(), it_gen->mother(NMo-1));
-      if(found != cands.end()) iMo2 = found - cands.begin() ;
-
-      found = find(cands.begin(), cands.end(), it_gen->daughter(0));
-      if(found != cands.end()) iDa1 = found - cands.begin() ;
-
-      found = find(cands.begin(), cands.end(), it_gen->daughter(NDa-1));
-      if(found != cands.end()) iDa2 = found - cands.begin() ;
 
       GenInfo.Pt[GenInfo.Size] = it_gen->pt();
       GenInfo.Eta[GenInfo.Size] = it_gen->eta();
@@ -984,16 +949,108 @@ void BprimeTobH::saveGenInfo(const edm::Event& iEvent) {
       GenInfo.PdgID[GenInfo.Size] = it_gen->pdgId();
       GenInfo.Status[GenInfo.Size]  = it_gen->status();
 
-      GenInfo.nMo[GenInfo.Size] = NMo;
-      GenInfo.nDa[GenInfo.Size] = NDa;
-      GenInfo.Mo1[GenInfo.Size] = iMo1;
-      GenInfo.Mo2[GenInfo.Size] = iMo2;
-      GenInfo.Da1[GenInfo.Size] = iDa1;
-      GenInfo.Da2[GenInfo.Size] = iDa2;
+      GenInfo.nDa[GenInfo.Size] = it_gen->numberOfDaughters(); 
+      GenInfo.nMo[GenInfo.Size] = it_gen->numberOfMothers();
 
-      ++GenInfo.Size ;
-    } //// Storing status == 3 particles only
-  } //// Looping over GenParticles
+      int NDa = it_gen->numberOfDaughters();
+      int NMo = it_gen->numberOfMothers();
+
+      if (NDa == 1) {
+        const reco::Candidate* dau = it_gen->daughter(0);
+        GenInfo.Da0Pt    [GenInfo.Size] = dau->pt();
+        GenInfo.Da0Eta   [GenInfo.Size] = dau->eta();
+        GenInfo.Da0Phi   [GenInfo.Size] = dau->phi();
+        GenInfo.Da0Mass  [GenInfo.Size] = dau->mass();
+        GenInfo.Da0PdgID [GenInfo.Size] = dau->pdgId();
+        GenInfo.Da0Status[GenInfo.Size] = dau->status();
+
+        GenInfo.Da1Pt    [GenInfo.Size] = -1 ; 
+        GenInfo.Da1Eta   [GenInfo.Size] = -1 ; 
+        GenInfo.Da1Phi   [GenInfo.Size] = -1 ; 
+        GenInfo.Da1Mass  [GenInfo.Size] = -1 ; 
+        GenInfo.Da1PdgID [GenInfo.Size] = -1 ; 
+        GenInfo.Da1Status[GenInfo.Size] = -1 ; 
+      }
+      else if (NDa >= 2) {
+        const reco::Candidate* daus[2] = { it_gen->daughter(0), it_gen->daughter(1) };
+        GenInfo.Da0Pt    [GenInfo.Size] = daus[0]->pt();
+        GenInfo.Da0Eta   [GenInfo.Size] = daus[0]->eta();
+        GenInfo.Da0Phi   [GenInfo.Size] = daus[0]->phi();
+        GenInfo.Da0Mass  [GenInfo.Size] = daus[0]->mass();
+        GenInfo.Da0PdgID [GenInfo.Size] = daus[0]->pdgId();
+        GenInfo.Da0Status[GenInfo.Size] = daus[0]->status();
+
+        GenInfo.Da1Pt    [GenInfo.Size] = daus[1]->pt();
+        GenInfo.Da1Eta   [GenInfo.Size] = daus[1]->eta();
+        GenInfo.Da1Phi   [GenInfo.Size] = daus[1]->phi();
+        GenInfo.Da1Mass  [GenInfo.Size] = daus[1]->mass();
+        GenInfo.Da1PdgID [GenInfo.Size] = daus[1]->pdgId();
+        GenInfo.Da1Status[GenInfo.Size] = daus[1]->status();
+      }
+
+      if (NMo == 1) {
+        const reco::Candidate* mom = it_gen->mother(0) ; 
+        GenInfo.Mo0Pt    [GenInfo.Size] = mom->pt() ; 
+        GenInfo.Mo0Eta   [GenInfo.Size] = mom->eta();
+        GenInfo.Mo0Phi   [GenInfo.Size] = mom->phi();
+        GenInfo.Mo0Mass  [GenInfo.Size] = mom->mass();
+        GenInfo.Mo0PdgID [GenInfo.Size] = mom->pdgId();
+        GenInfo.Mo0Status[GenInfo.Size] = mom->status();
+
+        GenInfo.Mo1Pt    [GenInfo.Size] = -1 ; 
+        GenInfo.Mo1Eta   [GenInfo.Size] = -1 ; 
+        GenInfo.Mo1Phi   [GenInfo.Size] = -1 ; 
+        GenInfo.Mo1Mass  [GenInfo.Size] = -1 ; 
+        GenInfo.Mo1PdgID [GenInfo.Size] = -1 ; 
+        GenInfo.Mo1Status[GenInfo.Size] = -1 ; 
+      }
+      else if (NMo >= 2) { 
+        const reco::Candidate* moms[2] = { it_gen->mother(0), it_gen->mother(1) }; 
+        GenInfo.Mo0Eta   [GenInfo.Size] = moms[0]->eta();
+        GenInfo.Mo0Phi   [GenInfo.Size] = moms[0]->phi();
+        GenInfo.Mo0Mass  [GenInfo.Size] = moms[0]->mass();
+        GenInfo.Mo0PdgID [GenInfo.Size] = moms[0]->pdgId();
+        GenInfo.Mo0Status[GenInfo.Size] = moms[0]->status();
+
+        GenInfo.Mo1Pt    [GenInfo.Size] = moms[1]->pt();
+        GenInfo.Mo1Eta   [GenInfo.Size] = moms[1]->eta();
+        GenInfo.Mo1Phi   [GenInfo.Size] = moms[1]->phi();
+        GenInfo.Mo1Mass  [GenInfo.Size] = moms[1]->mass();
+        GenInfo.Mo1PdgID [GenInfo.Size] = moms[1]->pdgId();
+        GenInfo.Mo1Status[GenInfo.Size] = moms[1]->status();
+      }
+
+      ++GenInfo.Size; 
+
+      //DM found = find(cands.begin(), cands.end(), it_gen->mother(0));
+      //DM if(found != cands.end()) iMo1 = found - cands.begin() ;
+
+      //DM found = find(cands.begin(), cands.end(), it_gen->mother(NMo-1));
+      //DM if(found != cands.end()) iMo2 = found - cands.begin() ;
+
+      //DM found = find(cands.begin(), cands.end(), it_gen->daughter(0));
+      //DM if(found != cands.end()) iDa1 = found - cands.begin() ;
+
+      //DM found = find(cands.begin(), cands.end(), it_gen->daughter(NDa-1));
+      //DM if(found != cands.end()) iDa2 = found - cands.begin() ;
+
+      //DM GenInfo.Pt[GenInfo.Size] = it_gen->pt();
+      //DM GenInfo.Eta[GenInfo.Size] = it_gen->eta();
+      //DM GenInfo.Phi[GenInfo.Size] = it_gen->phi();
+      //DM GenInfo.Mass[GenInfo.Size]  = it_gen->mass();
+      //DM GenInfo.PdgID[GenInfo.Size] = it_gen->pdgId();
+      //DM GenInfo.Status[GenInfo.Size]  = it_gen->status();
+
+      //DM GenInfo.nMo[GenInfo.Size] = NMo;
+      //DM GenInfo.nDa[GenInfo.Size] = NDa;
+      //DM GenInfo.Mo1[GenInfo.Size] = iMo1;
+      //DM GenInfo.Mo2[GenInfo.Size] = iMo2;
+      //DM GenInfo.Da1[GenInfo.Size] = iDa1;
+      //DM GenInfo.Da2[GenInfo.Size] = iDa2;
+
+      //DM ++GenInfo.Size ;
+} //// Storing status == 3 particles only
+} //// Looping over GenParticles
 
 }
 
@@ -1034,11 +1091,11 @@ void BprimeTobH::processGenJets(const edm::Handle<GenJetCollection>& jetsColl,
 
 double BprimeTobH::calcJetY(pat::Jet it) {
   return TMath::Log( (TMath::Sqrt( (it.mass()*it.mass()) + (it.pt()*it.pt())*
-				   (TMath::CosH(it.eta())*TMath::CosH(it.eta())) )
-		      + (it.pt()*TMath::SinH(it.eta()) ) ) / 
-		     (TMath::Sqrt( (it.mass()*it.mass())
-				   + (it.pt()*it.pt()) )) ) ; 
-  
+          (TMath::CosH(it.eta())*TMath::CosH(it.eta())) )
+        + (it.pt()*TMath::SinH(it.eta()) ) ) / 
+      (TMath::Sqrt( (it.mass()*it.mass())
+                    + (it.pt()*it.pt()) )) ) ; 
+
 }
 
 //define this as a plug-in
