@@ -56,9 +56,9 @@ Based on bprimeKit
 #include "DataFormats/PatCandidates/interface/Electron.h"
 #include "DataFormats/PatCandidates/interface/Jet.h"
 
-// PileupSummaryInfo
+//// PileupSummaryInfo
 #include "SimDataFormats/PileupSummaryInfo/interface/PileupSummaryInfo.h"
-//
+
 //// For JEC
 #include "CondFormats/JetMETObjects/interface/FactorizedJetCorrector.h"
 #include "CondFormats/JetMETObjects/interface/JetCorrectorParameters.h"
@@ -69,7 +69,7 @@ Based on bprimeKit
 #include "PhysicsTools/SelectorUtils/interface/JetIDSelectionFunctor.h"
 #include "PhysicsTools/SelectorUtils/interface/PFJetIDSelectionFunctor.h"
 
-#include "RecoEgamma/EgammaTools/interface/ConversionFinder.h" // make isetup work
+#include "RecoEgamma/EgammaTools/interface/ConversionFinder.h" 
 
 #include "fastjet/PseudoJet.hh"
 #include "../interface/Njettiness.hh"
@@ -115,7 +115,6 @@ class BprimeTobH : public edm::EDAnalyzer {
     bool hasBeamSpot(const edm::Event&);
     void clearVariables();
     bool hasPrimaryVertex(const edm::Event &);
-    bool hasPrimaryVertexBS(const edm::Event &);
     bool hasMuons(const edm::Event &);
     bool hasElectrons(const edm::Event &);
     bool hasJets(const edm::Event &, const edm::EventSetup&);
@@ -135,12 +134,13 @@ class BprimeTobH : public edm::EDAnalyzer {
     // ----------member data ---------------------------
     TTree* tree_;
 
+    TH1F* h_events_;
+
     bool includeL7_;
     bool doElectrons_;
 
     edm::InputTag BeamSpotLabel_;
     edm::InputTag VertexLabel_;
-    edm::InputTag VertexBSLabel_;
     vector<edm::InputTag> muonlabel_;
     vector<edm::InputTag> electronlabel_;
     edm::InputTag jetlabel_;
@@ -159,8 +159,20 @@ class BprimeTobH : public edm::EDAnalyzer {
     EvtInfoBranches EvtInfo;
     GenInfoBranches GenInfo;
     VertexInfoBranches VertexInfo;
-    LepInfoBranches LepInfo[MAX_LEPCOLLECTIONS];
-    JetInfoBranches JetInfo[MAX_JETCOLLECTIONS];
+    LepInfoBranches LepInfo             [MAX_LEPCOLLECTIONS];
+    JetInfoBranches JetInfo             [MAX_JETCOLLECTIONS];
+    JetInfoBranches JetInfo_JEShigh     [MAX_JETCOLLECTIONS];
+    JetInfoBranches JetInfo_JESlow      [MAX_JETCOLLECTIONS];
+    JetInfoBranches JetInfo_JERhigh     [MAX_JETCOLLECTIONS];
+    JetInfoBranches JetInfo_JERlow      [MAX_JETCOLLECTIONS];
+    JetInfoBranches JetInfo_btag_bc_high;
+    JetInfoBranches JetInfo_btag_bc_low ;
+    JetInfoBranches JetInfo_btag_l_high ;
+    JetInfoBranches JetInfo_btag_l_low  ;
+    JetInfoBranches JetInfo_Htag_bc_high;
+    JetInfoBranches JetInfo_Htag_bc_low ;
+    JetInfoBranches JetInfo_Htag_l_high ;
+    JetInfoBranches JetInfo_Htag_l_low  ;
 
     // Across the event
     reco::BeamSpot beamSpot_;
@@ -171,14 +183,20 @@ class BprimeTobH : public edm::EDAnalyzer {
     vector<std::string> jetcollections_;
     vector<std::string> jettypes_;
 
-    bool doGenJets_ ;
     bool doGenInfo_;
+    bool doGenJets_ ;
 
-    Njettiness nsubjettinessCalculator;
+    bool doJESUncert_ ; 
+    bool doJERUncert_ ; 
+    bool dobtagUncert_ ; 
+    bool doHtagUncert_ ; 
 
     double JetPtMin_;
     double JetYMax_ ; 
     double FatJetPtMin_;
+
+    Njettiness nsubjettinessCalculator;
+
 };
 
 //
@@ -189,40 +207,40 @@ class BprimeTobH : public edm::EDAnalyzer {
 // constructors and destructor
 //
 BprimeTobH::BprimeTobH(const edm::ParameterSet& iConfig):
-  tree_(0),
-  includeL7_(iConfig.getUntrackedParameter<bool>("IncludeL7",false)),
-  doElectrons_(iConfig.getUntrackedParameter<bool>("DoElectrons",false)),
-  BeamSpotLabel_(iConfig.getParameter<edm::InputTag>("BeamSpotLabel")),
-  VertexLabel_(iConfig.getParameter<edm::InputTag>("VertexLabel")),
-  VertexBSLabel_(iConfig.getParameter<edm::InputTag>("VertexBSLabel")),
-  muonlabel_(iConfig.getParameter<vector<edm::InputTag> >("muonlabel")),
-  electronlabel_(iConfig.getParameter<vector<edm::InputTag> >("electronlabel")),
-  jetlabel_(iConfig.getParameter<edm::InputTag>("jetlabel")),
-  fatjetlabel_(iConfig.getParameter<edm::InputTag>("fatjetlabel")),
-  prunedfatjetlabel_(iConfig.getParameter<edm::InputTag>("prunedfatjetlabel")),
-  subjetlabel_(iConfig.getParameter<edm::InputTag>("subjetlabel")),
-  genjetlabel_(iConfig.getParameter<edm::InputTag>("genjetlabel")),
-  hltlabel_(iConfig.getParameter<vector<edm::InputTag> >("hltlabel")),
-  genevtlabel_(iConfig.getParameter<vector<edm::InputTag> >("genevtlabel")),
-  gtdigilabel_(iConfig.getParameter<vector<edm::InputTag> >("gtdigilabel")),
-  rhocorrectionlabel_(iConfig.getParameter<vector<edm::InputTag>>("rhocorrectionlabel")), 
-  sigmaLabel_(iConfig.getParameter<vector<edm::InputTag>>("sigmaLabel")),
-  puInfoLabel_(iConfig.getParameter<vector<edm::InputTag>>("puInfoLabel")),
-
-  genlabel_(iConfig.getParameter<edm::InputTag>("genlabel")),
-  lepcollections_(iConfig.getParameter<std::vector<std::string> >("LepCollections")),
-  jetcollections_(iConfig.getParameter<std::vector<std::string> >("JetCollections")),
-  jettypes_(iConfig.getParameter<std::vector<std::string> >("JetTypes")),
-  doGenJets_(iConfig.getUntrackedParameter<bool>("DoGenJets")),
-  doGenInfo_(iConfig.getUntrackedParameter<bool>("DoGenInfo")),
-  nsubjettinessCalculator(Njettiness::onepass_kt_axes, NsubParameters(1.0, 0.8, 0.8)),
-  JetPtMin_(iConfig.getUntrackedParameter<double>("JetPtMin")), 
-  JetYMax_(iConfig.getUntrackedParameter<double>("JetYMax")), 
-  FatJetPtMin_(iConfig.getUntrackedParameter<double>("FatJetPtMin")) 
+  tree_                  (0),
+  h_events_              (0), 
+  includeL7_             (iConfig.getUntrackedParameter<bool>("IncludeL7")),
+  doElectrons_           (iConfig.getUntrackedParameter<bool>("DoElectrons")),
+  BeamSpotLabel_         (iConfig.getParameter<edm::InputTag>("BeamSpotLabel")),
+  VertexLabel_           (iConfig.getParameter<edm::InputTag>("VertexLabel")),
+  muonlabel_             (iConfig.getParameter<vector<edm::InputTag> >("muonlabel")),
+  electronlabel_         (iConfig.getParameter<vector<edm::InputTag> >("electronlabel")),
+  jetlabel_              (iConfig.getParameter<edm::InputTag>("jetlabel")),
+  fatjetlabel_           (iConfig.getParameter<edm::InputTag>("fatjetlabel")),
+  prunedfatjetlabel_     (iConfig.getParameter<edm::InputTag>("prunedfatjetlabel")),
+  subjetlabel_           (iConfig.getParameter<edm::InputTag>("subjetlabel")),
+  genjetlabel_           (iConfig.getParameter<edm::InputTag>("genjetlabel")),
+  hltlabel_              (iConfig.getParameter<vector<edm::InputTag> >("hltlabel")),
+  genevtlabel_           (iConfig.getParameter<vector<edm::InputTag> >("genevtlabel")),
+  gtdigilabel_           (iConfig.getParameter<vector<edm::InputTag> >("gtdigilabel")),
+  rhocorrectionlabel_    (iConfig.getParameter<vector<edm::InputTag>>("rhocorrectionlabel")), 
+  sigmaLabel_            (iConfig.getParameter<vector<edm::InputTag>>("sigmaLabel")),
+  puInfoLabel_           (iConfig.getParameter<vector<edm::InputTag>>("puInfoLabel")),
+  genlabel_              (iConfig.getParameter<edm::InputTag>("genlabel")),
+  lepcollections_        (iConfig.getParameter<std::vector<std::string> >("LepCollections")),
+  jetcollections_        (iConfig.getParameter<std::vector<std::string> >("JetCollections")),
+  jettypes_              (iConfig.getParameter<std::vector<std::string> >("JetTypes")),
+  doGenInfo_             (iConfig.getUntrackedParameter<bool>("DoGenInfo")),
+  doGenJets_             (iConfig.getUntrackedParameter<bool>("DoGenJets")),
+  doJESUncert_           (iConfig.getUntrackedParameter<bool>("DoJESUncert")),
+  doJERUncert_           (iConfig.getUntrackedParameter<bool>("DoJERUncert")),
+  dobtagUncert_          (iConfig.getUntrackedParameter<bool>("DobtagUncert")),
+  doHtagUncert_          (iConfig.getUntrackedParameter<bool>("DoHtagUncert")),
+  JetPtMin_              (iConfig.getUntrackedParameter<double>("JetPtMin")), 
+  JetYMax_               (iConfig.getUntrackedParameter<double>("JetYMax")), 
+  FatJetPtMin_           (iConfig.getUntrackedParameter<double>("FatJetPtMin")), 
+  nsubjettinessCalculator(Njettiness::onepass_kt_axes, NsubParameters(1.0, 0.8, 0.8)) 
 {
-
-  edm::Service<TFileService> fs;
-  TFileDirectory results = TFileDirectory( fs->mkdir("results") );
 
 }
 
@@ -239,12 +257,13 @@ BprimeTobH::~BprimeTobH() {
 
 // ------------ method called for each event ------------
 void BprimeTobH::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
+
   clearVariables();
 
-  bool isData = iEvent.isRealData();
+  h_events_->Fill(0);   
 
-  EvtInfo.RunNo = iEvent.id().run();
-  EvtInfo.EvtNo = iEvent.id().event();
+  EvtInfo.RunNo  = iEvent.id().run();
+  EvtInfo.EvtNo  = iEvent.id().event();
   EvtInfo.BxNo   = iEvent.bunchCrossing();
   EvtInfo.LumiNo = iEvent.luminosityBlock();
   EvtInfo.Orbit  = iEvent.orbitNumber();
@@ -252,64 +271,70 @@ void BprimeTobH::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
 
   EvtInfo.nTrgBook = N_TRIGGER_BOOKINGS;
 
-  std::vector<edm::Handle<double> > rhoH;
-  std::vector<edm::Handle<double> > sigmaHandle;
+  std::vector<edm::Handle<double> > rhoHandles;
+  std::vector<edm::Handle<double> > sigmaHandles;
   for(unsigned il=0; il<rhocorrectionlabel_.size(); il++) {
-    rhoH.push_back(edm::Handle<double> ());
-    iEvent.getByLabel( rhocorrectionlabel_[il],rhoH[il]);
-    sigmaHandle.push_back(edm::Handle<double> ());
-    iEvent.getByLabel( sigmaLabel_[il],sigmaHandle[il]);
+    rhoHandles.push_back(edm::Handle<double> ());
+    iEvent.getByLabel( rhocorrectionlabel_[il],rhoHandles[il]);
+    sigmaHandles.push_back(edm::Handle<double> ());
+    iEvent.getByLabel( sigmaLabel_[il],sigmaHandles[il]);
   }
 
-  for(unsigned int ri_=0;ri_<2;ri_++){
-    if(rhoH[ri_].isValid()) EvtInfo.RhoPU[ri_] = *(rhoH[ri_].product());
-    if(sigmaHandle[ri_].isValid()) EvtInfo.SigmaPU[ri_] = *(sigmaHandle[ri_].product());
+  for(unsigned int ii = 0; ii < 2; ii++) {  
+    if(rhoHandles[ii].isValid())   EvtInfo.RhoPU[ii]   = *(rhoHandles[ii].product());
+    if(sigmaHandles[ii].isValid()) EvtInfo.SigmaPU[ii] = *(sigmaHandles[ii].product());
   }
 
-  edm::Handle<GenEventInfoProduct> GenEventInfoHandle;	 
-  bool with_GenEventInfo = (genevtlabel_.size() >0) ? 
-    iEvent.getByLabel( genevtlabel_[0], GenEventInfoHandle ) : false;
+  edm::Handle<GenEventInfoProduct> genEventInfoHandle;	 
+  bool with_GenEventInfo = (genevtlabel_.size() > 0) ? iEvent.getByLabel( genevtlabel_[0], genEventInfoHandle ) : false ;  
 
-  if( !isData ) {
-    // PileupSummaryInfo
-    edm::Handle<vector< PileupSummaryInfo > >  PUInfo;
-    if(puInfoLabel_.size() > 0) iEvent.getByLabel(puInfoLabel_[0], PUInfo);
-    vector<PileupSummaryInfo>::const_iterator PVI;
+  edm::Handle<std::vector<PileupSummaryInfo> >  puInfoHandles;
+  if(puInfoLabel_.size() > 0) iEvent.getByLabel(puInfoLabel_[0], puInfoHandles); 
+  std::vector<PileupSummaryInfo>::const_iterator PVI;
+  for(PVI = puInfoHandles->begin(); PVI != puInfoHandles->end(); ++PVI) {
+    EvtInfo.nPU[EvtInfo.nBX]    = PVI->getPU_NumInteractions();
+    EvtInfo.BXPU[EvtInfo.nBX]   = PVI->getBunchCrossing();
+    EvtInfo.TrueIT[EvtInfo.nBX] = PVI->getTrueNumInteractions();
+    EvtInfo.nBX += 1;
+  }
 
-    for(PVI = PUInfo->begin(); PVI != PUInfo->end(); ++PVI) {
-      EvtInfo.nPU[EvtInfo.nBX] = PVI->getPU_NumInteractions();
-      EvtInfo.BXPU[EvtInfo.nBX] = PVI->getBunchCrossing();
-      EvtInfo.TrueIT[EvtInfo.nBX] = PVI->getTrueNumInteractions();
-      EvtInfo.nBX += 1;
+  if( iEvent.isRealData() == false ) { 
+
+    //// Direct filling of PU weights: reserved for later use 
+    //// edm::EventBase* iEventB = dynamic_cast<edm::EventBase*>(&iEvent);
+    //// EvtInfo.WeightPU = LumiWeights_.weight( (*iEventB) );
+
+    if (with_GenEventInfo) {
+      if (genEventInfoHandle->hasPDF()) { 
+        EvtInfo.PDFid1   = genEventInfoHandle->pdf()->id.first;
+        EvtInfo.PDFid2   = genEventInfoHandle->pdf()->id.second;
+        EvtInfo.PDFx1    = genEventInfoHandle->pdf()->x.first;
+        EvtInfo.PDFx2    = genEventInfoHandle->pdf()->x.second;
+        EvtInfo.PDFscale = genEventInfoHandle->pdf()->scalePDF;
+        EvtInfo.PDFv1    = genEventInfoHandle->pdf()->xPDF.first;
+        EvtInfo.PDFv2    = genEventInfoHandle->pdf()->xPDF.second;
+      }
+      EvtInfo.qScale   = genEventInfoHandle->qScale();
+      EvtInfo.alphaQCD = genEventInfoHandle->alphaQCD();
+      EvtInfo.alphaQED = genEventInfoHandle->alphaQED();
+      EvtInfo.Weight   = genEventInfoHandle->weight();
     }
+
   }
 
+  if ( hasBeamSpot(iEvent) && hasPrimaryVertex(iEvent) ) { 
 
-  if (with_GenEventInfo && GenEventInfoHandle->hasPDF()) {
-    EvtInfo.PDFid1   = GenEventInfoHandle->pdf()->id.first;
-    EvtInfo.PDFid2   = GenEventInfoHandle->pdf()->id.second;
-    EvtInfo.PDFx1    = GenEventInfoHandle->pdf()->x.first;
-    EvtInfo.PDFx2    = GenEventInfoHandle->pdf()->x.second;
-    EvtInfo.PDFscale = GenEventInfoHandle->pdf()->scalePDF;
-    EvtInfo.PDFv1    = GenEventInfoHandle->pdf()->xPDF.first;
-    EvtInfo.PDFv2    = GenEventInfoHandle->pdf()->xPDF.second;
-  }
-
-
-  if ( hasBeamSpot(iEvent)
-      && hasPrimaryVertex(iEvent)
-      && hasPrimaryVertexBS(iEvent)
-     ) {
-
+    saveL1T(iEvent);
+    saveHLT(iEvent);
     hasMuons(iEvent);
     if (doElectrons_) hasElectrons(iEvent);
     hasJets(iEvent, iSetup);
-    saveHLT(iEvent);
-    saveL1T(iEvent);
-
     if ( doGenInfo_ && !iEvent.isRealData() ) saveGenInfo(iEvent);
 
     tree_->Fill();
+
+    h_events_->Fill(1);   
+
   }
 
   clearVariables();
@@ -317,22 +342,30 @@ void BprimeTobH::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
 
 // ------------ method called once each job just before starting event loop ------------
 void BprimeTobH::beginJob() {
+
+  edm::Service<TFileService> fs;
+  TFileDirectory results = TFileDirectory( fs->mkdir("results") );
+
+  h_events_ = fs->make<TH1F>( "h_events", "Processed events", 2,  0, 2); 
+  h_events_->Sumw2() ; 
+
   tree_ = new TTree ("tree", "BprimeTobH");
   EvtInfo.RegisterTree(tree_);
   VertexInfo.RegisterTree(tree_);
 
-  if(lepcollections_.size() > MAX_LEPCOLLECTIONS)
-    cout << "WARNING: Too many lep collections, using first "
-      << MAX_LEPCOLLECTIONS << endl;
+  if(lepcollections_.size() > MAX_LEPCOLLECTIONS) 
+    edm::LogWarning("LepCollection") << "WARNING: Too many lep collections, using first " << MAX_LEPCOLLECTIONS ; 
 
-  for(unsigned i=0; i<lepcollections_.size(); i++) {
+  for(unsigned i=0; i<lepcollections_.size(); i++) { 
     if(i >= MAX_LEPCOLLECTIONS) break;
     LepInfo[i].RegisterTree(tree_,lepcollections_[i]);
   }
 
+  if(jetcollections_.size() > MAX_JETCOLLECTIONS) 
+    edm::LogWarning("LepCollection") << "WARNING: Too many jet collections, using first " << MAX_JETCOLLECTIONS ; 
+
   for(unsigned i=0; i<jetcollections_.size(); i++) {
     if(i >= MAX_JETCOLLECTIONS) break;
-
     JetInfo[i].RegisterTree(tree_,jetcollections_[i]);
   }
 
@@ -442,51 +475,6 @@ bool BprimeTobH::hasPrimaryVertex(const edm::Event& iEvent) {
 
   return true;
 }
-
-
-bool BprimeTobH::hasPrimaryVertexBS(const edm::Event& iEvent) {
-  edm::Handle<reco::VertexCollection> VertexHandleBS;
-  double PVBS_Pt_Max = -100.;
-
-  iEvent.getByLabel(VertexBSLabel_, VertexHandleBS);
-
-  if( ! VertexHandleBS.isValid() or VertexHandleBS.failedToGet()
-      or VertexHandleBS->size() <= 0 )
-    return false;
-
-  const vector<reco::Vertex> VerticesBS = *VertexHandleBS;
-  for(vector<reco::Vertex>::const_iterator it_vtx = VerticesBS.begin();
-      it_vtx != VerticesBS.end(); it_vtx++ ) {
-    if (VertexInfo.Size>=MAX_VERTICES) {
-      cout << "PVBS " << VertexInfo.Size << endl;
-      fprintf(stderr,"ERROR: number of Vertices exceeds the size of array.\n");
-      break;
-    }
-    VertexInfo.Type[VertexInfo.Size] = 1; //Vertices WITH the Beam Spot constraint
-    VertexInfo.isValid[VertexInfo.Size] = it_vtx->isValid();
-    VertexInfo.isFake[VertexInfo.Size] = it_vtx->isFake(); //Uly 2011-05-16
-    VertexInfo.Ndof[VertexInfo.Size] = it_vtx->ndof();
-    VertexInfo.NormalizedChi2[VertexInfo.Size] = it_vtx->normalizedChi2();
-    VertexInfo.x[VertexInfo.Size] = it_vtx->x();
-    VertexInfo.y[VertexInfo.Size] = it_vtx->y();
-    VertexInfo.z[VertexInfo.Size] = it_vtx->z();
-    VertexInfo.Rho[VertexInfo.Size] = it_vtx->position().Rho();
-    VertexInfo.Pt_Sum[VertexInfo.Size] = 0.;
-    VertexInfo.Pt_Sum2[VertexInfo.Size] = 0.;
-
-    if( VertexInfo.Pt_Sum[VertexInfo.Size] >= PVBS_Pt_Max ){
-      PVBS_Pt_Max = VertexInfo.Pt_Sum[VertexInfo.Size];
-      primaryVertexBS_ = *it_vtx;
-    } 
-    VertexInfo.Size++;
-  }
-
-  if (!primaryVertexBS_.isValid())
-    return false;
-
-  return true;
-}
-
 
 bool BprimeTobH::hasMuons(const edm::Event& iEvent) {
   vector<edm::Handle<vector<pat::Muon> > > MuonHandle;
@@ -936,9 +924,6 @@ void BprimeTobH::saveGenInfo(const edm::Event& iEvent) {
   edm::Handle<reco::GenParticleCollection> GenHandle;
   iEvent.getByLabel(genlabel_, GenHandle);
 
-  //vector<const reco::Candidate *> cands;
-  //vector<const reco::Candidate *>::const_iterator found = cands.begin();
-
   for( std::vector<reco::GenParticle>::const_iterator it_gen = GenHandle->begin(); it_gen != GenHandle->end(); it_gen++ ) {
     if(it_gen->status() == 3){  
 
@@ -1049,8 +1034,8 @@ void BprimeTobH::saveGenInfo(const edm::Event& iEvent) {
       //DM GenInfo.Da2[GenInfo.Size] = iDa2;
 
       //DM ++GenInfo.Size ;
-} //// Storing status == 3 particles only
-} //// Looping over GenParticles
+    } //// Storing status == 3 particles only
+  } //// Looping over GenParticles
 
 }
 
