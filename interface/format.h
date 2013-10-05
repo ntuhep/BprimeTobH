@@ -5,16 +5,15 @@
 #include <TTree.h>
 
 
-static const int MAX_LEPTONS 	    = 256 ;
-static const int MAX_TRACKS 	    = 256 ;
-static const int MAX_JETS 	    = 128 ;
-static const int MAX_PAIRS 	    = 512 ;
-static const int MAX_PHOTONS	    = 128 ;
-static const int MAX_GENS	    = 128 ;
+static const int MAX_LEPTONS 	      = 256 ;
+static const int MAX_TRACKS 	      = 256 ;
+static const int MAX_JETS 	        = 128 ;
+static const int MAX_PAIRS 	        = 512 ;
+static const int MAX_PHOTONS	      = 128 ;
+static const int MAX_GENS	          = 128 ;
 static const int MAX_VERTICES       = 256 ;
-static const int MAX_BX		    = 128 ;
+static const int MAX_BX		          = 128 ;
 static const int N_TRIGGER_BOOKINGS = 5842;  
-
 
 class EvtInfoBranches {
  public:
@@ -23,7 +22,7 @@ class EvtInfoBranches {
   int      BxNo;
   int      LumiNo;
   int      Orbit;
-  int      McFlag;	  // MC or not MC, that's the question
+  int      McFlag;	        // MC or not MC, that's the question
   int      McSigTag;        // MC Signature tag	  - 0: others, 1: 2L (opposite-sign), 2: 2L (same-sign), 3: 3L, 4: 4L
   int      McbprimeMode[2]; // b'(bar) decay mode   - 0: others, 1: tW, 2: cW, 3: bZ, 4: bH
   int      MctprimeMode[2]; // t'(bar) decay mode   - 0: others, 1: bW, 2: tZ, 3: tH, 4: tgamma
@@ -47,6 +46,11 @@ class EvtInfoBranches {
   float    PDFscale;
   float    PDFv1;
   float    PDFv2;
+  float    qScale ; 
+  float    alphaQCD ; 
+  float    alphaQED ; 
+  float    Weight;
+  float    WeightPU; 
 
   //BeamSpot
   float BeamSpotX;
@@ -54,9 +58,9 @@ class EvtInfoBranches {
   float BeamSpotZ;
 
   // PU
-  int nBX;
-  int nPU[MAX_BX];
-  int BXPU[MAX_BX];
+  int   nBX;
+  int   nPU[MAX_BX];
+  int   BXPU[MAX_BX];
   float TrueIT[MAX_BX];
 
   float PFMET;
@@ -84,7 +88,7 @@ class EvtInfoBranches {
   void RegisterTree(TTree *root) {
     root->Branch("EvtInfo.RunNo"	    , &RunNo	       , "EvtInfo.RunNo/I"	    );
     root->Branch("EvtInfo.EvtNo"	    , &EvtNo	       , "EvtInfo.EvtNo/L"	    );
-    root->Branch("EvtInfo.BxNo"	            , &BxNo	       , "EvtInfo.BxNo/I"	    );
+    root->Branch("EvtInfo.BxNo"	      , &BxNo	       , "EvtInfo.BxNo/I"	        );
     root->Branch("EvtInfo.LumiNo"	    , &LumiNo	       , "EvtInfo.LumiNo/I"	    );
     root->Branch("EvtInfo.Orbit"	    , &Orbit	       , "EvtInfo.Orbit/I"	    );
     root->Branch("EvtInfo.McFlag"	    , &McFlag	       , "EvtInfo.McFlag/I"	    );
@@ -105,12 +109,17 @@ class EvtInfoBranches {
     root->Branch("EvtInfo.PDFid1"	    , &PDFid1	       , "EvtInfo.PDFid1/I"	    );
     root->Branch("EvtInfo.PDFid2"	    , &PDFid2	       , "EvtInfo.PDFid2/I"	    );
     root->Branch("EvtInfo.PDFx1"	    , &PDFx1	       , "EvtInfo.PDFx1/F"	    );
-    root->Branch("EvtInfo.RhoPU"	    , &RhoPU[0]	       , "EvtInfo.RhoPU[2]/F"	    );
-    root->Branch("EvtInfo.SigmaPU"	    , &SigmaPU[0]      , "EvtInfo.SigmaPU[2]/F"	    );
+    root->Branch("EvtInfo.RhoPU"	    , &RhoPU[0]	     , "EvtInfo.RhoPU[2]/F"	  );
+    root->Branch("EvtInfo.SigmaPU"	  , &SigmaPU[0]    , "EvtInfo.SigmaPU[2]/F"	);
     root->Branch("EvtInfo.PDFx2"	    , &PDFx2	       , "EvtInfo.PDFx2/F"	    );
-    root->Branch("EvtInfo.PDFscale"	    , &PDFscale	       , "EvtInfo.PDFscale/F"	    );
+    root->Branch("EvtInfo.PDFscale"	  , &PDFscale	     , "EvtInfo.PDFscale/F"	  );
     root->Branch("EvtInfo.PDFv1"	    , &PDFv1	       , "EvtInfo.PDFv1/F"	    );
     root->Branch("EvtInfo.PDFv2"	    , &PDFv2	       , "EvtInfo.PDFv2/F"	    );		 
+    root->Branch("EvtInfo.qScale"     , &qScale  	     , "EvtInfo.qScale/F"			);
+    root->Branch("EvtInfo.alphaQCD"   , &alphaQCD	     , "EvtInfo.alphaQCD/F"		);
+    root->Branch("EvtInfo.alphaQED"   , &alphaQED	     , "EvtInfo.alphaQED/F"		);
+    root->Branch("EvtInfo.Weight"     , &Weight	       , "EvtInfo.Weight/F"			);
+    root->Branch("EvtInfo.WeightPU"   , &WeightPU      , "EvtInfo.Weight/F"			);
 
     root->Branch("EvtInfo.BeamSpotX"    , &BeamSpotX       , "EvtInfo.BeamSpotX/F"      );
     root->Branch("EvtInfo.BeamSpotY"    , &BeamSpotY       , "EvtInfo.BeamSpotY/F"      );
@@ -164,16 +173,21 @@ class EvtInfoBranches {
     root->SetBranchAddress("EvtInfo.PDFid1"       , &PDFid1 	 );
     root->SetBranchAddress("EvtInfo.PDFid2"       , &PDFid2 	 );
     root->SetBranchAddress("EvtInfo.PDFx1"        , &PDFx1  	 );
-    root->SetBranchAddress("EvtInfo.RhoPU"        , &RhoPU[0]  	 );
-    root->SetBranchAddress("EvtInfo.SigmaPU"      , &SigmaPU[0]  	 );
+    root->SetBranchAddress("EvtInfo.RhoPU"        , &RhoPU[0]  );
+    root->SetBranchAddress("EvtInfo.SigmaPU"      , &SigmaPU[0]);
     root->SetBranchAddress("EvtInfo.PDFx2"        , &PDFx2  	 );
     root->SetBranchAddress("EvtInfo.PDFscale"     , &PDFscale	 );
     root->SetBranchAddress("EvtInfo.PDFv1"        , &PDFv1  	 );
     root->SetBranchAddress("EvtInfo.PDFv2"        , &PDFv2  	 );	      
+    root->SetBranchAddress("EvtInfo.qScale"       , &qScale  	 );
+    root->SetBranchAddress("EvtInfo.alphaQCD"     , &alphaQCD	 );
+    root->SetBranchAddress("EvtInfo.alphaQED"     , &alphaQED	 );
+    root->SetBranchAddress("EvtInfo.Weight"       , &Weight		 ); 
+    root->SetBranchAddress("EvtInfo.WeightPU"     , &WeightPU  ); 
 
-    root->SetBranchAddress("EvtInfo.BeamSpotX"    , &BeamSpotX	 );
-    root->SetBranchAddress("EvtInfo.BeamSpotY"    , &BeamSpotY	 );
-    root->SetBranchAddress("EvtInfo.BeamSpotZ"    , &BeamSpotZ	 );
+    root->SetBranchAddress("EvtInfo.BeamSpotX"    , &BeamSpotX );
+    root->SetBranchAddress("EvtInfo.BeamSpotY"    , &BeamSpotY );
+    root->SetBranchAddress("EvtInfo.BeamSpotZ"    , &BeamSpotZ );
 
     root->SetBranchAddress("EvtInfo.PFMET"        , &PFMET           );
     root->SetBranchAddress("EvtInfo.PFMETPhi"     , &PFMETPhi        );
@@ -273,7 +287,6 @@ class LepInfoBranches {
 class GenInfoBranches {
  public:
   int Size;
-  float Weight;
 
   float Pt[MAX_GENS];
   float Eta[MAX_GENS];
@@ -356,7 +369,6 @@ class GenInfoBranches {
 
   void RegisterTree(TTree *root) {
     root->Branch("GenInfo.Size"	, &Size		, "GenInfo.Size/I"			);
-    root->Branch("GenInfo.Weight", &Weight	, "GenInfo.Weight/F"			);
     root->Branch("GenInfo.Pt"	, &Pt[0]	, "GenInfo.Pt[GenInfo.Size]/F"		);
     root->Branch("GenInfo.Eta"	, &Eta[0]	, "GenInfo.Eta[GenInfo.Size]/F"		);
     root->Branch("GenInfo.Phi"	, &Phi[0]	, "GenInfo.Phi[GenInfo.Size]/F"		);
@@ -404,7 +416,6 @@ class GenInfoBranches {
 
   void Register(TTree *root) {
     root->SetBranchAddress("GenInfo.Size"       , &Size		);
-    root->SetBranchAddress("GenInfo.Weight"     , &Weight		);
     root->SetBranchAddress("GenInfo.Pt"	        , &Pt[0]	);
     root->SetBranchAddress("GenInfo.Eta"	, &Eta[0]	);
     root->SetBranchAddress("GenInfo.Phi"	, &Phi[0]	);
