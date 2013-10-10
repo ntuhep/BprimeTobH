@@ -177,7 +177,6 @@ class BprimeTobH : public edm::EDAnalyzer {
     // Across the event
     reco::BeamSpot beamSpot_;
     reco::Vertex primaryVertex_;
-    reco::Vertex primaryVertexBS_;
 
     vector<std::string> lepcollections_;
     vector<std::string> jetcollections_;
@@ -431,7 +430,7 @@ bool BprimeTobH::hasPrimaryVertex(const edm::Event& iEvent) {
   edm::Handle<reco::VertexCollection> recoVertexHandle;
   iEvent.getByLabel(VertexLabel_, recoVertexHandle);
 
-  if ( ! recoVertexHandle.isValid()
+  if ( !recoVertexHandle.isValid()
       or recoVertexHandle.failedToGet()
       or recoVertexHandle->size() <= 0 )
     return false;
@@ -447,7 +446,7 @@ bool BprimeTobH::hasPrimaryVertex(const edm::Event& iEvent) {
       break;
     }
 
-    VertexInfo.Type[VertexInfo.Size] = 0; //Vertices WITHOUT the Beam Spot constraint
+    VertexInfo.Type[VertexInfo.Size] = 1; //Vertices WITH the Beam Spot constraint
     VertexInfo.isValid[VertexInfo.Size] = iVertex->isValid();
     VertexInfo.isFake[VertexInfo.Size] = iVertex->isFake(); //Uly 2011-05-16
     VertexInfo.Ndof[VertexInfo.Size] = iVertex->ndof();
@@ -1007,33 +1006,6 @@ void BprimeTobH::saveGenInfo(const edm::Event& iEvent) {
 
       ++GenInfo.Size; 
 
-      //DM found = find(cands.begin(), cands.end(), it_gen->mother(0));
-      //DM if(found != cands.end()) iMo1 = found - cands.begin() ;
-
-      //DM found = find(cands.begin(), cands.end(), it_gen->mother(NMo-1));
-      //DM if(found != cands.end()) iMo2 = found - cands.begin() ;
-
-      //DM found = find(cands.begin(), cands.end(), it_gen->daughter(0));
-      //DM if(found != cands.end()) iDa1 = found - cands.begin() ;
-
-      //DM found = find(cands.begin(), cands.end(), it_gen->daughter(NDa-1));
-      //DM if(found != cands.end()) iDa2 = found - cands.begin() ;
-
-      //DM GenInfo.Pt[GenInfo.Size] = it_gen->pt();
-      //DM GenInfo.Eta[GenInfo.Size] = it_gen->eta();
-      //DM GenInfo.Phi[GenInfo.Size] = it_gen->phi();
-      //DM GenInfo.Mass[GenInfo.Size]  = it_gen->mass();
-      //DM GenInfo.PdgID[GenInfo.Size] = it_gen->pdgId();
-      //DM GenInfo.Status[GenInfo.Size]  = it_gen->status();
-
-      //DM GenInfo.nMo[GenInfo.Size] = NMo;
-      //DM GenInfo.nDa[GenInfo.Size] = NDa;
-      //DM GenInfo.Mo1[GenInfo.Size] = iMo1;
-      //DM GenInfo.Mo2[GenInfo.Size] = iMo2;
-      //DM GenInfo.Da1[GenInfo.Size] = iDa1;
-      //DM GenInfo.Da2[GenInfo.Size] = iDa2;
-
-      //DM ++GenInfo.Size ;
     } //// Storing status == 3 particles only
   } //// Looping over GenParticles
 
