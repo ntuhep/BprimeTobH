@@ -284,24 +284,24 @@ void BprimeTobH::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
     if(sigmaHandles[ii].isValid()) EvtInfo.SigmaPU[ii] = *(sigmaHandles[ii].product());
   }
 
-  edm::Handle<GenEventInfoProduct> genEventInfoHandle;	 
-  bool with_GenEventInfo = (genevtlabel_.size() > 0) ? iEvent.getByLabel( genevtlabel_[0], genEventInfoHandle ) : false ;  
-
-  edm::Handle<std::vector<PileupSummaryInfo> >  puInfoHandles;
-  if(puInfoLabel_.size() > 0) iEvent.getByLabel(puInfoLabel_[0], puInfoHandles); 
-  std::vector<PileupSummaryInfo>::const_iterator PVI;
-  for(PVI = puInfoHandles->begin(); PVI != puInfoHandles->end(); ++PVI) {
-    EvtInfo.nPU[EvtInfo.nBX]    = PVI->getPU_NumInteractions();
-    EvtInfo.BXPU[EvtInfo.nBX]   = PVI->getBunchCrossing();
-    EvtInfo.TrueIT[EvtInfo.nBX] = PVI->getTrueNumInteractions();
-    EvtInfo.nBX += 1;
-  }
-
   if( iEvent.isRealData() == false ) { 
 
     //// Direct filling of PU weights: reserved for later use 
     //// edm::EventBase* iEventB = dynamic_cast<edm::EventBase*>(&iEvent);
     //// EvtInfo.WeightPU = LumiWeights_.weight( (*iEventB) );
+
+    edm::Handle<std::vector<PileupSummaryInfo> >  puInfoHandles;
+    if(puInfoLabel_.size() > 0) iEvent.getByLabel(puInfoLabel_[0], puInfoHandles); 
+    std::vector<PileupSummaryInfo>::const_iterator PVI;
+    for(PVI = puInfoHandles->begin(); PVI != puInfoHandles->end(); ++PVI) {
+      EvtInfo.nPU[EvtInfo.nBX]    = PVI->getPU_NumInteractions();
+      EvtInfo.BXPU[EvtInfo.nBX]   = PVI->getBunchCrossing();
+      EvtInfo.TrueIT[EvtInfo.nBX] = PVI->getTrueNumInteractions();
+      EvtInfo.nBX += 1;
+    }
+
+    edm::Handle<GenEventInfoProduct> genEventInfoHandle;	 
+    bool with_GenEventInfo = (genevtlabel_.size() > 0) ? iEvent.getByLabel( genevtlabel_[0], genEventInfoHandle ) : false ;  
 
     if (with_GenEventInfo) {
       if (genEventInfoHandle->hasPDF()) { 
@@ -551,7 +551,7 @@ bool BprimeTobH::hasJets(const edm::Event& iEvent, const edm::EventSetup& iSetup
   iEvent.getByLabel( fatjetlabel_      , fatjetsColl);
   iEvent.getByLabel( prunedfatjetlabel_, prunedfatjetsColl);
   iEvent.getByLabel( subjetlabel_      , subjetsColl);
-  iEvent.getByLabel( genjetlabel_      , genjetsColl);
+  if ( iEvent.isRealData() == false ) iEvent.getByLabel( genjetlabel_      , genjetsColl);
 
   // get the fatjet to prunedfat jet match map
   JetToJetMap fatJetToPrunedFatJetMap;
@@ -593,8 +593,10 @@ bool BprimeTobH::hasJets(const edm::Event& iEvent, const edm::EventSetup& iSetup
   iJetColl = 2 ; //// JetInfo
   processJets(jetsColl, subjetsColl, iEvent, iSetup, fatJetToPrunedFatJetMap, iJetColl) ;
 
-  iJetColl = 3 ; // GenJetInfo
-  processGenJets(genjetsColl, iEvent, iSetup, iJetColl) ;
+  if ( iEvent.isRealData() == false ) {
+    iJetColl = 3 ; // GenJetInfo
+    processGenJets(genjetsColl, iEvent, iSetup, iJetColl) ;
+  }
 
   return true;
 }
