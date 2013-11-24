@@ -440,6 +440,25 @@ class GenInfoBranches {
     root->SetBranchAddress("GenInfo.Mo2"	, &Mo2[0]	);
     root->SetBranchAddress("GenInfo.Da1"	, &Da1[0]	);
     root->SetBranchAddress("GenInfo.Da2"	, &Da2[0]	);
+    root->SetBranchAddress("GenInfo.Da0Pt"    , &Da0Pt[0]       );
+    root->SetBranchAddress("GenInfo.Da0Eta"   , &Da0Eta[0]    );
+    root->SetBranchAddress("GenInfo.Da0Phi"   , &Da0Phi[0]    );
+    root->SetBranchAddress("GenInfo.Da0Mass"  , &Da0Mass[0]     );
+    root->SetBranchAddress("GenInfo.Da0PdgID" , &Da0PdgID[0]       );
+    root->SetBranchAddress("GenInfo.Da0Status", &Da0Status[0]      );
+    root->SetBranchAddress("GenInfo.Da1Pt"    , &Da1Pt[0]       );
+    root->SetBranchAddress("GenInfo.Da1Eta"   , &Da1Eta[0]    );
+    root->SetBranchAddress("GenInfo.Da1Phi"   , &Da1Phi[0]    );
+    root->SetBranchAddress("GenInfo.Da1Mass"  , &Da1Mass[0]     );
+    root->SetBranchAddress("GenInfo.Da1PdgID" , &Da1PdgID[0]       );
+    root->SetBranchAddress("GenInfo.Da1Status", &Da1Status[0]      );
+    root->SetBranchAddress("GenInfo.ncQuarks"               , &ncQuarks             );
+    root->SetBranchAddress("GenInfo.cQuark_pT"              , &cQuark_pT     [0]    );
+    root->SetBranchAddress("GenInfo.cQuark_eta"             , &cQuark_eta    [0]    );
+    root->SetBranchAddress("GenInfo.cQuark_phi"             , &cQuark_phi    [0]    );
+    root->SetBranchAddress("GenInfo.cQuark_pdgID"           , &cQuark_pdgID  [0]    );
+    root->SetBranchAddress("GenInfo.cQuark_status"          , &cQuark_status [0]    );
+    root->SetBranchAddress("GenInfo.cQuark_fromGSP"         , &cQuark_fromGSP[0]    );
   }
 
 };
