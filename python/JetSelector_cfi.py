@@ -1,0 +1,25 @@
+import FWCore.ParameterSet.Config as cms
+
+defaultJetSelectionParameters = cms.PSet(
+    jettype             = cms.string('AK5JET'),
+    jetPtMin            = cms.double(30),
+    jetPtMax            = cms.double(100000),
+    jetAbsEtaMax        = cms.double(2.4),
+    bjetPtMin           = cms.double(80),
+    fatJetPtMin         = cms.double(300),
+    fatJetPtMax         = cms.double(100000),
+    fatJetAbsEtaMax     = cms.double(2.4),
+    fatJetMassMin       = cms.double(100),
+    fatJetMassMax       = cms.double(150),
+    fatJetPrunedMassMin = cms.double(75),
+    fatJetPrunedMassMax = cms.double(100000),
+    fatJetTau2ByTau1Max = cms.double(0.5),
+    jetCSVDiscMin       = cms.double(0.679),
+    jetCSVDiscMax       = cms.double(1.000),
+    subjet1CSVDiscMin   = cms.double(0.244),
+    subjet1CSVDiscMax   = cms.double(1.000),
+    subjet2CSVDiscMin   = cms.double(0.244),
+    subjet2CSVDiscMax   = cms.double(1.000),
+    IsJetIDLoose        = cms.bool(True), 
+    IsJetIDTight        = cms.bool(False), 
+    )
