@@ -29,72 +29,68 @@ class JetSelector : public Selector<int> {
       push_back("jetAbsEtaMax") ;
       push_back("jetCSVDiscMin") ;
       push_back("jetCSVDiscMax") ;
-      push_back("IsJetIDLoose") ; 
-      push_back("IsJetIDTight") ; 
 
       set("jetPtMin"             ,params.getParameter<double>("jetPtMin") ) ;
       set("jetPtMax"             ,params.getParameter<double>("jetPtMax") ) ;
       set("jetAbsEtaMax"         ,params.getParameter<double>("jetAbsEtaMax") ) ;
-      set("jetCSVDiscMin"        ,params.getParameter<double>("jetCSVDiscMin") ) ;
-      set("jetCSVDiscMax"        ,params.getParameter<double>("jetCSVDiscMax") ) ;
-      set("IsJetIDLoose"         ,params.getParameter<bool>("IsJetIDLoose") ) ; 
-      set("IsJetIDTight"         ,params.getParameter<bool>("IsJetIDTight") ) ; 
+      if (jettype_ == BTAGGEDAK5JET) {
+        set("jetCSVDiscMin"        ,params.getParameter<double>("jetCSVDiscMin") ,true) ;
+        set("jetCSVDiscMax"        ,params.getParameter<double>("jetCSVDiscMax") ,true) ;
+      }
+      else {
+        set("jetCSVDiscMin"        ,params.getParameter<double>("jetCSVDiscMin") ,false) ;
+        set("jetCSVDiscMax"        ,params.getParameter<double>("jetCSVDiscMax") ,false) ;
+      }
 
       indexjetPtMin_            = index_type(&bits_ ,"jetPtMin") ;
       indexjetPtMax_            = index_type(&bits_ ,"jetPtMax") ;
       indexjetAbsEtaMax_        = index_type(&bits_ ,"jetAbsEtaMax") ;
       indexjetCSVDiscMin_       = index_type(&bits_ ,"jetCSVDiscMin") ;
       indexjetCSVDiscMax_       = index_type(&bits_ ,"jetCSVDiscMax") ;
-      indexIsJetIDLoose_        = index_type(&bits_ ,"IsJetIDLoose") ; 
-      indexIsJetIDTight_        = index_type(&bits_ ,"IsJetIDTight") ; 
 
       retInternal_ = getBitTemplate();   
 
-      if (params.getParameter<bool>("IsJetIDLoose") == true && params.getParameter<bool>("IsJetIDTight") == false) 
-        jetID_ = new JetID(JetID::FIRSTDATA,JetID::LOOSE, jetInfo_) ;
-      else if (params.getParameter<bool>("IsJetIDTight") == true && params.getParameter<bool>("IsJetIDLoose") == false) 
-        jetID_ = new JetID(JetID::FIRSTDATA,JetID::TIGHT, jetInfo_) ;
+      if (params.getParameter<bool>("IsJetIDLoose") == true && params.getParameter<bool>("IsJetIDTight") == false) quality_ = JetID::LOOSE ; 
+      else if (params.getParameter<bool>("IsJetIDTight") == true && params.getParameter<bool>("IsJetIDLoose") == false) quality_ = JetID::TIGHT ; 
       else edm::LogError("JetID") << "Ambiguous JetID: Please select only one (LOOSE or TIGHT) as True!!!" ; 
-      retjetid_ = jetID_->getBitTemplate() ;
 
     }
 
-    // 
-    // Accessor from PAT jets
-    // 
-    bool operator()( int & jet, pat::strbitset & ret ) {
-      return true;
+    bool operator()(int & jet, pat::strbitset & ret ) {
+      return true ;  
     }
+
+    bool operator()(int const  & jet, pat::strbitset & ret ) {
+      return true ;  
+    }
+
     using Selector<int>::operator();
 
-    // 
-    // Accessor from *CORRECTED* 4-vector, EMF, and Jet ID. 
-    // This can be used with reco quantities. 
-    // 
-    bool operator()( int const & jet, pat::strbitset & ret ) {
-      return true;
+    bool operator()(JetInfoBranches& jetInfo, int const & jet, pat::strbitset & ret ) {
+      return  firstDataCuts(jetInfo, jet, ret ) ; 
     }
 
-    bool firstDataCuts( const int & jet, pat::strbitset & ret) {
+    bool firstDataCuts(JetInfoBranches& jetInfo,  const int & jet, pat::strbitset & ret) {
+
       ret.set(false);
+      bool isJetID(false) ; 
+      JetID jetID(JetID::FIRSTDATA,quality_, jetInfo) ; 
+      pat::strbitset retjetid = jetID.getBitTemplate() ;
+      retjetid.set(false) ;
+      if (jetID(jetInfo, jet,retjetid) != 0) isJetID = true ;
 
-      double jetPt         = jetInfo_.Pt[jet];
-      double jetEta        = jetInfo_.Eta[jet];
-      double jetCSVDisc    = jetInfo_.CombinedSVBJetTags[jet]; 
-      JetID id(*jetID_) ;
-      retjetid_.set(false);
-      bool   jetid         = id(jet, retjetid_) ; 
+      if (isJetID == false) return false ; 
 
-      if ( ignoreCut(indexjetPtMin_)            || jetPt > cut(indexjetPtMin_, int() ) ) passCut( ret ,indexjetPtMin_) ;
-      if ( ignoreCut(indexjetPtMax_)            || jetPt < cut(indexjetPtMax_, int() ) ) passCut( ret ,indexjetPtMax_) ;
-      if ( ignoreCut(indexjetAbsEtaMax_)        || jetEta < cut(indexjetAbsEtaMax_, int() ) ) passCut( ret ,indexjetAbsEtaMax_) ;
-      if ( ignoreCut(indexIsJetIDLoose_)        || jetid == cut(indexIsJetIDLoose_, int() ) ) passCut( ret ,indexIsJetIDLoose_) ; 
-      if ( ignoreCut(indexIsJetIDTight_)        || jetid == cut(indexIsJetIDTight_, int() ) ) passCut( ret ,indexIsJetIDTight_) ; 
+      double jetPt         = jetInfo.Pt[jet];
+      double jetAbsEta     = std::abs(jetInfo.Eta[jet]);
+      double jetCSVDisc    = jetInfo.CombinedSVBJetTags[jet]; 
 
-      if (jettype_ == BTAGGEDAK5JET) {
-        if ( ignoreCut(indexjetCSVDiscMin_)       || jetCSVDisc > cut(indexjetCSVDiscMin_, int() ) ) passCut( ret ,indexjetCSVDiscMin_) ;
-        if ( ignoreCut(indexjetCSVDiscMax_)       || jetCSVDisc < cut(indexjetCSVDiscMax_, int() ) ) passCut( ret ,indexjetCSVDiscMax_) ;
-      }
+      if ( ignoreCut(indexjetPtMin_)        || jetPt > cut(indexjetPtMin_, double() ) ) passCut( ret ,indexjetPtMin_) ; 
+      if ( ignoreCut(indexjetPtMax_)        || jetPt < cut(indexjetPtMax_, double() ) ) passCut( ret ,indexjetPtMax_) ; 
+      if ( ignoreCut(indexjetAbsEtaMax_)    || jetAbsEta < cut(indexjetAbsEtaMax_, double() ) ) passCut( ret ,indexjetAbsEtaMax_) ; 
+
+      if ( ignoreCut(indexjetCSVDiscMin_) || jetCSVDisc > cut(indexjetCSVDiscMin_, double() ) ) passCut( ret ,indexjetCSVDiscMin_) ;
+      if ( ignoreCut(indexjetCSVDiscMax_) || jetCSVDisc < cut(indexjetCSVDiscMax_, double() ) ) passCut( ret ,indexjetCSVDiscMax_) ;
 
       setIgnored( ret ) ; 
       return (bool)ret ; 
@@ -103,18 +99,16 @@ class JetSelector : public Selector<int> {
   private:
 
     JETTYPES_t jettype_ ; 
-    JetInfoBranches jetInfo_ ; 
 
     JetID* jetID_ ; 
     pat::strbitset retjetid_ ; 
+    JetID::Quality_t quality_; 
 
     index_type indexjetPtMin_ ;
     index_type indexjetPtMax_ ;
     index_type indexjetAbsEtaMax_ ;
     index_type indexjetCSVDiscMin_; 
     index_type indexjetCSVDiscMax_; 
-    index_type indexIsJetIDLoose_ ; 
-    index_type indexIsJetIDTight_ ; 
 
 };
 

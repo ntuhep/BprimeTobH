@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 from BpbH.BprimeTobH.FatJetSelector_cfi import * 
 
 defaultBTaggedFatJetSelectionParameters = defaultFatJetSelectionParameters.clone(
-    jettype             = cms.string('BTAGGEDFATJET'), 
+    jettype             = cms.string('BTAGGEDCA8JET'), 
     fatJetCSVDiscMin    = cms.double(0.244), 
     fatJetCSVDiscMax    = cms.double(1.000), 
     subjet1CSVDiscMin   = cms.double(0.000),
