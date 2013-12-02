@@ -8,7 +8,7 @@
 class VertexSelector {
   public:
 
-    VertexSelector (VertexInfoBranches& VtxInfo) {
+    VertexSelector (const VertexInfoBranches& VtxInfo) {
       for (int ivtx = 0; ivtx < VtxInfo.Size; ++ivtx) { 
         Vertex vtx(VtxInfo, ivtx) ; 
         vertices_.push_back(vtx) ; 

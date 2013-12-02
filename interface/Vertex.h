@@ -7,7 +7,7 @@ class Vertex {
 
   public:
 
-    Vertex(VertexInfoBranches& VtxInfo, int& VtxIndex) :
+    Vertex(const VertexInfoBranches& VtxInfo, const int& VtxIndex) :
       isValid_(VtxInfo.isValid[VtxIndex]), 
       isFake_(VtxInfo.isFake[VtxIndex]),  
       Type_(VtxInfo.Type[VtxIndex]),    //0 - Offline Primary Vertices, 1 - Offline Primary Vertices with beam spot constraint, 2 - Pixel Vertices
