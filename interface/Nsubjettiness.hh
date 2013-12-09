@@ -24,7 +24,6 @@
 //      59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //----------------------------------------------------------------------
 
-
 #ifndef __NSUBJETTINESS_HH__
 #define __NSUBJETTINESS_HH__
 
@@ -62,6 +61,10 @@ private:
    mutable Njettiness _njettinessFinder; // should muck with this so result can be const without this mutable
 
 };
+
+#endif
+
+#ifdef __NSUBJETTINESS_HH__ 
 
 inline Nsubjettiness::Nsubjettiness(int N, Njettiness::AxesMode mode, double beta, double R0, double Rcutoff)
   : _N(N), _njettinessFinder(mode, NsubParameters(beta, R0, Rcutoff))

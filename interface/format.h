@@ -704,9 +704,5 @@ class JetInfoBranches {
 
 };
 
-
-
-
-
 #endif
 

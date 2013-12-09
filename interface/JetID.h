@@ -1,7 +1,6 @@
 #ifndef BPRIMETOBH_INTERFACE_JETID_H
 #define BPRIMETOBH_INTERFACE_JETID_H
 
-#include "DataFormats/PatCandidates/interface/Jet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "PhysicsTools/SelectorUtils/interface/Selector.h"
 #include "BpbH/BprimeTobH/interface/format.h"

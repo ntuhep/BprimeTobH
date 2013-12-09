@@ -24,10 +24,8 @@
 //      59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //----------------------------------------------------------------------
 
-
 #ifndef __NJETTINESS_HH__
 #define __NJETTINESS_HH__
-
 
 #include "fastjet/PseudoJet.hh"
 #include "fastjet/ClusterSequence.hh"
@@ -728,6 +726,10 @@ public:
    std::vector<fastjet::PseudoJet> getJets(const std::vector<fastjet::PseudoJet> & inputJets);
 
 };
+
+#endif
+
+#ifdef __NJETTINESS_HH__ 
 
 void Njettiness::establishTaus(const std::vector <fastjet::PseudoJet> & inputs) {
    //subTau values
