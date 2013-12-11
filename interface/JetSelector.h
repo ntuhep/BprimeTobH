@@ -5,9 +5,11 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "PhysicsTools/SelectorUtils/interface/Selector.h"
 #include "BpbH/BprimeTobH/interface/format.h"
+#include "BpbH/BprimeTobH/interface/JetCollection.h"
 #include "BpbH/BprimeTobH/interface/JetID.h"
 #include <boost/algorithm/string.hpp>
 #include <string>
+#include <TLorentzVector.h>
 
 class JetSelector : public Selector<int> {
   public:
@@ -66,8 +68,15 @@ class JetSelector : public Selector<int> {
 
     using Selector<int>::operator();
 
+    bool operator()(JetInfoBranches& jetInfo, int const & jet, JetCollection& fatjets, pat::strbitset & ret ) {
+      if ( firstDataCuts(jetInfo, jet, ret ) ) {
+        return noJetFatJetOverlap (jetInfo, jet, fatjets) ;
+      }
+      else return firstDataCuts(jetInfo, jet, ret ) ; 
+    }
+
     bool operator()(JetInfoBranches& jetInfo, int const & jet, pat::strbitset & ret ) {
-      return  firstDataCuts(jetInfo, jet, ret ) ; 
+      return firstDataCuts(jetInfo, jet, ret ) ; 
     }
 
     bool firstDataCuts(JetInfoBranches& jetInfo,  const int & jet, pat::strbitset & ret) {
@@ -97,6 +106,19 @@ class JetSelector : public Selector<int> {
     }
 
   private:
+
+    bool noJetFatJetOverlap (JetInfoBranches& jetInfo, int jet, JetCollection& fatjets) { 
+      bool noJetOverlap(true) ; 
+      TLorentzVector jet_p4;
+      jet_p4.SetPtEtaPhiM(jetInfo.Pt[jet], jetInfo.Eta[jet], jetInfo.Phi[jet], jetInfo.Mass[jet]); 
+      for (JetCollection::const_iterator ifatjet = fatjets.begin(); ifatjet != fatjets.end(); ++ifatjet) {
+        TLorentzVector fatjet_p4 ; 
+        fatjet_p4.SetPtEtaPhiM(ifatjet->Pt(), ifatjet->Eta(), ifatjet->Phi(), ifatjet->Mass());  
+        if (jet_p4.DeltaR(fatjet_p4) < 1.2) noJetOverlap = false ; 
+        break ; 
+      }
+      return noJetOverlap ; 
+    }
 
     JETTYPES_t jettype_ ; 
 

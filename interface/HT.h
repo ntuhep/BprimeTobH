@@ -17,6 +17,8 @@ class HT {
 
     void setJetCollection (JetCollection& JetColl) { vJets_.push_back(JetColl) ; } 
 
+    void clearJetCollections() {vJets_.clear() ; HT_ = 0;} 
+
     void buildHT() { 
 
       if ( vJets_.size() == 0 ) HT_ = 0; 

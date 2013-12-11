@@ -85,6 +85,17 @@ class Jet {
       Jet_FatJetIdx_ = JetInfo.Jet_FatJetIdx[JetIndex];
       Jet_SubJet1Idx_ = JetInfo.Jet_SubJet1Idx[JetIndex];
       Jet_SubJet2Idx_ = JetInfo.Jet_SubJet2Idx[JetIndex];
+
+      IsBtaggedCSVL_ = false ;  
+      IsBtaggedCSVM_ = false ;  
+      IsBtaggedCSVT_ = false ;  
+    }
+
+    void setIsBTagged (std::string& algo, bool& pass) { 
+      if ( algo == "CSVL" ) pass ? IsBtaggedCSVL_ = true : IsBtaggedCSVL_ = false ; 
+      else if ( algo == "CSVM" ) { pass ? IsBtaggedCSVL_ = true , IsBtaggedCSVM_ = true : IsBtaggedCSVM_ = false ; }
+      else if ( algo == "CSVT" ) { pass ? IsBtaggedCSVL_ = true , IsBtaggedCSVM_ = true , IsBtaggedCSVT_ = true : IsBtaggedCSVT_ = false ; } 
+      else edm::LogError("JetBtag") << ">>>>> Wrong algo name given! " ; 
     }
 
     ~Jet () {} ;
@@ -166,6 +177,9 @@ class Jet {
     int Jet_SubJet1Idx() const { return Jet_SubJet1Idx_ ; } 
     int Jet_SubJet2Idx() const { return Jet_SubJet2Idx_ ; } 
 
+    bool IsBtaggedCSVL() const { return IsBtaggedCSVL_ ; }  
+    bool IsBtaggedCSVM() const { return IsBtaggedCSVM_ ; }  
+    bool IsBtaggedCSVT() const { return IsBtaggedCSVT_ ; }  
 
   private:
 
@@ -245,6 +259,10 @@ class Jet {
     int Jet_FatJetIdx_ ;
     int Jet_SubJet1Idx_ ;
     int Jet_SubJet2Idx_ ;
+
+    bool IsBtaggedCSVL_ ;  
+    bool IsBtaggedCSVM_ ;  
+    bool IsBtaggedCSVT_ ;  
 
 };
 
