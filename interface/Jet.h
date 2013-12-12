@@ -1,7 +1,9 @@
 #ifndef BPRIMETOBH_INTERFACE_JET_H
 #define BPRIMETOBH_INTERFACE_JET_H
 
+#include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "BpbH/BprimeTobH/interface/format.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 class Jet {
 
@@ -92,9 +94,9 @@ class Jet {
     }
 
     void setIsBTagged (std::string& algo, bool& pass) { 
-      if ( algo == "CSVL" ) pass ? IsBtaggedCSVL_ = true : IsBtaggedCSVL_ = false ; 
-      else if ( algo == "CSVM" ) { pass ? IsBtaggedCSVL_ = true , IsBtaggedCSVM_ = true : IsBtaggedCSVM_ = false ; }
-      else if ( algo == "CSVT" ) { pass ? IsBtaggedCSVL_ = true , IsBtaggedCSVM_ = true , IsBtaggedCSVT_ = true : IsBtaggedCSVT_ = false ; } 
+      if ( strcmp(algo.c_str(), "CSVL") == 0 ) pass ? IsBtaggedCSVL_ = true : IsBtaggedCSVL_ = false ; 
+      else if ( strcmp(algo.c_str(), "CSVM") == 0 ) { pass ? IsBtaggedCSVL_ = true , IsBtaggedCSVM_ = true : IsBtaggedCSVM_ = false ; }
+      else if ( strcmp(algo.c_str(), "CSVT") == 0 ) { pass ? IsBtaggedCSVL_ = true , IsBtaggedCSVM_ = true , IsBtaggedCSVT_ = true : IsBtaggedCSVT_ = false ; } 
       else edm::LogError("JetBtag") << ">>>>> Wrong algo name given! " ; 
     }
 
