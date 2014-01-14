@@ -31,6 +31,8 @@ class FatJetSelector : public Selector<int> {
       push_back("fatJetPrunedMassMin") ;
       push_back("fatJetPrunedMassMax") ;
       push_back("fatJetTau2ByTau1Max") ;
+      push_back("dRSubjetsMin") ; 
+      push_back("dRSubjetsMax") ; 
       push_back("fatJetCSVDiscMin") ;
       push_back("fatJetCSVDiscMax") ;
       push_back("subjet1CSVDiscMin") ;
@@ -46,6 +48,8 @@ class FatJetSelector : public Selector<int> {
       set("fatJetPrunedMassMin"  ,params.getParameter<double>("fatJetPrunedMassMin") ) ;
       set("fatJetPrunedMassMax"  ,params.getParameter<double>("fatJetPrunedMassMax") ) ;
       set("fatJetTau2ByTau1Max"  ,params.getParameter<double>("fatJetTau2ByTau1Max") ) ;
+      set("dRSubjetsMin"         ,params.getParameter<double>("dRSubjetsMax") ) ;
+      set("dRSubjetsMax"         ,params.getParameter<double>("dRSubjetsMax") ) ;
       if (jettype_ == BTAGGEDCA8JET) {
         set("fatJetCSVDiscMin"     ,params.getParameter<double>("fatJetCSVDiscMin") ,true) ;
         set("fatJetCSVDiscMax"     ,params.getParameter<double>("fatJetCSVDiscMax") ,true) ;
@@ -75,6 +79,8 @@ class FatJetSelector : public Selector<int> {
       indexfatJetPrunedMassMin_ = index_type(&bits_ ,"fatJetPrunedMassMin") ;
       indexfatJetPrunedMassMax_ = index_type(&bits_ ,"fatJetPrunedMassMax") ;
       indexfatJetTau2ByTau1Max_ = index_type(&bits_ ,"fatJetTau2ByTau1Max") ;
+      indexdRSubjetsMin_        = index_type(&bits_ ,"dRSubjetsMin") ;
+      indexdRSubjetsMax_        = index_type(&bits_ ,"dRSubjetsMax") ;
       indexfatJetCSVDiscMin_    = index_type(&bits_ ,"fatJetCSVDiscMin") ;
       indexfatJetCSVDiscMax_    = index_type(&bits_ ,"fatJetCSVDiscMax") ;
       indexsubjet1CSVDiscMin_   = index_type(&bits_ ,"subjet1CSVDiscMin") ;
@@ -137,6 +143,8 @@ class FatJetSelector : public Selector<int> {
       if ( ignoreCut(indexfatJetPrunedMassMin_) || jetMassPruned > cut(indexfatJetPrunedMassMin_, double() ) ) passCut( ret ,indexfatJetPrunedMassMin_) ;
       if ( ignoreCut(indexfatJetPrunedMassMax_) || jetMassPruned < cut(indexfatJetPrunedMassMax_, double() ) ) passCut( ret ,indexfatJetPrunedMassMax_) ;
       if ( ignoreCut(indexfatJetTau2ByTau1Max_) || jetTau2/jetTau1 < cut(indexfatJetTau2ByTau1Max_, double() ) ) passCut( ret ,indexfatJetTau2ByTau1Max_) ;
+      if ( ignoreCut(indexdRSubjetsMin_)        || subjet_dyphi > cut(indexdRSubjetsMin_, double() ) ) passCut( ret, indexdRSubjetsMin_) ; 
+      if ( ignoreCut(indexdRSubjetsMax_)        || subjet_dyphi < cut(indexdRSubjetsMax_, double() ) ) passCut( ret, indexdRSubjetsMax_) ; 
 
       if ( ignoreCut(indexfatJetCSVDiscMin_)  || jetCSVDisc > cut(indexfatJetCSVDiscMin_, double() ) ) passCut( ret ,indexfatJetCSVDiscMin_) ;
       if ( ignoreCut(indexfatJetCSVDiscMax_)  || jetCSVDisc < cut(indexfatJetCSVDiscMax_, double() ) ) passCut( ret ,indexfatJetCSVDiscMax_) ;
@@ -163,6 +171,8 @@ class FatJetSelector : public Selector<int> {
     index_type indexfatJetPrunedMassMin_ ;
     index_type indexfatJetPrunedMassMax_ ;
     index_type indexfatJetTau2ByTau1Max_ ;
+    index_type indexdRSubjetsMin_; 
+    index_type indexdRSubjetsMax_; 
     index_type indexfatJetCSVDiscMin_; 
     index_type indexfatJetCSVDiscMax_; 
     index_type indexsubjet1CSVDiscMin_ ;

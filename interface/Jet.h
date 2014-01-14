@@ -4,10 +4,95 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "BpbH/BprimeTobH/interface/format.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include <boost/algorithm/string.hpp>
 
 class Jet {
 
   public:
+
+    Jet (const Jet& jet) { 
+
+      Et_ = jet.Et() ;
+      Pt_ = jet.Pt() ;
+      Unc_ = jet.Unc() ;
+      Eta_ = jet.Eta() ;
+      Phi_ = jet.Phi() ;
+
+      Energy_ = jet.Energy() ; 
+      Px_ = jet.Px() ;     
+      Py_ = jet.Py() ;     
+      Pz_ = jet.Pz() ;     
+      Mass_ = jet.Mass() ;
+      Area_ = jet.Area() ;
+
+      EtPruned_ = jet.EtPruned() ;            
+      PtPruned_ = jet.PtPruned() ;            
+      UncPruned_ = jet.UncPruned() ;            
+      EtaPruned_ = jet.EtaPruned() ;            
+      PhiPruned_ = jet.PhiPruned() ;             
+
+      EnergyPruned_ = jet.EnergyPruned() ; 
+      PxPruned_ = jet.PxPruned() ; 
+      PyPruned_ = jet.PyPruned() ; 
+      PzPruned_ = jet.PzPruned() ; 
+      MassPruned_ = jet.MassPruned() ; 
+      AreaPruned_ = jet.AreaPruned() ; 
+
+      tau1_ = jet.tau1() ; 
+      tau2_ = jet.tau2() ; 
+      tau3_ = jet.tau3() ; 
+
+      GenJetPt_ = jet.GenJetPt() ;
+      GenJetEta_ = jet.GenJetEta() ;
+      GenJetPhi_ = jet.GenJetPhi() ;
+      GenPt_ = jet.GenPt() ;
+      GenEta_ = jet.GenEta() ;
+      GenPhi_ = jet.GenPhi() ;
+      GenPdgID_ = jet.GenPdgID() ;
+      GenFlavor_ = jet.GenFlavor() ;
+      GenMCTag_ = jet.GenMCTag() ; 
+
+      JetIDLOOSE_ = jet.JetIDLOOSE() ; 
+      JetIDTIGHT_ = jet.JetIDTIGHT() ; 
+      JetCharge_ = jet.JetCharge() ;
+      QGTagsMLP_ = jet.QGTagsMLP() ;
+      QGTagsLikelihood_ = jet.QGTagsLikelihood() ;
+      NConstituents_ = jet.NConstituents() ;
+      NTracks_ = jet.NTracks() ;
+      NCH_ = jet.NCH() ;
+      CEF_ = jet.CEF() ;
+      NHF_ = jet.NHF() ;
+      NEF_ = jet.NEF() ;
+      CHF_ = jet.CHF() ;
+
+      PtCorrRaw_ = jet.PtCorrRaw() ;  
+      PtCorrL2_ = jet.PtCorrL2() ;  
+      PtCorrL3_ = jet.PtCorrL3() ;  
+      PtCorrL7g_ = jet.PtCorrL7g() ;
+      PtCorrL7uds_ = jet.PtCorrL7uds() ;
+      PtCorrL7c_ = jet.PtCorrL7c() ;  
+      PtCorrL7b_ = jet.PtCorrL7b() ;  
+
+      JetBProbBJetTags_ = jet.JetBProbBJetTags() ;
+      JetProbBJetTags_ = jet.JetProbBJetTags() ;
+      TrackCountHiPurBJetTags_ = jet.TrackCountHiPurBJetTags() ;  
+      CombinedSVBJetTags_ = jet.CombinedSVBJetTags() ;
+      CombinedSVMVABJetTags_ = jet.CombinedSVMVABJetTags() ;
+      SoftElecByIP3dBJetTags_ = jet.SoftElecByIP3dBJetTags() ;
+      SoftElecByPtBJetTags_ = jet.SoftElecByPtBJetTags() ;  
+      SoftMuonBJetTags_ = jet.SoftMuonBJetTags() ;      
+      SoftMuonByIP3dBJetTags_ = jet.SoftMuonByIP3dBJetTags() ;
+      SoftMuonByPtBJetTags_ = jet.SoftMuonByPtBJetTags() ;  
+      DoubleSVHighEffBJetTags_ = jet.DoubleSVHighEffBJetTags() ; 
+
+      Jet_FatJetIdx_ = jet.Jet_FatJetIdx() ;
+      Jet_SubJet1Idx_ = jet.Jet_SubJet1Idx() ;
+      Jet_SubJet2Idx_ = jet.Jet_SubJet2Idx() ;
+
+      IsBtaggedCSVL_ = false ;  
+      IsBtaggedCSVM_ = false ;  
+      IsBtaggedCSVT_ = false ;  
+    } 
 
     Jet(JetInfoBranches& JetInfo, int& JetIndex) { 
 
@@ -93,14 +178,95 @@ class Jet {
       IsBtaggedCSVT_ = false ;  
     }
 
-    void setIsBTagged (std::string& algo, bool& pass) { 
-      if ( strcmp(algo.c_str(), "CSVL") == 0 ) pass ? IsBtaggedCSVL_ = true : IsBtaggedCSVL_ = false ; 
-      else if ( strcmp(algo.c_str(), "CSVM") == 0 ) { pass ? IsBtaggedCSVL_ = true , IsBtaggedCSVM_ = true : IsBtaggedCSVM_ = false ; }
-      else if ( strcmp(algo.c_str(), "CSVT") == 0 ) { pass ? IsBtaggedCSVL_ = true , IsBtaggedCSVM_ = true , IsBtaggedCSVT_ = true : IsBtaggedCSVT_ = false ; } 
+    ~Jet () {} ;
+
+    void Set_Et( float Et ) { Et_ = Et ; } 
+    void Set_Pt( float Pt ) { Pt_ = Pt ; } 
+    void Set_Unc( float Unc ) { Unc_ = Unc ; } 
+    void Set_Eta( float Eta ) { Eta_ = Eta ; } 
+    void Set_Phi( float Phi ) { Phi_ = Phi ; } 
+
+    void Set_Energy( float Energy ) { Energy_ = Energy ; }  
+    void Set_Px( float Px ) { Px_ = Px ; }      
+    void Set_Py( float Py ) { Py_ = Py ; }      
+    void Set_Pz( float Pz ) { Pz_ = Pz ; }      
+    void Set_Mass( float Mass ) { Mass_ = Mass ; } 
+    void Set_Area( float Area ) { Area_ = Area ; } 
+
+    void Set_EtPruned( float EtPruned ) { EtPruned_ = EtPruned ; }             
+    void Set_PtPruned( float PtPruned ) { PtPruned_ = PtPruned ; }             
+    void Set_UncPruned( float UncPruned ) { UncPruned_ = UncPruned ; }             
+    void Set_EtaPruned( float EtaPruned ) { EtaPruned_ = EtaPruned ; }             
+    void Set_PhiPruned( float PhiPruned ) { PhiPruned_ = PhiPruned ; }              
+
+    void Set_EnergyPruned( float EnergyPruned ) { EnergyPruned_ = EnergyPruned ; }  
+    void Set_PxPruned( float PxPruned ) { PxPruned_ = PxPruned ; }  
+    void Set_PyPruned( float PyPruned ) { PyPruned_ = PyPruned ; }  
+    void Set_PzPruned( float PzPruned ) { PzPruned_ = PzPruned ; }  
+    void Set_MassPruned( float MassPruned ) { MassPruned_ = MassPruned ; }  
+    void Set_AreaPruned( float AreaPruned ) { AreaPruned_ = AreaPruned ; }  
+
+    void Set_tau1( float tau1 ) { tau1_ = tau1 ; }  
+    void Set_tau2( float tau2 ) { tau2_ = tau2 ; }  
+    void Set_tau3( float tau3 ) { tau3_ = tau3 ; }  
+
+    void Set_GenJetPt( float GenJetPt ) { GenJetPt_ = GenJetPt ; } 
+    void Set_GenJetEta( float GenJetEta ) { GenJetEta_ = GenJetEta ; } 
+    void Set_GenJetPhi( float GenJetPhi ) { GenJetPhi_ = GenJetPhi ; } 
+    void Set_GenPt( float GenPt ) { GenPt_ = GenPt ; } 
+    void Set_GenEta( float GenEta ) { GenEta_ = GenEta ; } 
+    void Set_GenPhi( float GenPhi ) { GenPhi_ = GenPhi ; } 
+    void Set_GenPdgID( int     GenPdgID ) {   GenPdgID_ =   GenPdgID ; } 
+    void Set_GenFlavor( int     GenFlavor ) {   GenFlavor_ =   GenFlavor ; } 
+    void Set_GenMCTag( int     GenMCTag ) {   GenMCTag_ =   GenMCTag ; }  
+
+    void Set_JetIDLOOSE( bool   JetIDLOOSE ) {  JetIDLOOSE_ =  JetIDLOOSE ; }  
+    void Set_JetIDTIGHT( bool   JetIDTIGHT ) {  JetIDTIGHT_ =  JetIDTIGHT ; }  
+    void Set_JetCharge( float JetCharge ) { JetCharge_ = JetCharge ; } 
+    void Set_QGTagsMLP( float QGTagsMLP ) { QGTagsMLP_ = QGTagsMLP ; } 
+    void Set_QGTagsLikelihood( float QGTagsLikelihood ) { QGTagsLikelihood_ = QGTagsLikelihood ; } 
+    void Set_NConstituents( int     NConstituents ) {   NConstituents_ =   NConstituents ; } 
+    void Set_NTracks( int     NTracks ) {   NTracks_ =   NTracks ; } 
+    void Set_NCH( int     NCH ) {   NCH_ =   NCH ; } 
+    void Set_CEF( float CEF ) { CEF_ = CEF ; } 
+    void Set_NHF( float NHF ) { NHF_ = NHF ; } 
+    void Set_NEF( float NEF ) { NEF_ = NEF ; } 
+    void Set_CHF( float CHF ) { CHF_ = CHF ; } 
+
+    void Set_PtCorrRaw( float PtCorrRaw ) { PtCorrRaw_ = PtCorrRaw ; }   
+    void Set_PtCorrL2( float PtCorrL2 ) { PtCorrL2_ = PtCorrL2 ; }   
+    void Set_PtCorrL3( float PtCorrL3 ) { PtCorrL3_ = PtCorrL3 ; }   
+    void Set_PtCorrL7g( float PtCorrL7g ) { PtCorrL7g_ = PtCorrL7g ; } 
+    void Set_PtCorrL7uds( float PtCorrL7uds ) { PtCorrL7uds_ = PtCorrL7uds ; } 
+    void Set_PtCorrL7c( float PtCorrL7c ) { PtCorrL7c_ = PtCorrL7c ; }   
+    void Set_PtCorrL7b( float PtCorrL7b ) { PtCorrL7b_ = PtCorrL7b ; }   
+
+    void Set_JetBProbBJetTags( float JetBProbBJetTags ) { JetBProbBJetTags_ = JetBProbBJetTags ; } 
+    void Set_JetProbBJetTags( float JetProbBJetTags ) { JetProbBJetTags_ = JetProbBJetTags ; } 
+    void Set_TrackCountHiPurBJetTags( float TrackCountHiPurBJetTags ) { TrackCountHiPurBJetTags_ = TrackCountHiPurBJetTags ; }   
+    void Set_CombinedSVBJetTags( float CombinedSVBJetTags ) { CombinedSVBJetTags_ = CombinedSVBJetTags ; } 
+    void Set_CombinedSVMVABJetTags( float CombinedSVMVABJetTags ) { CombinedSVMVABJetTags_ = CombinedSVMVABJetTags ; } 
+    void Set_SoftElecByIP3dBJetTags( float SoftElecByIP3dBJetTags ) { SoftElecByIP3dBJetTags_ = SoftElecByIP3dBJetTags ; } 
+    void Set_SoftElecByPtBJetTags( float SoftElecByPtBJetTags ) { SoftElecByPtBJetTags_ = SoftElecByPtBJetTags ; }   
+    void Set_SoftMuonBJetTags( float SoftMuonBJetTags ) { SoftMuonBJetTags_ = SoftMuonBJetTags ; }       
+    void Set_SoftMuonByIP3dBJetTags( float SoftMuonByIP3dBJetTags ) { SoftMuonByIP3dBJetTags_ = SoftMuonByIP3dBJetTags ; } 
+    void Set_SoftMuonByPtBJetTags( float SoftMuonByPtBJetTags ) { SoftMuonByPtBJetTags_ = SoftMuonByPtBJetTags ; }   
+    void Set_DoubleSVHighEffBJetTags( float DoubleSVHighEffBJetTags ) { DoubleSVHighEffBJetTags_ = DoubleSVHighEffBJetTags ; }  
+
+    void Set_Jet_FatJetIdx( int Jet_FatJetIdx ) { Jet_FatJetIdx_ = Jet_FatJetIdx ; } 
+    void Set_Jet_SubJet1Idx( int Jet_SubJet1Idx ) { Jet_SubJet1Idx_ = Jet_SubJet1Idx ; } 
+    void Set_Jet_SubJet2Idx( int Jet_SubJet2Idx ) { Jet_SubJet2Idx_ = Jet_SubJet2Idx ; } 
+
+    void Set_IsBtaggedCSVL( bool IsBtaggedCSVL ) { IsBtaggedCSVL_ = IsBtaggedCSVL ; }  
+    void Set_IsBtaggedCSVM( bool IsBtaggedCSVM ) { IsBtaggedCSVM_ = IsBtaggedCSVM ; }  
+    void Set_IsBtaggedCSVT( bool IsBtaggedCSVT ) { IsBtaggedCSVT_ = IsBtaggedCSVT ; }  
+
+    void setIsBTagged (std::string algo, bool pass) { 
+      if ( boost::iequals(algo, "CSVL") ) pass ? IsBtaggedCSVL_ = true : IsBtaggedCSVL_ = false ; 
+      else if ( boost::iequals(algo, "CSVM") ) { pass ? IsBtaggedCSVL_ = true , IsBtaggedCSVM_ = true : IsBtaggedCSVM_ = false ; }
+      else if ( boost::iequals(algo, "CSVT") ) { pass ? IsBtaggedCSVL_ = true , IsBtaggedCSVM_ = true , IsBtaggedCSVT_ = true : IsBtaggedCSVT_ = false ; } 
       else edm::LogError("JetBtag") << ">>>>> Wrong algo name given! " ; 
     }
-
-    ~Jet () {} ;
 
     float Et() const { return Et_ ; } 
     float Pt() const { return Pt_ ; } 
