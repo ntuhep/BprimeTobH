@@ -48,7 +48,7 @@ class FatJetSelector : public Selector<int> {
       set("fatJetPrunedMassMin"  ,params.getParameter<double>("fatJetPrunedMassMin") ) ;
       set("fatJetPrunedMassMax"  ,params.getParameter<double>("fatJetPrunedMassMax") ) ;
       set("fatJetTau2ByTau1Max"  ,params.getParameter<double>("fatJetTau2ByTau1Max") ) ;
-      set("dRSubjetsMin"         ,params.getParameter<double>("dRSubjetsMax") ) ;
+      set("dRSubjetsMin"         ,params.getParameter<double>("dRSubjetsMin") ) ;
       set("dRSubjetsMax"         ,params.getParameter<double>("dRSubjetsMax") ) ;
       if (jettype_ == BTAGGEDCA8JET) {
         set("fatJetCSVDiscMin"     ,params.getParameter<double>("fatJetCSVDiscMin") ,true) ;
@@ -138,6 +138,9 @@ class FatJetSelector : public Selector<int> {
 
       if ( subjet_dyphi < jetMass/jetPt ) return false ; 
 
+      if ( ignoreCut(indexfatJetPtMin_)         || jetMass > cut(indexfatJetPtMin_, double() ) ) passCut( ret ,indexfatJetPtMin_) ;
+      if ( ignoreCut(indexfatJetPtMax_)         || jetMass < cut(indexfatJetPtMax_, double() ) ) passCut( ret ,indexfatJetPtMax_) ;
+      if ( ignoreCut(indexfatJetAbsEtaMax_)     || jetMass < cut(indexfatJetAbsEtaMax_, double() ) ) passCut( ret ,indexfatJetAbsEtaMax_) ;
       if ( ignoreCut(indexfatJetMassMin_)       || jetMass > cut(indexfatJetMassMin_, double() ) ) passCut( ret ,indexfatJetMassMin_) ;
       if ( ignoreCut(indexfatJetMassMax_)       || jetMass < cut(indexfatJetMassMax_, double() ) ) passCut( ret ,indexfatJetMassMax_) ;
       if ( ignoreCut(indexfatJetPrunedMassMin_) || jetMassPruned > cut(indexfatJetPrunedMassMin_, double() ) ) passCut( ret ,indexfatJetPrunedMassMin_) ;
