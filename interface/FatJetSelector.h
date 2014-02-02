@@ -118,6 +118,7 @@ class FatJetSelector : public Selector<int> {
       if (isJetSel == false) return false ; 
 
       double jetPt         = jetInfo.Pt[jet];
+      double jetAbsEta     = std::abs(jetInfo.Eta[jet]); //Alpha : Add
       double jetMass       = jetInfo.Mass[jet];
       double jetMassPruned = jetInfo.MassPruned[jet];
       double jetTau1       = jetInfo.tau1[jet];
@@ -138,9 +139,9 @@ class FatJetSelector : public Selector<int> {
 
       if ( subjet_dyphi < jetMass/jetPt ) return false ; 
 
-      if ( ignoreCut(indexfatJetPtMin_)         || jetMass > cut(indexfatJetPtMin_, double() ) ) passCut( ret ,indexfatJetPtMin_) ;
-      if ( ignoreCut(indexfatJetPtMax_)         || jetMass < cut(indexfatJetPtMax_, double() ) ) passCut( ret ,indexfatJetPtMax_) ;
-      if ( ignoreCut(indexfatJetAbsEtaMax_)     || jetMass < cut(indexfatJetAbsEtaMax_, double() ) ) passCut( ret ,indexfatJetAbsEtaMax_) ;
+      if ( ignoreCut(indexfatJetPtMin_)         || jetPt > cut(indexfatJetPtMin_, double() ) ) passCut( ret ,indexfatJetPtMin_) ; // Alpha: jetMass -> jetPt
+      if ( ignoreCut(indexfatJetPtMax_)         || jetPt < cut(indexfatJetPtMax_, double() ) ) passCut( ret ,indexfatJetPtMax_) ; // Alpha: jetMass -> jetPt
+      if ( ignoreCut(indexfatJetAbsEtaMax_)     || jetAbsEta < cut(indexfatJetAbsEtaMax_, double() ) ) passCut( ret ,indexfatJetAbsEtaMax_) ; // Alpha: jetMass -> jetAbsEta
       if ( ignoreCut(indexfatJetMassMin_)       || jetMass > cut(indexfatJetMassMin_, double() ) ) passCut( ret ,indexfatJetMassMin_) ;
       if ( ignoreCut(indexfatJetMassMax_)       || jetMass < cut(indexfatJetMassMax_, double() ) ) passCut( ret ,indexfatJetMassMax_) ;
       if ( ignoreCut(indexfatJetPrunedMassMin_) || jetMassPruned > cut(indexfatJetPrunedMassMin_, double() ) ) passCut( ret ,indexfatJetPrunedMassMin_) ;
