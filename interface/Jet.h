@@ -6,9 +6,13 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <boost/algorithm/string.hpp>
 
+#include <TLorentzVector.h>
+
 class Jet {
 
   public:
+
+    Jet () {} 
 
     Jet (const Jet& jet) { 
 
@@ -179,6 +183,21 @@ class Jet {
     }
 
     ~Jet () {} ;
+
+    TLorentzVector p4 () const {
+      TLorentzVector p4thisjet ; 
+      p4thisjet.SetPtEtaPhiM(this->Pt(), this->Eta(), this->Phi(), this->Mass()) ; 
+      return p4thisjet ; 
+    }
+
+    double DeltaR (const Jet& jet2) const { 
+      TLorentzVector p4thisjet, p4jet2 ;
+      p4thisjet.SetPtEtaPhiM(this->Pt(), this->Eta(), this->Phi(), this->Mass()) ; 
+      p4jet2.SetPtEtaPhiM(jet2.Pt(), jet2.Eta(), jet2.Phi(), jet2.Mass()) ; 
+      double deltaY = p4thisjet.Rapidity() - p4jet2.Rapidity() ;
+      double deltaPhi = p4thisjet.DeltaPhi(p4jet2) ;
+      return sqrt( (deltaY*deltaY) + (deltaPhi*deltaPhi) ) ; 
+    }
 
     void Set_Et( float Et ) { Et_ = Et ; } 
     void Set_Pt( float Pt ) { Pt_ = Pt ; } 

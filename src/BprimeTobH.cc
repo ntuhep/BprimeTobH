@@ -739,7 +739,7 @@ void BprimeTobH::processJets(const edm::Handle<PatJetCollection>& jetsColl,
         const reco::GenJet * genjet = it_jet->genJet();
         JetInfo[icoll].GenJetPt [JetInfo[icoll].Size] = genjet->pt();
         JetInfo[icoll].GenJetEta[JetInfo[icoll].Size] = genjet->eta();
-        JetInfo[icoll].GenJetPhi[JetInfo[icoll].Size] = genjet->eta();
+        JetInfo[icoll].GenJetPhi[JetInfo[icoll].Size] = genjet->phi();
         const reco::GenParticle* parton = it_jet->genParton();
         const reco::Candidate* genCand = parton;
         int qpTag(0) ;
