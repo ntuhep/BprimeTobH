@@ -17,9 +17,9 @@ defaultFatJetSelectionParameters = cms.PSet(
     dRSubjetsMax        = cms.double(0.8), 
     fatJetCSVDiscMin    = cms.double(-10000.), 
     fatJetCSVDiscMax    = cms.double(1.000), 
-    subjet1CSVDiscMin   = cms.double(0.000),
+    subjet1CSVDiscMin   = cms.double(-10000),
     subjet1CSVDiscMax   = cms.double(1.000),
-    subjet2CSVDiscMin   = cms.double(0.000),
+    subjet2CSVDiscMin   = cms.double(-10000.), 
     subjet2CSVDiscMax   = cms.double(1.000),
     )
 

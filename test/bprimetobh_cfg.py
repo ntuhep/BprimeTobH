@@ -42,7 +42,7 @@ process.load("FWCore.MessageService.MessageLogger_cfi")
 #		)
 
 #process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(options.maxEvents) )
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(1000) )
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
 
 process.options = cms.untracked.PSet(
 		SkipEvent = cms.untracked.vstring('ProductNotFound')
@@ -52,18 +52,15 @@ process.options = cms.untracked.PSet(
 process.TFileService = cms.Service(
 		"TFileService",
     #fileName = cms.string('root://eoscms//eos/cms/store/user/devdatta/NtuplesBprimeTobH_v1/SingleBprimeTobH_v1.root')
-    fileName = cms.string('SingleBprimeTobH_v1.root')
+    fileName = cms.string('bprimeTobH.root')
 )
 
-from inputfiles_cfi import * 
+from inputFiles_cfi import * 
 
 process.source = cms.Source(
 		"PoolSource",
 		fileNames = cms.untracked.vstring(
-      #'file:tlbsm_53x_v3_mc.root'
-      'root://eoscms//eos/cms/store/user/devdatta/BprimeToBHinc_M-1000_8TeV-madgraph/Summer12_DR53X-PU_S10_START53_V19-v1_TLBSM_53x_v3/tlbsm_53x_v3_mc_3_1_MsY.root'
-    #  'dcache:/pnfs/cms/WAX/11/store/user/lpctlbsm/yxin/Jet/Run2012A-22Jan2013-v1_TLBSM_53x_v3/45cbb6c27540456f7aaf244304c73a89/tlbsm_53x_v3_data_13_1_7EQ.root' 
-      #FileNames
+      FileNames
       ), 
 		)
 
