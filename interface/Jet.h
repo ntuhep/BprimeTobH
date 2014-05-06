@@ -16,6 +16,7 @@ class Jet {
 
     Jet (const Jet& jet) { 
 
+      Index_ = jet.Index(); //Alpha
       Et_ = jet.Et() ;
       Pt_ = jet.Pt() ;
       Unc_ = jet.Unc() ;
@@ -100,6 +101,7 @@ class Jet {
 
     Jet(JetInfoBranches& JetInfo, int& JetIndex) { 
 
+      Index_ = JetIndex; //Alpha
       Et_ = JetInfo.Et[JetIndex];
       Pt_ = JetInfo.Pt[JetIndex];
       Unc_ = JetInfo.Unc[JetIndex];
@@ -198,7 +200,15 @@ class Jet {
       double deltaPhi = p4thisjet.DeltaPhi(p4jet2) ;
       return sqrt( (deltaY*deltaY) + (deltaPhi*deltaPhi) ) ; 
     }
+    double DeltaR (const TLorentzVector& p4jet2) const { //Alpha
+      TLorentzVector p4thisjet ;
+      p4thisjet.SetPtEtaPhiM(this->Pt(), this->Eta(), this->Phi(), this->Mass()) ; 
+      double deltaY = p4thisjet.Rapidity() - p4jet2.Rapidity() ;
+      double deltaPhi = p4thisjet.DeltaPhi(p4jet2) ;
+      return sqrt( (deltaY*deltaY) + (deltaPhi*deltaPhi) ) ; 
+    }
 
+    void Set_Index( int Index ){ Index_ = Index; } //Alpha
     void Set_Et( float Et ) { Et_ = Et ; } 
     void Set_Pt( float Pt ) { Pt_ = Pt ; } 
     void Set_Unc( float Unc ) { Unc_ = Unc ; } 
@@ -287,6 +297,7 @@ class Jet {
       else edm::LogError("JetBtag") << ">>>>> Wrong algo name given! " ; 
     }
 
+    int Index() const { return Index_; }
     float Et() const { return Et_ ; } 
     float Pt() const { return Pt_ ; } 
     float Unc() const { return Unc_ ; } 
@@ -370,6 +381,7 @@ class Jet {
 
   private:
 
+    int Index_;
     float Et_ ;
     float Pt_ ;
     float Unc_ ;
