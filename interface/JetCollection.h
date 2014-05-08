@@ -4,8 +4,6 @@
 #include <vector>
 #include "BpbH/BprimeTobH/interface/Jet.h"
 
-typedef std::vector<Jet> JetCollection ; 
-
 class MakeJetInfoBranches {
 
   public: 
