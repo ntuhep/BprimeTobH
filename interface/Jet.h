@@ -8,10 +8,6 @@
 
 #include <TLorentzVector.h>
 
-class Jet ; 
-
-typedef std::vector<Jet> JetCollection ; 
-
 class Jet {
 
   public:
@@ -102,7 +98,7 @@ class Jet {
       IsBtaggedCSVT_ = false ;  
     } 
 
-    Jet(const JetInfoBranches JetInfo, const int JetIndex) { 
+    Jet(JetInfoBranches& JetInfo, int& JetIndex) { 
 
       Et_ = JetInfo.Et[JetIndex];
       Pt_ = JetInfo.Pt[JetIndex];
@@ -201,23 +197,6 @@ class Jet {
       double deltaY = p4thisjet.Rapidity() - p4jet2.Rapidity() ;
       double deltaPhi = p4thisjet.DeltaPhi(p4jet2) ;
       return sqrt( (deltaY*deltaY) + (deltaPhi*deltaPhi) ) ; 
-    }
-
-    const Jet* NearestJet(const JetCollection jets) const {
-      const Jet* nearestJet = 0; 
-      if ( jets.size() == 0 ) {
-        edm::LogError("BackgroundEstimationABCD::NearestJet") << ">>>> JetCollection size is 0 !!!!" ; 
-      }
-      else {
-        for( JetCollection::const_iterator ijet = jets.begin(); ijet != jets.end(); ++ijet ){
-          double DR_min(1000.) ; 
-          if( this->DeltaR(*ijet) < DR_min){
-            DR_min = this->DeltaR(*ijet);
-            nearestJet = &(*ijet);
-          }
-        }
-      }
-      return nearestJet ; 
     }
 
     void Set_Et( float Et ) { Et_ = Et ; } 
