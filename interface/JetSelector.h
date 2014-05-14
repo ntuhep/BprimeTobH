@@ -98,8 +98,8 @@ class JetSelector : public Selector<int> {
       if ( ignoreCut(indexjetPtMax_)        || jetPt < cut(indexjetPtMax_, double() ) ) passCut( ret ,indexjetPtMax_) ; 
       if ( ignoreCut(indexjetAbsEtaMax_)    || jetAbsEta < cut(indexjetAbsEtaMax_, double() ) ) passCut( ret ,indexjetAbsEtaMax_) ; 
 
-      if ( ignoreCut(indexjetCSVDiscMin_) || jetCSVDisc > cut(indexjetCSVDiscMin_, double() ) ) passCut( ret ,indexjetCSVDiscMin_) ;
-      if ( ignoreCut(indexjetCSVDiscMax_) || jetCSVDisc < cut(indexjetCSVDiscMax_, double() ) ) passCut( ret ,indexjetCSVDiscMax_) ;
+      if ( ignoreCut(indexjetCSVDiscMin_) || jetCSVDisc >  cut(indexjetCSVDiscMin_, double() ) ) passCut( ret ,indexjetCSVDiscMin_) ;
+      if ( ignoreCut(indexjetCSVDiscMax_) || jetCSVDisc <= cut(indexjetCSVDiscMax_, double() ) ) passCut( ret ,indexjetCSVDiscMax_) ;
 
       setIgnored( ret ) ; 
       return (bool)ret ; 
