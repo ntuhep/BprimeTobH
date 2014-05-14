@@ -150,12 +150,12 @@ class FatJetSelector : public Selector<int> {
       if ( ignoreCut(indexdRSubjetsMax_)        || subjet_dyphi < cut(indexdRSubjetsMax_, double() ) ) passCut( ret, indexdRSubjetsMax_) ; 
 
       if ( ignoreCut(indexfatJetCSVDiscMin_)  || jetCSVDisc > cut(indexfatJetCSVDiscMin_, double() ) ) passCut( ret ,indexfatJetCSVDiscMin_) ;
-      if ( ignoreCut(indexfatJetCSVDiscMax_)  || jetCSVDisc < cut(indexfatJetCSVDiscMax_, double() ) ) passCut( ret ,indexfatJetCSVDiscMax_) ;
+      if ( ignoreCut(indexfatJetCSVDiscMax_)  || jetCSVDisc <= cut(indexfatJetCSVDiscMax_, double() ) ) passCut( ret ,indexfatJetCSVDiscMax_) ;
 
       if ( ignoreCut(indexsubjet1CSVDiscMin_) || subjet1CSVDisc > cut(indexsubjet1CSVDiscMin_, double() ) ) passCut( ret ,indexsubjet1CSVDiscMin_) ;
-      if ( ignoreCut(indexsubjet1CSVDiscMax_) || subjet1CSVDisc < cut(indexsubjet1CSVDiscMax_, double() ) ) passCut( ret ,indexsubjet1CSVDiscMax_) ;
+      if ( ignoreCut(indexsubjet1CSVDiscMax_) || subjet1CSVDisc <= cut(indexsubjet1CSVDiscMax_, double() ) ) passCut( ret ,indexsubjet1CSVDiscMax_) ;
       if ( ignoreCut(indexsubjet2CSVDiscMin_) || subjet2CSVDisc > cut(indexsubjet2CSVDiscMin_, double() ) ) passCut( ret ,indexsubjet2CSVDiscMin_) ;
-      if ( ignoreCut(indexsubjet2CSVDiscMax_) || subjet2CSVDisc < cut(indexsubjet2CSVDiscMax_, double() ) ) passCut( ret ,indexsubjet2CSVDiscMax_) ;
+      if ( ignoreCut(indexsubjet2CSVDiscMax_) || subjet2CSVDisc <= cut(indexsubjet2CSVDiscMax_, double() ) ) passCut( ret ,indexsubjet2CSVDiscMax_) ;
 
       setIgnored( ret ) ; 
       return (bool)ret ; 
