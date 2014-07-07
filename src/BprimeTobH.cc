@@ -1049,15 +1049,14 @@ void BprimeTobH::processGenJets(const edm::Handle<GenJetCollection>& jetsColl,
 }
 
 double BprimeTobH::calcJetY(pat::Jet it) {
-  TLorentzVector jetp4 ; 
-  jetp4.SetPtEtaPhiM(it.pt(), it.eta(), it.phi(), it.mass()) ; 
-  return jetp4.Rapidity() ; 
-  //return TMath::Log( (TMath::Sqrt( (it.mass()*it.mass()) + (it.pt()*it.pt())*
-  //        (TMath::CosH(it.eta())*TMath::CosH(it.eta())) )
-  //      + (it.pt()*TMath::SinH(it.eta()) ) ) / 
-  //    (TMath::Sqrt( (it.mass()*it.mass())
-  //                  + (it.pt()*it.pt()) )) ) ; 
-
+  //TLorentzVector jetp4 ; 
+  //jetp4.SetPtEtaPhiM(it.pt(), it.eta(), it.phi(), it.mass()) ; 
+  //return jetp4.Rapidity() ; 
+  return TMath::Log( (TMath::Sqrt( (it.mass()*it.mass()) + (it.pt()*it.pt())*
+          (TMath::CosH(it.eta())*TMath::CosH(it.eta())) )
+        + (it.pt()*TMath::SinH(it.eta()) ) ) / 
+      (TMath::Sqrt( (it.mass()*it.mass())
+                    + (it.pt()*it.pt()) )) ) ; 
 }
 
 //define this as a plug-in
